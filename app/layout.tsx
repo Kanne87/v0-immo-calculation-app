@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist_Mono } from 'next/font/google'
 import { Playfair_Display } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
@@ -45,7 +44,6 @@ export default function RootLayout({
     <html lang="de">
       <body className={`${geistMono.variable} ${playfair.variable} antialiased`}>
         {children}
-        <Analytics />
       </body>
     </html>
   )
