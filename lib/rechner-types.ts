@@ -24,6 +24,7 @@ export interface ProjectData {
   grundschuldPct: number
 
   // Bauzeit
+  baubeginn: string     // ISO date string "YYYY-MM-DD"
   fertigstellung: string // ISO date string "YYYY-MM-DD"
 
   // Miete
@@ -120,38 +121,40 @@ export const MABV_STUFEN = [
   { pct: 0.035, label: "Fassade" },
 ]
 
-// ─── Default data ───────────────────────────────────────────────
+// ─── Default data (WE-003, EG, 1 Zi, 48,27 m²) ────────────────
+// Korrigierte Werte aus Expose/Telis-Portal Stand 02.03.2026
 
 export const defaultProjectData: ProjectData = {
-  projektName: "Spandauer Tor",
-  wfl: 51.55,
-  bgf: 80.87,
-  kaufpreis: 309000,
-  grundstueck: 30900,
+  projektName: "Spandauer Tor – WE-003 (EG, 1 Zi.)",
+  wfl: 48.27,
+  bgf: 65.16,
+  kaufpreis: 319000,   // 348.000 Gesamt - 29.000 Stellplatz
+  grundstueck: 31900,  // ca. 10%
   stellplatz: 29000,
-  gestPct: 6.5,
-  notarPct: 1.5,
+  gestPct: 6.0,        // Berlin (korrigiert von 6,5%)
+  notarPct: 2.0,       // korrigiert von 1,5%
   grundschuldPct: 0.5,
-  fertigstellung: "2028-06-30",
-  mieteQm: 18.0,
-  mieteStellplatz: 60,
+  baubeginn: "2026-04-01",
+  fertigstellung: "2028-12-31",
+  mieteQm: 21.0,       // Mietgarantie lt. KV
+  mieteStellplatz: 80,  // lt. KV
   inflation: 2.5,
-  eigenkapital: 38870,
-  darlehen1Label: "KfW 297/298",
+  eigenkapital: 0,
+  darlehen1Label: "KfW 298",
   darlehen1: 150000,
   zins1: 2.83,
   tilgung1: 1.78,
   zinsbindung1: 10,
   tilgungsfrei1: 0,
   darlehen2Label: "Hausbank",
-  darlehen2: 188000,
+  darlehen2: 198000,   // 348.000 - 150.000
   zins2: 4.30,
   tilgung2: 1.50,
   zinsbindung2: 10,
   married: 1,
   einkommen: 60000,
   kirche: 0,
-  verwaltung: 480,
+  verwaltung: 807,     // (31,54 WEG + 35,70 SE) × 12
 }
 
 export const defaultTemplates: ProjectTemplate[] = [
