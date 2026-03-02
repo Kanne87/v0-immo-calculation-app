@@ -44,14 +44,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("kapitalanlage-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t)}else{document.documentElement.setAttribute("data-theme","dark")}}catch(e){document.documentElement.setAttribute("data-theme","dark")}})()`,
+          }}
+        />
+      </head>
       <body className={`${geistMono.variable} ${playfair.variable} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          storageKey="kapitalanlage-theme"
-          disableTransitionOnChange={false}
-        >
+        <ThemeProvider>
           {children}
         </ThemeProvider>
         <Analytics />

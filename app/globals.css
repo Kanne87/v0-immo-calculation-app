@@ -41,7 +41,7 @@
 }
 
 /* ── Light Theme ("Tag") ── */
-.light {
+[data-theme="light"] {
   --background: #f5f3ef;
   --foreground: #1a1a2e;
   --card: #ffffff;
@@ -128,7 +128,7 @@
   }
 
   /* Smooth theme transitions for key elements */
-  .light * {
+  [data-theme="light"] * {
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
 
