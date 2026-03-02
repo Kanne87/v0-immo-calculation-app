@@ -51,16 +51,6 @@ export function calcMarginalRate(
 }
 
 // ─── Bauzeitzinsen nach MaBV-Stufen ─────────────────────────────
-// Berechnet die tatsaechlichen Bauzeitzinsen basierend auf:
-// - Fertigstellungsdatum → Bauzeit in Monaten
-// - MaBV-Auszahlungsstufen (§3 Abs. 2 MaBV)
-// - Gewichteter Durchschnittszins der Darlehen
-//
-// Logik: Die MaBV-Stufen werden gleichmaessig ueber die Bauzeit
-// verteilt. Jede Teilauszahlung wird ab ihrem Abrufzeitpunkt bis
-// zur Fertigstellung verzinst. Waehrend der Bauzeit fallen nur
-// Zinsen an, keine Tilgung (bereitstellungszinsfreie Zeit bzw.
-// tilgungsfreie Anlaufzeit).
 export function calcBauzeitZinsen(
   darlehenGesamt: number,
   darlehen1: number,
@@ -85,17 +75,11 @@ export function calcBauzeitZinsen(
   const intervall = monate / anzahlStufen
 
   let zinsenGesamt = 0
-  let kumulierteAuszahlung = 0
 
   for (let i = 0; i < anzahlStufen; i++) {
     const auszahlungsBetrag = darlehenGesamt * MABV_STUFEN[i].pct
-    kumulierteAuszahlung += auszahlungsBetrag
-    // Restlaufzeit bis Fertigstellung in Monaten
     const restMonate = monate - (i + 1) * intervall
     if (restMonate > 0) {
-      // Zinsen auf die kumulierte Auszahlung fuer die Restlaufzeit
-      // Aber: nur auf den neuen Teilbetrag, da vorherige bereits laufen
-      // Vereinfacht: Zinsen auf Teilbetrag * Restmonate / 12
       zinsenGesamt += auszahlungsBetrag * gewZins * (restMonate / 12)
     }
   }
@@ -153,9 +137,21 @@ export function calculate(data: ProjectData): CalcResult {
   const nkGesamt = nebenkosten + bauzeitZinsen
   const gesamtInvest = gesamtKP + nkGesamt
 
-  // Gebaeudewert fuer AfA: Bauzeitzinsen gehoeren zu den Herstellungskosten
-  // und erhoehen damit die Abschreibungsmasse
-  const gebaeudeWert = kaufpreis - grundstueck + stellplatz + bauzeitZinsen
+  // ─── Steuerliche Zuordnung der Nebenkosten ───────────────────
+  // Anschaffungsnebenkosten → erhoehen AfA-Bemessungsgrundlage:
+  //   - Grunderwerbsteuer
+  //   - Notarkosten (Kaufvertragsbeurkundung + Grundbucheintrag Eigentum)
+  //   - Bauzeitzinsen (Herstellungskosten)
+  //
+  // Sofort absetzbare Werbungskosten (finanzierungsbedingt):
+  //   - Grundschuldbestellungskosten
+  const anschaffungsNK = gestBetrag + notarBetrag + bauzeitZinsen
+
+  // Gebaeudewert fuer AfA: Gebaeudeanteil + Anschaffungsnebenkosten
+  const gebaeudeWert = kaufpreis - grundstueck + stellplatz + anschaffungsNK
+
+  // Einmalige Werbungskosten Jahr 1: nur Grundschuldgebuehren
+  const einmaligeWK = grundschuldBetrag
 
   // Miete Jahr 1
   const mieteJahr = (wfl * mieteQm + mieteStellplatz) * 12
@@ -163,9 +159,6 @@ export function calculate(data: ProjectData): CalcResult {
   // Marginalsteuersatz
   const kirchePct = kirche === 0 ? 0 : kirche === 1 ? 8 : 9
   const marginalRate = calcMarginalRate(einkommen, married, kirchePct)
-
-  // Einmalige Werbungskosten (ohne Bauzeitzinsen, da diese in AfA fliessen)
-  const einmaligeWK = nebenkosten
 
   // Sonder-AfA
   const sonderAfaBasis =
