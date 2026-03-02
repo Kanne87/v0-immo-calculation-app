@@ -88,7 +88,7 @@ import type { ProjectData } from "./rechner-types"
 export function weToProjectData(we: WohneinheitData): ProjectData {
   const grundstueck = Math.round(we.kaufpreis * PROJEKT_ECKDATEN.grundstueckAnteil)
   return {
-    projektName: `${PROJEKT_ECKDATEN.name} – ${we.id} (${we.etage}, ${we.zimmer} Zi.)`,
+    projektName: `${PROJEKT_ECKDATEN.name} \u2013 ${we.id} (${we.etage}, ${we.zimmer} Zi.)`,
     wfl: we.wfl,
     bgf: Math.round(we.wfl * 1.35 * 100) / 100, // Schaetzung BGF ~1,35x WoFlV
     kaufpreis: we.kaufpreis,
@@ -97,11 +97,12 @@ export function weToProjectData(we: WohneinheitData): ProjectData {
     gestPct: PROJEKT_ECKDATEN.gestPct,
     notarPct: PROJEKT_ECKDATEN.notarPct,
     grundschuldPct: PROJEKT_ECKDATEN.grundschuldPct,
+    baubeginn: PROJEKT_ECKDATEN.baubeginn,
     fertigstellung: PROJEKT_ECKDATEN.fertigstellung,
     mieteQm: PROJEKT_ECKDATEN.mietgarantie,
     mieteStellplatz: PROJEKT_ECKDATEN.stellplatzMiete,
     inflation: 2.5,
-    eigenkapital: 0, // wird vom User angepasst
+    eigenkapital: 0, // wird automatisch berechnet
     darlehen1Label: "KfW 298",
     darlehen1: 150000,
     zins1: 2.83,

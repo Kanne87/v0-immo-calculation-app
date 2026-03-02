@@ -3,7 +3,7 @@
 import type { ProjectData, CalcResult } from "@/lib/rechner-types"
 import { eur, pct } from "@/lib/rechner-calc"
 import { FieldInput, SelectField, TextField } from "./field-input"
-import { SectionHeader, ResultRow, HighlightCard } from "./ui-parts"
+import { SectionHeader, ResultRow, HighlightCard, Divider } from "./ui-parts"
 
 interface Props {
   data: ProjectData
@@ -19,17 +19,48 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
     100 /
     12
 
+  const rate2 = (data.darlehen2 * (data.zins2 + data.tilgung2)) / 100 / 12
+
+  // Auto-berechnetes EK
+  const computedEK = Math.max(0, Math.round(calc.gesamtInvest - data.darlehen1 - data.darlehen2))
+  const finanzierungPct = calc.gesamtInvest > 0
+    ? Math.round(((data.darlehen1 + data.darlehen2) / calc.gesamtInvest) * 100)
+    : 0
+
   return (
     <>
-      <SectionHeader icon="landmark" title="Eigenkapital" />
-      <FieldInput
-        label="Eigenkapitaleinsatz"
-        value={data.eigenkapital}
-        onChange={(v) => onChange("eigenkapital", v)}
-        suffix={"\u20AC"}
-        step={1000}
-        disabled={readOnly}
+      {/* ─── Finanzierungsuebersicht ─────────────────────── */}
+      <SectionHeader
+        icon="landmark"
+        title="Finanzierung"
+        subtitle={`${finanzierungPct}% Fremdfinanzierung`}
       />
+
+      <div className="mb-4 p-3 rounded-lg border border-border bg-secondary/30">
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <div className="text-[9px] text-subtle font-mono uppercase tracking-wider">Gesamtinvest</div>
+            <div className="text-sm text-foreground font-mono mt-1">{eur(calc.gesamtInvest)}</div>
+          </div>
+          <div>
+            <div className="text-[9px] text-subtle font-mono uppercase tracking-wider">Darlehen</div>
+            <div className="text-sm text-foreground font-mono mt-1">{eur(data.darlehen1 + data.darlehen2)}</div>
+          </div>
+          <div>
+            <div className="text-[9px] text-subtle font-mono uppercase tracking-wider">Eigenkapital</div>
+            <div className={`text-sm font-mono mt-1 ${
+              computedEK > 0 ? "text-amber-400" : "text-emerald-400"
+            }`}>
+              {eur(computedEK)}
+            </div>
+          </div>
+        </div>
+        {computedEK > 0 && (
+          <div className="text-[9px] text-subtle font-mono text-center mt-2">
+            Eigenkapitalbedarf = Gesamtinvestition \u2212 Darlehen 1 \u2212 Darlehen 2
+          </div>
+        )}
+      </div>
 
       <SectionHeader
         icon="chart"
@@ -134,6 +165,15 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
           step={0.01}
           disabled={readOnly}
         />
+        <div />
+        <div>
+          <div className="text-[11px] text-subtle mb-1 font-mono">
+            Rate/Monat
+          </div>
+          <div className="text-base text-foreground font-serif py-1.5">
+            {eur(rate2, 2)}
+          </div>
+        </div>
       </div>
 
       <div className="h-px bg-border my-4" />

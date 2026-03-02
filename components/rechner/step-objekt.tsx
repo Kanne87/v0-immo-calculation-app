@@ -1,7 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import type { ProjectData, CalcResult } from "@/lib/rechner-types"
 import { eur } from "@/lib/rechner-calc"
+import { HAUS1_EINHEITEN } from "@/lib/units-data"
+import type { WohneinheitData } from "@/lib/units-data"
 import { FieldInput } from "./field-input"
 import { SectionHeader, ResultRow, Divider, ResultCard } from "./ui-parts"
 
@@ -9,15 +12,132 @@ interface Props {
   data: ProjectData
   calc: CalcResult
   onChange: <K extends keyof ProjectData>(key: K, val: ProjectData[K]) => void
+  onSelectUnit: (unit: WohneinheitData) => void
   readOnly?: boolean
 }
 
-export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
+const STATUS_COLORS: Record<string, string> = {
+  frei: "text-emerald-400",
+  reserviert: "text-amber-400",
+  verkauft: "text-subtle",
+}
+
+const STATUS_BG: Record<string, string> = {
+  frei: "bg-emerald-500/10",
+  reserviert: "bg-amber-500/10",
+  verkauft: "bg-secondary",
+}
+
+const STATUS_DOT: Record<string, string> = {
+  frei: "bg-emerald-400",
+  reserviert: "bg-amber-400",
+  verkauft: "bg-subtle",
+}
+
+export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Props) {
+  const [showUnitList, setShowUnitList] = useState(false)
+
+  // Aktuelle WE aus dem Projektnamen ableiten
+  const currentWeId = HAUS1_EINHEITEN.find(
+    (we) => data.projektName.includes(we.id)
+  )?.id
+
   // Anschaffungsnebenkosten die in AfA fliessen
   const anschaffungsNK = calc.gestBetrag + calc.notarBetrag + calc.bauzeitZinsen
 
   return (
     <>
+      {/* ─── WE-Auswahl ─────────────────────────────────────── */}
+      <SectionHeader
+        icon="grid"
+        title="Wohneinheit"
+        subtitle="Haus 1 \u2013 29 Einheiten"
+      />
+
+      {/* Aktuelle Auswahl + Toggle */}
+      <button
+        onClick={() => setShowUnitList(!showUnitList)}
+        className="w-full mb-3 p-3 rounded-lg border border-border bg-secondary/50 hover:bg-secondary transition-all text-left"
+        disabled={readOnly}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm font-mono text-foreground">
+              {currentWeId || "Wohneinheit w\u00E4hlen"}
+            </div>
+            <div className="text-[10px] text-subtle font-mono mt-0.5">
+              {data.wfl} m\u00B2 \u00B7 {eur(data.kaufpreis + data.stellplatz, 0)} \u00B7 {eur((data.kaufpreis + data.stellplatz) / data.wfl, 0)}/m\u00B2
+            </div>
+          </div>
+          <div className="text-[10px] text-subtle font-mono">
+            {showUnitList ? "\u25B2" : "\u25BC"}
+          </div>
+        </div>
+      </button>
+
+      {/* Einheiten-Liste */}
+      {showUnitList && !readOnly && (
+        <div className="mb-4 rounded-lg border border-border overflow-hidden">
+          {/* Header */}
+          <div className="grid grid-cols-[60px_50px_36px_55px_80px_48px] gap-1 px-3 py-2 bg-secondary text-[9px] text-subtle font-mono uppercase tracking-wider">
+            <span>WE</span>
+            <span>Etage</span>
+            <span>Zi.</span>
+            <span>Fl\u00E4che</span>
+            <span>Kaufpreis</span>
+            <span>Status</span>
+          </div>
+
+          {/* Einheiten */}
+          <div className="max-h-[320px] overflow-y-auto">
+            {HAUS1_EINHEITEN.map((we) => {
+              const isSelected = we.id === currentWeId
+              const isAvailable = we.status !== "verkauft"
+              return (
+                <button
+                  key={we.id}
+                  onClick={() => {
+                    onSelectUnit(we)
+                    setShowUnitList(false)
+                  }}
+                  disabled={!isAvailable}
+                  className={`w-full grid grid-cols-[60px_50px_36px_55px_80px_48px] gap-1 px-3 py-2 text-[11px] font-mono transition-all border-t border-border/50 ${
+                    isSelected
+                      ? "bg-primary/10 text-primary"
+                      : isAvailable
+                        ? "hover:bg-secondary/80 text-foreground"
+                        : "text-subtle opacity-50 cursor-not-allowed"
+                  }`}
+                >
+                  <span className={isSelected ? "font-bold" : ""}>{we.id}</span>
+                  <span>{we.etage}</span>
+                  <span>{we.zimmer}</span>
+                  <span>{we.wfl} m\u00B2</span>
+                  <span>{(we.gesamtKaufpreis / 1000).toFixed(0)}T\u20AC</span>
+                  <span className="flex items-center gap-1">
+                    <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[we.status]}`} />
+                    <span className={`text-[9px] ${STATUS_COLORS[we.status]}`}>
+                      {we.status === "frei" ? "frei" : we.status === "reserviert" ? "res." : "verk."}
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Legende */}
+          <div className="flex gap-4 px-3 py-2 bg-secondary/50 border-t border-border">
+            {["frei", "reserviert", "verkauft"].map((s) => (
+              <span key={s} className="flex items-center gap-1 text-[9px] font-mono text-subtle">
+                <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[s]}`} />
+                {s}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Objektdaten ────────────────────────────────────── */}
       <SectionHeader
         icon="building"
         title="Objektdaten"

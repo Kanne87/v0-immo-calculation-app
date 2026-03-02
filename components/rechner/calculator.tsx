@@ -5,6 +5,8 @@ import { Building2, CreditCard, BarChart3, TrendingUp, Trophy, Eye, Pencil, Shar
 import type { ProjectData, CalcResult } from "@/lib/rechner-types"
 import { defaultProjectData } from "@/lib/rechner-types"
 import { calculate, encodeProjectToParams } from "@/lib/rechner-calc"
+import { HAUS1_EINHEITEN, weToProjectData } from "@/lib/units-data"
+import type { WohneinheitData } from "@/lib/units-data"
 import { StepObjekt } from "./step-objekt"
 import { StepFinanzierung } from "./step-finanzierung"
 import { StepErgebnis } from "./step-ergebnis"
@@ -48,7 +50,21 @@ export function Calculator({
     []
   )
 
+  // WE-Auswahl: kompletten State ersetzen
+  const onSelectUnit = useCallback((unit: WohneinheitData) => {
+    setData(weToProjectData(unit))
+  }, [])
+
   const calc = useMemo(() => calculate(data), [data])
+
+  // Auto-EK: Gesamtinvestition - Darlehen1 - Darlehen2
+  // Wird nach jeder Berechnung aktualisiert, aber nur wenn sich der Wert aendert
+  useEffect(() => {
+    const autoEK = Math.max(0, Math.round(calc.gesamtInvest - data.darlehen1 - data.darlehen2))
+    if (data.eigenkapital !== autoEK) {
+      setData((prev) => ({ ...prev, eigenkapital: autoEK }))
+    }
+  }, [calc.gesamtInvest, data.darlehen1, data.darlehen2]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Propagate data changes to parent
   useEffect(() => {
@@ -180,6 +196,7 @@ export function Calculator({
             data={data}
             calc={calc}
             onChange={onChange}
+            onSelectUnit={onSelectUnit}
             readOnly={isClientView}
           />
         )}
