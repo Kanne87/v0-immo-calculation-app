@@ -17,8 +17,8 @@ interface Props {
 }
 
 export function StepErgebnis({ calc, gebaeudeWert }: Props) {
-  // Steuererstattung (positiver Wert fuer Anzeige)
   const steuerErsparnis = Math.abs(calc.j1.steuerWirkung)
+  const isUeberschuss = calc.aufwandJ1 >= 0
 
   return (
     <>
@@ -124,13 +124,13 @@ export function StepErgebnis({ calc, gebaeudeWert }: Props) {
             />
             <GoldDivider />
             <ResultRow
-              label="Aufwand p.a."
-              value={eur(calc.aufwandJ1)}
+              label="Cashflow p.a."
+              value={`${isUeberschuss ? "+ " : ""}${eur(calc.aufwandJ1)}`}
               bold
             />
             <ResultRow
-              label="AUFWAND PRO MONAT"
-              value={eur(calc.aufwandMonat, 2)}
+              label={isUeberschuss ? `\u00DCBERSCHUSS PRO MONAT` : "ZUSCHUSS PRO MONAT"}
+              value={`${isUeberschuss ? "+ " : ""}${eur(calc.aufwandMonat, 2)}`}
               highlight
             />
           </ResultCard>

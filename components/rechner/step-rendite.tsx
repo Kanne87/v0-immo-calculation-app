@@ -34,6 +34,8 @@ export function StepRendite({
   darlehen1,
   darlehen2,
 }: Props) {
+  const isUeberschuss = calc.avgMonat >= 0
+
   const chartData = [
     {
       name: "Heute",
@@ -116,8 +118,8 @@ export function StepRendite({
             bold
           />
           <ResultRow
-            label="Durchschn. mtl. Aufwand"
-            value={eur(calc.avgMonat, 2)}
+            label={isUeberschuss ? `Durchschn. mtl. \u00DCberschuss` : "Durchschn. mtl. Zuschuss"}
+            value={`${isUeberschuss ? "+ " : ""}${eur(calc.avgMonat, 2)}`}
             bold
           />
           <Divider />
@@ -127,12 +129,12 @@ export function StepRendite({
           />
           <ResultRow
             label="Restschuld (10 J.)"
-            value={`- ${eur(calc.restschuldEnde)}`}
+            value={`\u2212 ${eur(calc.restschuldEnde)}`}
             negative
           />
           <Divider />
           <ResultRow
-            label={"Moeglicher steuerfreier Gewinn"}
+            label={`M\u00F6glicher steuerfreier Gewinn`}
             value={eur(calc.vermoegenEnde)}
             highlight
           />
