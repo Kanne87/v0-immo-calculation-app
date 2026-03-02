@@ -22,7 +22,9 @@ export interface ProjectData {
   gestPct: number
   notarPct: number
   grundschuldPct: number
-  bauzeitZinsPct: number
+
+  // Bauzeit
+  fertigstellung: string // ISO date string "YYYY-MM-DD"
 
   // Miete
   mieteQm: number
@@ -88,6 +90,7 @@ export interface CalcResult {
   notarBetrag: number
   grundschuldBetrag: number
   bauzeitZinsen: number
+  bauzeitMonate: number
   jahre: YearResult[]
   j1: YearResult
   aufwandJ1: number
@@ -102,6 +105,21 @@ export interface CalcResult {
   avgMonat: number
 }
 
+// ─── MaBV Auszahlungsstufen ─────────────────────────────────────
+// §3 Abs. 2 MaBV: Raten bei Bautraegervertrag
+export const MABV_STUFEN = [
+  { pct: 0.30, label: "Beginn Erdarbeiten" },
+  { pct: 0.28, label: "Rohbau inkl. Zimmererarbeiten" },
+  { pct: 0.063, label: "Herstellung der Dachflaechen und Dachrinnen" },
+  { pct: 0.063, label: "Rohinstallation Heizung/Sanitaer/Elektro" },
+  { pct: 0.063, label: "Fenstereinbau inkl. Verglasung" },
+  { pct: 0.063, label: "Innenputz (ohne Beiputzarbeiten)" },
+  { pct: 0.063, label: "Estrich" },
+  { pct: 0.042, label: "Fliesen" },
+  { pct: 0.035, label: "Bezugsfertigkeit / Uebergabe" },
+  { pct: 0.035, label: "Fassade" },
+]
+
 // ─── Default data ───────────────────────────────────────────────
 
 export const defaultProjectData: ProjectData = {
@@ -114,7 +132,7 @@ export const defaultProjectData: ProjectData = {
   gestPct: 6.5,
   notarPct: 1.5,
   grundschuldPct: 0.5,
-  bauzeitZinsPct: 3.0,
+  fertigstellung: "2028-06-30",
   mieteQm: 18.0,
   mieteStellplatz: 60,
   inflation: 2.5,
