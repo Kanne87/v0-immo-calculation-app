@@ -53,4 +53,4 @@ jobs:
           curl -s -X POST "https://coolify.kailohmann.de/api/v1/deploy" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{"uuid": "iwkggk08oc00cg4w800cgkoc", "force": false}'
+            -d '{"uuid": "mwgwsgkswokk8wkgw4w848s4", "force": false}'
