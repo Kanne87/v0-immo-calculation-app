@@ -10,6 +10,7 @@ import { StepFinanzierung } from "./step-finanzierung"
 import { StepErgebnis } from "./step-ergebnis"
 import { StepVerlauf } from "./step-verlauf"
 import { StepRendite } from "./step-rendite"
+import { ThemeToggle } from "./theme-toggle"
 
 const steps = [
   { label: "Objekt", icon: Building2 },
@@ -99,6 +100,9 @@ export function Calculator({
           </div>
 
           <div className="flex items-center gap-1.5">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Berater/Kunden Toggle */}
             {!isSharedView && (
               <button

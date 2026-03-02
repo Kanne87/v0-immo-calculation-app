@@ -2,6 +2,7 @@
 
 import { Plus, Building2, MapPin, Users, BadgeCheck, Trash2 } from "lucide-react"
 import type { ProjectTemplate } from "@/lib/rechner-types"
+import { ThemeToggle } from "./theme-toggle"
 
 interface Props {
   projects: ProjectTemplate[]
@@ -14,8 +15,11 @@ export function ProjectList({ projects, onSelect, onNew, onDelete }: Props) {
   return (
     <div className="w-full max-w-[480px] md:max-w-[800px] mx-auto min-h-screen bg-background">
       <header className="px-5 pt-8 pb-6 border-b border-border">
-        <div className="text-[11px] text-primary font-mono tracking-[3px] uppercase mb-1">
-          Kapitalanlage-Rechner Pro
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-[11px] text-primary font-mono tracking-[3px] uppercase">
+            Kapitalanlage-Rechner Pro
+          </div>
+          <ThemeToggle />
         </div>
         <h1 className="text-2xl font-serif text-foreground font-semibold mt-1 mb-1 text-balance">
           Meine Projekte

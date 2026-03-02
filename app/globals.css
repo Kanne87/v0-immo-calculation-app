@@ -3,6 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Dark Theme (Default / "Nacht") ── */
 :root {
   --background: #0a0a14;
   --foreground: #e0e0f0;
@@ -23,8 +24,8 @@
   --border: #1a1a2e;
   --input: #12121f;
   --ring: #c5a355;
-  --chart-1: #2a4a8a;
-  --chart-2: #8a2a2a;
+  --chart-1: #3a5aaa;
+  --chart-2: #aa3a3a;
   --chart-3: #4a8a4a;
   --chart-4: #c5a355;
   --chart-5: #5a5a7a;
@@ -34,6 +35,45 @@
   --surface: #0d0d1a;
   --dimmed: #8a8a9a;
   --subtle: #5a5a7a;
+  --grid-stroke: #1a1a2e;
+  --tooltip-bg: #12121f;
+  --tooltip-border: #2a2a3e;
+}
+
+/* ── Light Theme ("Tag") ── */
+.light {
+  --background: #f5f3ef;
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a2e;
+  --primary: #9a7b30;
+  --primary-foreground: #ffffff;
+  --secondary: #eae6de;
+  --secondary-foreground: #5a5a6a;
+  --muted: #eae6de;
+  --muted-foreground: #7a7a8a;
+  --accent: #9a7b30;
+  --accent-foreground: #ffffff;
+  --destructive: #d04040;
+  --destructive-foreground: #ffffff;
+  --border: #ddd8ce;
+  --input: #ffffff;
+  --ring: #9a7b30;
+  --chart-1: #3a6abf;
+  --chart-2: #c04545;
+  --chart-3: #3a8a3a;
+  --chart-4: #9a7b30;
+  --chart-5: #8a8a9a;
+  --positive: #2a7a2a;
+  --negative: #d04040;
+  --surface: #f0ece5;
+  --dimmed: #5a5a6a;
+  --subtle: #8a8a9a;
+  --grid-stroke: #ddd8ce;
+  --tooltip-bg: #ffffff;
+  --tooltip-border: #ddd8ce;
 }
 
 @theme inline {
@@ -69,6 +109,9 @@
   --color-surface: var(--surface);
   --color-dimmed: var(--dimmed);
   --color-subtle: var(--subtle);
+  --color-grid-stroke: var(--grid-stroke);
+  --color-tooltip-bg: var(--tooltip-bg);
+  --color-tooltip-border: var(--tooltip-border);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -81,6 +124,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Smooth theme transitions for key elements */
+  .light * {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
 
   /* Custom scrollbar */
@@ -92,11 +141,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a2a3e;
+    background: var(--border);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a3a4e;
+    background: var(--muted-foreground);
   }
 
   /* Number input arrows */

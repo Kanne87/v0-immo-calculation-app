@@ -20,6 +20,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts"
+import { useChartColors } from "@/hooks/use-chart-colors"
 
 interface Props {
   calc: CalcResult
@@ -34,6 +35,7 @@ export function StepRendite({
   darlehen1,
   darlehen2,
 }: Props) {
+  const cc = useChartColors()
   const chartData = [
     {
       name: "Heute",
@@ -63,45 +65,45 @@ export function StepRendite({
         </div>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={chartData} barGap={8}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2e" />
+            <CartesianGrid strokeDasharray="3 3" stroke={cc.gridStroke} />
             <XAxis
               dataKey="name"
-              tick={{ fill: "#8a8a9a", fontSize: 11 }}
-              stroke="#1a1a2e"
+              tick={{ fill: cc.dimmed, fontSize: 11 }}
+              stroke={cc.gridStroke}
             />
             <YAxis
-              tick={{ fill: "#5a5a7a", fontSize: 10 }}
-              stroke="#1a1a2e"
+              tick={{ fill: cc.subtle, fontSize: 10 }}
+              stroke={cc.gridStroke}
               tickFormatter={(v: number) =>
                 `${Math.round(v / 1000)}k`
               }
             />
             <Tooltip
               contentStyle={{
-                background: "#12121f",
-                border: "1px solid #2a2a3e",
+                background: cc.tooltipBg,
+                border: `1px solid ${cc.tooltipBorder}`,
                 borderRadius: 8,
-                color: "#e0e0f0",
+                color: cc.foreground,
                 fontSize: 11,
               }}
               formatter={(value: number) => eur(value)}
             />
             <Legend
-              wrapperStyle={{ fontSize: 11, color: "#8a8a9a" }}
+              wrapperStyle={{ fontSize: 11, color: cc.dimmed }}
             />
             <Bar
               dataKey="Immobilienwert"
-              fill="#3a5aaa"
+              fill={cc.chart1}
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="Restschuld"
-              fill="#aa3a3a"
+              fill={cc.chart2}
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="Vermoegen"
-              fill="#4a8a4a"
+              fill={cc.chart3}
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

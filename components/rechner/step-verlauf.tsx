@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts"
+import { useChartColors } from "@/hooks/use-chart-colors"
 
 interface Props {
   calc: CalcResult
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function StepVerlauf({ calc, gesamtKP, inflation }: Props) {
+  const cc = useChartColors()
   const chartData = calc.jahre.map((j) => {
     const immobilienwert =
       gesamtKP * Math.pow(1 + inflation / 100, j.j)
@@ -135,50 +137,50 @@ export function StepVerlauf({ calc, gesamtKP, inflation }: Props) {
         <div className="bg-surface rounded-lg p-4 border border-border">
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2e" />
+              <CartesianGrid strokeDasharray="3 3" stroke={cc.gridStroke} />
               <XAxis
                 dataKey="name"
-                tick={{ fill: "#5a5a7a", fontSize: 10 }}
-                stroke="#1a1a2e"
+                tick={{ fill: cc.subtle, fontSize: 10 }}
+                stroke={cc.gridStroke}
               />
               <YAxis
-                tick={{ fill: "#5a5a7a", fontSize: 10 }}
-                stroke="#1a1a2e"
+                tick={{ fill: cc.subtle, fontSize: 10 }}
+                stroke={cc.gridStroke}
                 tickFormatter={(v: number) =>
                   `${Math.round(v / 1000)}k`
                 }
               />
               <Tooltip
                 contentStyle={{
-                  background: "#12121f",
-                  border: "1px solid #2a2a3e",
+                  background: cc.tooltipBg,
+                  border: `1px solid ${cc.tooltipBorder}`,
                   borderRadius: 8,
-                  color: "#e0e0f0",
+                  color: cc.foreground,
                   fontSize: 11,
                 }}
                 formatter={(value: number) => eur(value)}
               />
               <Legend
-                wrapperStyle={{ fontSize: 11, color: "#8a8a9a" }}
+                wrapperStyle={{ fontSize: 11, color: cc.dimmed }}
               />
               <Line
                 type="monotone"
                 dataKey="Immobilienwert"
-                stroke="#3a5aaa"
+                stroke={cc.chart1}
                 strokeWidth={2}
                 dot={false}
               />
               <Line
                 type="monotone"
                 dataKey="Restschuld"
-                stroke="#aa3a3a"
+                stroke={cc.chart2}
                 strokeWidth={2}
                 dot={false}
               />
               <Line
                 type="monotone"
                 dataKey="Vermoegen"
-                stroke="#4a8a4a"
+                stroke={cc.chart3}
                 strokeWidth={2}
                 dot={false}
               />
