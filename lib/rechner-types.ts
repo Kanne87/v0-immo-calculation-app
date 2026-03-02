@@ -87,6 +87,8 @@ export interface CalcResult {
   marginalRate: number
   einmaligeWK: number
   sonderAfaBasis: number
+  sonder7bBerechtigt: boolean
+  gebaeudeKostenProQmBGF: number
   gestBetrag: number
   notarBetrag: number
   grundschuldBetrag: number
