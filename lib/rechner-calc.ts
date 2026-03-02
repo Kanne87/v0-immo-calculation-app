@@ -51,7 +51,6 @@ export function calcMarginalRate(
 }
 
 // ─── Bauzeitzinsen nach MaBV-Stufen ─────────────────────────────
-// Berechnet ab Baubeginn bis Fertigstellung (nicht ab heute)
 export function calcBauzeitZinsen(
   darlehenGesamt: number,
   darlehen1: number,
@@ -66,13 +65,11 @@ export function calcBauzeitZinsen(
   const diffMs = fertig.getTime() - start.getTime()
   const monate = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24 * 30.44)))
 
-  // Gewichteter Durchschnittszins
   const gewZins =
     darlehenGesamt > 0
       ? (darlehen1 * zins1 + darlehen2 * zins2) / darlehenGesamt / 100
       : 0
 
-  // MaBV-Stufen gleichmaessig ueber Bauzeit verteilen
   const anzahlStufen = MABV_STUFEN.length
   const intervall = monate / anzahlStufen
 
@@ -93,6 +90,7 @@ export function calcBauzeitZinsen(
 export function calculate(data: ProjectData): CalcResult {
   const {
     wfl,
+    bgf,
     kaufpreis,
     grundstueck,
     stellplatz,
@@ -123,7 +121,6 @@ export function calculate(data: ProjectData): CalcResult {
   const notarBetrag = (gesamtKP * notarPct) / 100
   const grundschuldBetrag = (gesamtKP * grundschuldPct) / 100
 
-  // Bauzeitzinsen nach MaBV-Modell: Baubeginn bis Fertigstellung
   const darlehenGesamt = darlehen1 + darlehen2
   const bz = calcBauzeitZinsen(
     darlehenGesamt,
@@ -157,9 +154,16 @@ export function calculate(data: ProjectData): CalcResult {
   const kirchePct = kirche === 0 ? 0 : kirche === 1 ? 8 : 9
   const marginalRate = calcMarginalRate(einkommen, married, kirchePct)
 
-  // Sonder-AfA
-  const sonderAfaBasis =
-    Math.min(4000, (kaufpreis - grundstueck) / wfl) * wfl
+  // ─── Sonder-AfA §7b EStG ──────────────────────────────────────
+  // Baukostenobergrenze: max 5.200 EUR/m² BGF (inkl. Nebenraeume/TG)
+  // Wenn ueberschritten -> kein §7b, komplett
+  // Foerderhoechstgrenze: max 4.000 EUR/m² Wfl (Bemessungsgrundlage)
+  const gebaeudeKostenProQmBGF = bgf > 0 ? (kaufpreis - grundstueck) / bgf : 0
+  const sonder7bBerechtigt = gebaeudeKostenProQmBGF <= 5200
+
+  const sonderAfaBasis = sonder7bBerechtigt
+    ? Math.min(4000, (kaufpreis - grundstueck) / wfl) * wfl
+    : 0
 
   // 10-Jahres-Verlauf
   let restschuld1 = darlehen1
@@ -188,7 +192,7 @@ export function calculate(data: ProjectData): CalcResult {
     const afaDegr = restwertDegr * 0.05
     restwertDegr -= afaDegr
 
-    // Sonder-AfA §7b (4 Jahre)
+    // Sonder-AfA §7b (4 Jahre, nur wenn berechtigt)
     const afaSonder = j <= 4 ? sonderAfaBasis * 0.05 : 0
 
     // Einmalige WK nur Jahr 1
@@ -206,9 +210,12 @@ export function calculate(data: ProjectData): CalcResult {
       afaSonder
     const steuerWirkung = (steuerErgebnis * marginalRate) / 100
 
-    // Cashflow
+    // ─── Cashflow ────────────────────────────────────────────
+    // steuerWirkung ist negativ bei Verlust = Erstattung (Cash+)
+    // steuerWirkung ist positiv bei Gewinn = Nachzahlung (Cash-)
+    // Daher: miete - steuerWirkung (nicht + steuerWirkung)
     const ueberschuss =
-      mieteJ +
+      mieteJ -
       steuerWirkung -
       (zinsJ1 +
         tilgJ1 +
@@ -246,7 +253,7 @@ export function calculate(data: ProjectData): CalcResult {
   // Ergebnis Jahr 1
   const j1 = jahre[0]
   const aufwandJ1 =
-    j1.miete +
+    j1.miete -
     j1.steuerWirkung -
     (j1.rate1 + j1.rate2 + j1.verwaltung + j1.instandhaltung)
   const aufwandMonat = aufwandJ1 / 12
@@ -263,7 +270,7 @@ export function calculate(data: ProjectData): CalcResult {
   let totalCashflow = 0
   for (const jj of jahre) {
     totalCashflow +=
-      jj.miete + jj.steuerWirkung - (jj.rate1 + jj.rate2 + jj.verwaltung)
+      jj.miete - jj.steuerWirkung - (jj.rate1 + jj.rate2 + jj.verwaltung)
   }
   const avgMonat = totalCashflow / 120
 
@@ -277,6 +284,8 @@ export function calculate(data: ProjectData): CalcResult {
     marginalRate,
     einmaligeWK,
     sonderAfaBasis,
+    sonder7bBerechtigt,
+    gebaeudeKostenProQmBGF,
     gestBetrag,
     notarBetrag,
     grundschuldBetrag,
