@@ -51,17 +51,19 @@ export function calcMarginalRate(
 }
 
 // ─── Bauzeitzinsen nach MaBV-Stufen ─────────────────────────────
+// Berechnet ab Baubeginn bis Fertigstellung (nicht ab heute)
 export function calcBauzeitZinsen(
   darlehenGesamt: number,
   darlehen1: number,
   zins1: number,
   darlehen2: number,
   zins2: number,
+  baubeginn: string,
   fertigstellung: string
 ): { zinsen: number; monate: number } {
-  const now = new Date()
+  const start = new Date(baubeginn)
   const fertig = new Date(fertigstellung)
-  const diffMs = fertig.getTime() - now.getTime()
+  const diffMs = fertig.getTime() - start.getTime()
   const monate = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24 * 30.44)))
 
   // Gewichteter Durchschnittszins
@@ -97,6 +99,7 @@ export function calculate(data: ProjectData): CalcResult {
     gestPct,
     notarPct,
     grundschuldPct,
+    baubeginn,
     fertigstellung,
     mieteQm,
     mieteStellplatz,
@@ -120,7 +123,7 @@ export function calculate(data: ProjectData): CalcResult {
   const notarBetrag = (gesamtKP * notarPct) / 100
   const grundschuldBetrag = (gesamtKP * grundschuldPct) / 100
 
-  // Bauzeitzinsen nach MaBV-Modell berechnen
+  // Bauzeitzinsen nach MaBV-Modell: Baubeginn bis Fertigstellung
   const darlehenGesamt = darlehen1 + darlehen2
   const bz = calcBauzeitZinsen(
     darlehenGesamt,
@@ -128,6 +131,7 @@ export function calculate(data: ProjectData): CalcResult {
     zins1,
     darlehen2,
     zins2,
+    baubeginn,
     fertigstellung
   )
   const bauzeitZinsen = bz.zinsen
@@ -138,13 +142,6 @@ export function calculate(data: ProjectData): CalcResult {
   const gesamtInvest = gesamtKP + nkGesamt
 
   // ─── Steuerliche Zuordnung der Nebenkosten ───────────────────
-  // Anschaffungsnebenkosten → erhoehen AfA-Bemessungsgrundlage:
-  //   - Grunderwerbsteuer
-  //   - Notarkosten (Kaufvertragsbeurkundung + Grundbucheintrag Eigentum)
-  //   - Bauzeitzinsen (Herstellungskosten)
-  //
-  // Sofort absetzbare Werbungskosten (finanzierungsbedingt):
-  //   - Grundschuldbestellungskosten
   const anschaffungsNK = gestBetrag + notarBetrag + bauzeitZinsen
 
   // Gebaeudewert fuer AfA: Gebaeudeanteil + Anschaffungsnebenkosten
@@ -313,7 +310,7 @@ export function decodeParamsToProject(
   params: URLSearchParams
 ): Partial<ProjectData> {
   const result: Record<string, unknown> = {}
-  const stringKeys = ["projektName", "darlehen1Label", "darlehen2Label", "fertigstellung"]
+  const stringKeys = ["projektName", "darlehen1Label", "darlehen2Label", "baubeginn", "fertigstellung"]
   params.forEach((value, key) => {
     if (stringKeys.includes(key)) {
       result[key] = value
