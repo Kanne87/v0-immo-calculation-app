@@ -1,4 +1,5 @@
 import type { ProjectData, CalcResult, YearResult } from "./rechner-types"
+import { MABV_STUFEN } from "./rechner-types"
 
 // ─── Helpers ──────────────────────────────────────────────────────
 export const fmt = (v: number, d = 0): string => {
@@ -49,6 +50,59 @@ export function calcMarginalRate(
   return ((t2 - t1) / 1000) * 100
 }
 
+// ─── Bauzeitzinsen nach MaBV-Stufen ─────────────────────────────
+// Berechnet die tatsaechlichen Bauzeitzinsen basierend auf:
+// - Fertigstellungsdatum → Bauzeit in Monaten
+// - MaBV-Auszahlungsstufen (§3 Abs. 2 MaBV)
+// - Gewichteter Durchschnittszins der Darlehen
+//
+// Logik: Die MaBV-Stufen werden gleichmaessig ueber die Bauzeit
+// verteilt. Jede Teilauszahlung wird ab ihrem Abrufzeitpunkt bis
+// zur Fertigstellung verzinst. Waehrend der Bauzeit fallen nur
+// Zinsen an, keine Tilgung (bereitstellungszinsfreie Zeit bzw.
+// tilgungsfreie Anlaufzeit).
+export function calcBauzeitZinsen(
+  darlehenGesamt: number,
+  darlehen1: number,
+  zins1: number,
+  darlehen2: number,
+  zins2: number,
+  fertigstellung: string
+): { zinsen: number; monate: number } {
+  const now = new Date()
+  const fertig = new Date(fertigstellung)
+  const diffMs = fertig.getTime() - now.getTime()
+  const monate = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24 * 30.44)))
+
+  // Gewichteter Durchschnittszins
+  const gewZins =
+    darlehenGesamt > 0
+      ? (darlehen1 * zins1 + darlehen2 * zins2) / darlehenGesamt / 100
+      : 0
+
+  // MaBV-Stufen gleichmaessig ueber Bauzeit verteilen
+  const anzahlStufen = MABV_STUFEN.length
+  const intervall = monate / anzahlStufen
+
+  let zinsenGesamt = 0
+  let kumulierteAuszahlung = 0
+
+  for (let i = 0; i < anzahlStufen; i++) {
+    const auszahlungsBetrag = darlehenGesamt * MABV_STUFEN[i].pct
+    kumulierteAuszahlung += auszahlungsBetrag
+    // Restlaufzeit bis Fertigstellung in Monaten
+    const restMonate = monate - (i + 1) * intervall
+    if (restMonate > 0) {
+      // Zinsen auf die kumulierte Auszahlung fuer die Restlaufzeit
+      // Aber: nur auf den neuen Teilbetrag, da vorherige bereits laufen
+      // Vereinfacht: Zinsen auf Teilbetrag * Restmonate / 12
+      zinsenGesamt += auszahlungsBetrag * gewZins * (restMonate / 12)
+    }
+  }
+
+  return { zinsen: Math.round(zinsenGesamt), monate }
+}
+
 // ─── Main calculation ────────────────────────────────────────────
 export function calculate(data: ProjectData): CalcResult {
   const {
@@ -59,7 +113,7 @@ export function calculate(data: ProjectData): CalcResult {
     gestPct,
     notarPct,
     grundschuldPct,
-    bauzeitZinsPct,
+    fertigstellung,
     mieteQm,
     mieteStellplatz,
     inflation,
@@ -81,13 +135,27 @@ export function calculate(data: ProjectData): CalcResult {
   const gestBetrag = (gesamtKP * gestPct) / 100
   const notarBetrag = (gesamtKP * notarPct) / 100
   const grundschuldBetrag = (gesamtKP * grundschuldPct) / 100
-  const bauzeitZinsen = (gesamtKP * bauzeitZinsPct) / 100
+
+  // Bauzeitzinsen nach MaBV-Modell berechnen
+  const darlehenGesamt = darlehen1 + darlehen2
+  const bz = calcBauzeitZinsen(
+    darlehenGesamt,
+    darlehen1,
+    zins1,
+    darlehen2,
+    zins2,
+    fertigstellung
+  )
+  const bauzeitZinsen = bz.zinsen
+  const bauzeitMonate = bz.monate
+
   const nebenkosten = gestBetrag + notarBetrag + grundschuldBetrag
   const nkGesamt = nebenkosten + bauzeitZinsen
   const gesamtInvest = gesamtKP + nkGesamt
 
-  // Gebaeudewert fuer AfA
-  const gebaeudeWert = kaufpreis - grundstueck + stellplatz
+  // Gebaeudewert fuer AfA: Bauzeitzinsen gehoeren zu den Herstellungskosten
+  // und erhoehen damit die Abschreibungsmasse
+  const gebaeudeWert = kaufpreis - grundstueck + stellplatz + bauzeitZinsen
 
   // Miete Jahr 1
   const mieteJahr = (wfl * mieteQm + mieteStellplatz) * 12
@@ -96,8 +164,8 @@ export function calculate(data: ProjectData): CalcResult {
   const kirchePct = kirche === 0 ? 0 : kirche === 1 ? 8 : 9
   const marginalRate = calcMarginalRate(einkommen, married, kirchePct)
 
-  // Einmalige Werbungskosten
-  const einmaligeWK = nkGesamt
+  // Einmalige Werbungskosten (ohne Bauzeitzinsen, da diese in AfA fliessen)
+  const einmaligeWK = nebenkosten
 
   // Sonder-AfA
   const sonderAfaBasis =
@@ -223,6 +291,7 @@ export function calculate(data: ProjectData): CalcResult {
     notarBetrag,
     grundschuldBetrag,
     bauzeitZinsen,
+    bauzeitMonate,
     jahre,
     j1,
     aufwandJ1,
@@ -251,7 +320,7 @@ export function decodeParamsToProject(
   params: URLSearchParams
 ): Partial<ProjectData> {
   const result: Record<string, unknown> = {}
-  const stringKeys = ["projektName", "darlehen1Label", "darlehen2Label"]
+  const stringKeys = ["projektName", "darlehen1Label", "darlehen2Label", "fertigstellung"]
   params.forEach((value, key) => {
     if (stringKeys.includes(key)) {
       result[key] = value
