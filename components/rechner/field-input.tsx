@@ -4,7 +4,6 @@ import { useState, useCallback } from "react"
 
 // Formatiert eine Zahl fuer die Anzeige (de-DE: 309.000)
 function formatNumber(value: number, decimals?: number): string {
-  // Anzahl Dezimalstellen aus dem Wert ableiten, wenn nicht angegeben
   if (decimals === undefined) {
     const str = String(value)
     const dotIndex = str.indexOf(".")
@@ -44,14 +43,11 @@ export function FieldInput({
 
   const handleFocus = useCallback(() => {
     setIsFocused(true)
-    // Beim Fokus: rohen Zahlenwert anzeigen (mit Punkt als Dezimal)
     setEditValue(String(value))
   }, [value])
 
   const handleBlur = useCallback(() => {
     setIsFocused(false)
-    // Beim Blur: Eingabe parsen und zurueckgeben
-    // Komma als Dezimaltrennzeichen unterstuetzen
     const cleaned = editValue.replace(/\./g, "").replace(",", ".")
     const num = Number(cleaned)
     if (!isNaN(num)) {
@@ -69,7 +65,6 @@ export function FieldInput({
     }
   }, [])
 
-  // +/- Buttons: direkt step addieren/subtrahieren
   const increment = useCallback(() => {
     const next = value + step
     onChange(max !== undefined ? Math.min(next, max) : next)
@@ -97,7 +92,7 @@ export function FieldInput({
             className="text-subtle hover:text-foreground transition-colors text-sm font-mono leading-none select-none px-0.5"
             tabIndex={-1}
           >
-            \u2212
+            {"\u2212"}
           </button>
         )}
         {prefix && (

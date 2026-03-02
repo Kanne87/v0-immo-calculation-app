@@ -21,7 +21,6 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
 
   const rate2 = (data.darlehen2 * (data.zins2 + data.tilgung2)) / 100 / 12
 
-  // Auto-berechnetes EK
   const computedEK = Math.max(0, Math.round(calc.gesamtInvest - data.darlehen1 - data.darlehen2))
   const finanzierungPct = calc.gesamtInvest > 0
     ? Math.round(((data.darlehen1 + data.darlehen2) / calc.gesamtInvest) * 100)
@@ -29,7 +28,6 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
 
   return (
     <>
-      {/* Finanzierungsuebersicht */}
       <SectionHeader
         icon="landmark"
         title="Finanzierung"
@@ -57,7 +55,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
         </div>
         {computedEK > 0 && (
           <div className="text-[9px] text-subtle font-mono text-center mt-2">
-            Eigenkapitalbedarf = Gesamtinvestition \u2212 Darlehen 1 \u2212 Darlehen 2
+            {"Eigenkapitalbedarf = Gesamtinvestition \u2212 Darlehen 1 \u2212 Darlehen 2"}
           </div>
         )}
       </div>
@@ -181,7 +179,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
       <SectionHeader
         icon="file"
         title="Steuerdaten"
-        subtitle="Fuer Berechnung Grenzsteuersatz"
+        subtitle={"F\u00FCr Berechnung Grenzsteuersatz"}
       />
       <SelectField
         label="Familienstand"

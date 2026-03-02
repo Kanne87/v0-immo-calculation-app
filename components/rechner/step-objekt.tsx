@@ -16,45 +16,36 @@ interface Props {
   readOnly?: boolean
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  frei: "text-emerald-400",
-  reserviert: "text-amber-400",
-  verkauft: "text-subtle",
-}
-
-const STATUS_BG: Record<string, string> = {
-  frei: "bg-emerald-500/10",
-  reserviert: "bg-amber-500/10",
-  verkauft: "bg-secondary",
-}
-
 const STATUS_DOT: Record<string, string> = {
   frei: "bg-emerald-400",
   reserviert: "bg-amber-400",
   verkauft: "bg-subtle",
 }
 
+const STATUS_COLORS: Record<string, string> = {
+  frei: "text-emerald-400",
+  reserviert: "text-amber-400",
+  verkauft: "text-subtle",
+}
+
 export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Props) {
   const [showUnitList, setShowUnitList] = useState(false)
 
-  // Aktuelle WE aus dem Projektnamen ableiten
   const currentWeId = HAUS1_EINHEITEN.find(
     (we) => data.projektName.includes(we.id)
   )?.id
 
-  // Anschaffungsnebenkosten die in AfA fliessen
   const anschaffungsNK = calc.gestBetrag + calc.notarBetrag + calc.bauzeitZinsen
 
   return (
     <>
-      {/* ─── WE-Auswahl ─────────────────────────────────────── */}
+      {/* WE-Auswahl */}
       <SectionHeader
         icon="grid"
         title="Wohneinheit"
-        subtitle="Haus 1 \u2013 29 Einheiten"
+        subtitle={"Haus 1 \u2013 29 Einheiten"}
       />
 
-      {/* Aktuelle Auswahl + Toggle */}
       <button
         onClick={() => setShowUnitList(!showUnitList)}
         className="w-full mb-3 p-3 rounded-lg border border-border bg-secondary/50 hover:bg-secondary transition-all text-left"
@@ -66,7 +57,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
               {currentWeId || "Wohneinheit w\u00E4hlen"}
             </div>
             <div className="text-[10px] text-subtle font-mono mt-0.5">
-              {data.wfl} m\u00B2 \u00B7 {eur(data.kaufpreis + data.stellplatz, 0)} \u00B7 {eur((data.kaufpreis + data.stellplatz) / data.wfl, 0)}/m\u00B2
+              {data.wfl}{" m\u00B2 \u00B7 "}{eur(data.kaufpreis + data.stellplatz, 0)}{" \u00B7 "}{eur((data.kaufpreis + data.stellplatz) / data.wfl, 0)}{"/m\u00B2"}
             </div>
           </div>
           <div className="text-[10px] text-subtle font-mono">
@@ -75,20 +66,17 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
         </div>
       </button>
 
-      {/* Einheiten-Liste */}
       {showUnitList && !readOnly && (
         <div className="mb-4 rounded-lg border border-border overflow-hidden">
-          {/* Header */}
           <div className="grid grid-cols-[60px_50px_36px_55px_80px_48px] gap-1 px-3 py-2 bg-secondary text-[9px] text-subtle font-mono uppercase tracking-wider">
             <span>WE</span>
             <span>Etage</span>
             <span>Zi.</span>
-            <span>Fl\u00E4che</span>
+            <span>{"Fl\u00E4che"}</span>
             <span>Kaufpreis</span>
             <span>Status</span>
           </div>
 
-          {/* Einheiten */}
           <div className="max-h-[320px] overflow-y-auto">
             {HAUS1_EINHEITEN.map((we) => {
               const isSelected = we.id === currentWeId
@@ -112,8 +100,8 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
                   <span className={isSelected ? "font-bold" : ""}>{we.id}</span>
                   <span>{we.etage}</span>
                   <span>{we.zimmer}</span>
-                  <span>{we.wfl} m\u00B2</span>
-                  <span>{(we.gesamtKaufpreis / 1000).toFixed(0)}T\u20AC</span>
+                  <span>{we.wfl}{" m\u00B2"}</span>
+                  <span>{(we.gesamtKaufpreis / 1000).toFixed(0)}{"T\u20AC"}</span>
                   <span className="flex items-center gap-1">
                     <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[we.status]}`} />
                     <span className={`text-[9px] ${STATUS_COLORS[we.status]}`}>
@@ -125,7 +113,6 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
             })}
           </div>
 
-          {/* Legende */}
           <div className="flex gap-4 px-3 py-2 bg-secondary/50 border-t border-border">
             {["frei", "reserviert", "verkauft"].map((s) => (
               <span key={s} className="flex items-center gap-1 text-[9px] font-mono text-subtle">
@@ -137,7 +124,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
         </div>
       )}
 
-      {/* ─── Objektdaten ────────────────────────────────────── */}
+      {/* Objektdaten */}
       <SectionHeader
         icon="building"
         title="Objektdaten"
@@ -145,10 +132,10 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
       />
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
         <FieldInput
-          label="Wohnflaeche"
+          label={"Wohnfl\u00E4che"}
           value={data.wfl}
           onChange={(v) => onChange("wfl", v)}
-          suffix="m2"
+          suffix={"m\u00B2"}
           step={0.01}
           disabled={readOnly}
         />
@@ -156,7 +143,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           label="BGF"
           value={data.bgf}
           onChange={(v) => onChange("bgf", v)}
-          suffix="m2"
+          suffix={"m\u00B2"}
           step={0.01}
           disabled={readOnly}
         />
@@ -169,7 +156,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           disabled={readOnly}
         />
         <FieldInput
-          label="davon Grundstueck"
+          label={"davon Grundst\u00FCck"}
           value={data.grundstueck}
           onChange={(v) => onChange("grundstueck", v)}
           suffix={"\u20AC"}
@@ -196,7 +183,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
 
       <SectionHeader
         icon="receipt"
-        title="Nebenkosten & Bauzeit"
+        title={"Nebenkosten & Bauzeit"}
         subtitle="Berlin = 6,0% GrESt, kein Makler (Direktvertrieb)"
       />
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
@@ -217,7 +204,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           disabled={readOnly}
         />
         <FieldInput
-          label="Grundschuldgebuehren"
+          label={"Grundschuldgeb\u00FChren"}
           value={data.grundschuldPct}
           onChange={(v) => onChange("grundschuldPct", v)}
           suffix="%"
@@ -253,7 +240,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
 
       <ResultCard>
         <div className="text-[10px] text-subtle uppercase tracking-wider mb-2">
-          Anschaffungsnebenkosten {"\u2192"} erh\u00F6hen AfA-Basis
+          {"Anschaffungsnebenkosten \u2192 erh\u00F6hen AfA-Basis"}
         </div>
         <ResultRow label="Grunderwerbsteuer" value={eur(calc.gestBetrag)} />
         <ResultRow label="Notar + Grundbuch" value={eur(calc.notarBetrag)} />
@@ -262,7 +249,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           value={eur(calc.bauzeitZinsen)}
         />
         <div className="text-[10px] text-subtle mt-0.5 mb-2 pl-1">
-          MaBV-Auszahlungsstufen mit gew. \u00D8-Zins, Bauzeit {data.baubeginn} bis {data.fertigstellung}
+          {"MaBV-Auszahlungsstufen mit gew. \u00D8-Zins, Bauzeit "}{data.baubeginn}{" bis "}{data.fertigstellung}
         </div>
         <Divider />
         <ResultRow
@@ -274,7 +261,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
         <div className="mt-3 text-[10px] text-subtle uppercase tracking-wider mb-2">
           Sofort absetzbare Werbungskosten (Jahr 1)
         </div>
-        <ResultRow label="Grundschuldgebuehren" value={eur(calc.grundschuldBetrag)} />
+        <ResultRow label={"Grundschuldgeb\u00FChren"} value={eur(calc.grundschuldBetrag)} />
         <Divider />
 
         <ResultRow
@@ -294,7 +281,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           bold
         />
         <div className="text-[10px] text-subtle mt-0.5 mb-1 pl-1">
-          = Kaufpreis {eur(data.kaufpreis)} - Grundst\u00FCck {eur(data.grundstueck)} + Stellplatz {eur(data.stellplatz)} + Anschaffungs-NK {eur(anschaffungsNK)}
+          {"= Kaufpreis "}{eur(data.kaufpreis)}{" \u2212 Grundst\u00FCck "}{eur(data.grundstueck)}{" + Stellplatz "}{eur(data.stellplatz)}{" + Anschaffungs-NK "}{eur(anschaffungsNK)}
         </div>
       </ResultCard>
 
