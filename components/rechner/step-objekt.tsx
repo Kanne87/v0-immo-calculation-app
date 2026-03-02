@@ -36,6 +36,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
   )?.id
 
   const anschaffungsNK = calc.gestBetrag + calc.notarBetrag + calc.bauzeitZinsen
+  const gesamtKP = data.kaufpreis + data.stellplatz
 
   return (
     <>
@@ -43,7 +44,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
       <SectionHeader
         icon="grid"
         title="Wohneinheit"
-        subtitle={"Haus 1 \u2013 29 Einheiten"}
+        subtitle={`Haus 1 \u2013 29 Einheiten`}
       />
 
       <button
@@ -54,14 +55,14 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
         <div className="flex items-center justify-between">
           <div>
             <div className="text-sm font-mono text-foreground">
-              {currentWeId || "Wohneinheit w\u00E4hlen"}
+              {currentWeId || `Wohneinheit w\u00E4hlen`}
             </div>
             <div className="text-[10px] text-subtle font-mono mt-0.5">
-              {data.wfl}{" m\u00B2 \u00B7 "}{eur(data.kaufpreis + data.stellplatz, 0)}{" \u00B7 "}{eur((data.kaufpreis + data.stellplatz) / data.wfl, 0)}{"/m\u00B2"}
+              {data.wfl}{` m\u00B2 \u00B7 `}{eur(gesamtKP, 0)}{` \u00B7 `}{eur(gesamtKP / data.wfl, 0)}{`/m\u00B2`}
             </div>
           </div>
           <div className="text-[10px] text-subtle font-mono">
-            {showUnitList ? "\u25B2" : "\u25BC"}
+            {showUnitList ? `\u25B2` : `\u25BC`}
           </div>
         </div>
       </button>
@@ -72,7 +73,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
             <span>WE</span>
             <span>Etage</span>
             <span>Zi.</span>
-            <span>{"Fl\u00E4che"}</span>
+            <span>{`Fl\u00E4che`}</span>
             <span>Kaufpreis</span>
             <span>Status</span>
           </div>
@@ -100,8 +101,8 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
                   <span className={isSelected ? "font-bold" : ""}>{we.id}</span>
                   <span>{we.etage}</span>
                   <span>{we.zimmer}</span>
-                  <span>{we.wfl}{" m\u00B2"}</span>
-                  <span>{(we.gesamtKaufpreis / 1000).toFixed(0)}{"T\u20AC"}</span>
+                  <span>{we.wfl}{` m\u00B2`}</span>
+                  <span>{(we.gesamtKaufpreis / 1000).toFixed(0)}{`T\u20AC`}</span>
                   <span className="flex items-center gap-1">
                     <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[we.status]}`} />
                     <span className={`text-[9px] ${STATUS_COLORS[we.status]}`}>
@@ -132,10 +133,10 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
       />
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
         <FieldInput
-          label={"Wohnfl\u00E4che"}
+          label={`Wohnfl\u00E4che`}
           value={data.wfl}
           onChange={(v) => onChange("wfl", v)}
-          suffix={"m\u00B2"}
+          suffix={`m\u00B2`}
           step={0.01}
           disabled={readOnly}
         />
@@ -143,7 +144,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           label="BGF"
           value={data.bgf}
           onChange={(v) => onChange("bgf", v)}
-          suffix={"m\u00B2"}
+          suffix={`m\u00B2`}
           step={0.01}
           disabled={readOnly}
         />
@@ -151,15 +152,15 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           label="Kaufpreis Wohnung"
           value={data.kaufpreis}
           onChange={(v) => onChange("kaufpreis", v)}
-          suffix={"\u20AC"}
+          suffix={`\u20AC`}
           step={1000}
           disabled={readOnly}
         />
         <FieldInput
-          label={"davon Grundst\u00FCck"}
+          label={`davon Grundst\u00FCck`}
           value={data.grundstueck}
           onChange={(v) => onChange("grundstueck", v)}
-          suffix={"\u20AC"}
+          suffix={`\u20AC`}
           step={1000}
           disabled={readOnly}
         />
@@ -167,16 +168,16 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           label="Stellplatz"
           value={data.stellplatz}
           onChange={(v) => onChange("stellplatz", v)}
-          suffix={"\u20AC"}
+          suffix={`\u20AC`}
           step={1000}
           disabled={readOnly}
         />
         <div>
           <div className="text-[11px] text-subtle mb-1 font-mono">
-            {"Kaufpreis/m\u00B2"}
+            {`Kaufpreis/m\u00B2`}
           </div>
           <div className="text-lg text-primary font-serif py-1.5">
-            {eur(data.kaufpreis / data.wfl, 0)}{"/m\u00B2"}
+            {eur(gesamtKP / data.wfl, 0)}{`/m\u00B2`}
           </div>
         </div>
       </div>
@@ -204,7 +205,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           disabled={readOnly}
         />
         <FieldInput
-          label={"Grundschuldgeb\u00FChren"}
+          label={`Grundschuldgeb\u00FChren`}
           value={data.grundschuldPct}
           onChange={(v) => onChange("grundschuldPct", v)}
           suffix="%"
@@ -240,7 +241,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
 
       <ResultCard>
         <div className="text-[10px] text-subtle uppercase tracking-wider mb-2">
-          {"Anschaffungsnebenkosten \u2192 erh\u00F6hen AfA-Basis"}
+          {`Anschaffungsnebenkosten \u2192 erh\u00F6hen AfA-Basis`}
         </div>
         <ResultRow label="Grunderwerbsteuer" value={eur(calc.gestBetrag)} />
         <ResultRow label="Notar + Grundbuch" value={eur(calc.notarBetrag)} />
@@ -249,7 +250,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           value={eur(calc.bauzeitZinsen)}
         />
         <div className="text-[10px] text-subtle mt-0.5 mb-2 pl-1">
-          {"MaBV-Auszahlungsstufen mit gew. \u00D8-Zins, Bauzeit "}{data.baubeginn}{" bis "}{data.fertigstellung}
+          {`MaBV-Auszahlungsstufen mit gew. \u00D8-Zins, Bauzeit `}{data.baubeginn}{` bis `}{data.fertigstellung}
         </div>
         <Divider />
         <ResultRow
@@ -261,7 +262,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
         <div className="mt-3 text-[10px] text-subtle uppercase tracking-wider mb-2">
           Sofort absetzbare Werbungskosten (Jahr 1)
         </div>
-        <ResultRow label={"Grundschuldgeb\u00FChren"} value={eur(calc.grundschuldBetrag)} />
+        <ResultRow label={`Grundschuldgeb\u00FChren`} value={eur(calc.grundschuldBetrag)} />
         <Divider />
 
         <ResultRow
@@ -281,7 +282,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
           bold
         />
         <div className="text-[10px] text-subtle mt-0.5 mb-1 pl-1">
-          {"= Kaufpreis "}{eur(data.kaufpreis)}{" \u2212 Grundst\u00FCck "}{eur(data.grundstueck)}{" + Stellplatz "}{eur(data.stellplatz)}{" + Anschaffungs-NK "}{eur(anschaffungsNK)}
+          {`= Kaufpreis `}{eur(data.kaufpreis)}{` \u2212 Grundst\u00FCck `}{eur(data.grundstueck)}{` + Stellplatz `}{eur(data.stellplatz)}{` + Anschaffungs-NK `}{eur(anschaffungsNK)}
         </div>
       </ResultCard>
 
@@ -293,10 +294,10 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
         />
         <div className="grid grid-cols-2 gap-x-3 gap-y-0">
           <FieldInput
-            label={"Kaltmiete/m\u00B2"}
+            label={`Kaltmiete/m\u00B2`}
             value={data.mieteQm}
             onChange={(v) => onChange("mieteQm", v)}
-            suffix={"\u20AC/m\u00B2"}
+            suffix={`\u20AC/m\u00B2`}
             step={0.5}
             disabled={readOnly}
           />
@@ -304,7 +305,7 @@ export function StepObjekt({ data, calc, onChange, onSelectUnit, readOnly }: Pro
             label="Stellplatz/Monat"
             value={data.mieteStellplatz}
             onChange={(v) => onChange("mieteStellplatz", v)}
-            suffix={"\u20AC"}
+            suffix={`\u20AC`}
             step={10}
             disabled={readOnly}
           />
