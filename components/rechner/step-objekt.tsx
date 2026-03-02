@@ -77,7 +77,7 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
       <SectionHeader
         icon="receipt"
         title="Nebenkosten & Bauzeit"
-        subtitle="Berlin = 6,5% GrESt, kein Makler (Direktvertrieb)"
+        subtitle="Berlin = 6,0% GrESt, kein Makler (Direktvertrieb)"
       />
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
         <FieldInput
@@ -104,6 +104,19 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
           step={0.1}
           disabled={readOnly}
         />
+        <div />
+        <div>
+          <div className="text-[11px] text-subtle mb-1 font-mono">
+            Baubeginn
+          </div>
+          <input
+            type="date"
+            value={data.baubeginn}
+            onChange={(e) => onChange("baubeginn", e.target.value)}
+            disabled={readOnly}
+            className="w-full text-sm font-mono bg-transparent border border-border rounded px-2 py-1.5 text-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </div>
         <div>
           <div className="text-[11px] text-subtle mb-1 font-mono">
             Fertigstellung (geplant)
@@ -129,9 +142,7 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
           value={eur(calc.bauzeitZinsen)}
         />
         <div className="text-[10px] text-subtle mt-0.5 mb-2 pl-1">
-          MaBV-Auszahlungsstufen mit gew. \u00D8-Zins {calc.bauzeitMonate > 0
-            ? `\u00FCber ${calc.bauzeitMonate} Monate`
-            : ""}
+          MaBV-Auszahlungsstufen mit gew. \u00D8-Zins, Bauzeit {data.baubeginn} bis {data.fertigstellung}
         </div>
         <Divider />
         <ResultRow
