@@ -1,5 +1,21 @@
 "use client"
 
+import { useState, useCallback } from "react"
+
+// Formatiert eine Zahl fuer die Anzeige (de-DE: 309.000)
+function formatNumber(value: number, decimals?: number): string {
+  // Anzahl Dezimalstellen aus dem Wert ableiten, wenn nicht angegeben
+  if (decimals === undefined) {
+    const str = String(value)
+    const dotIndex = str.indexOf(".")
+    decimals = dotIndex >= 0 ? Math.min(str.length - dotIndex - 1, 4) : 0
+  }
+  return value.toLocaleString("de-DE", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })
+}
+
 interface FieldInputProps {
   label: string
   value: number
@@ -23,6 +39,47 @@ export function FieldInput({
   max,
   disabled,
 }: FieldInputProps) {
+  const [isFocused, setIsFocused] = useState(false)
+  const [editValue, setEditValue] = useState("")
+
+  const handleFocus = useCallback(() => {
+    setIsFocused(true)
+    // Beim Fokus: rohen Zahlenwert anzeigen (mit Punkt als Dezimal)
+    setEditValue(String(value))
+  }, [value])
+
+  const handleBlur = useCallback(() => {
+    setIsFocused(false)
+    // Beim Blur: Eingabe parsen und zurueckgeben
+    // Komma als Dezimaltrennzeichen unterstuetzen
+    const cleaned = editValue.replace(/\./g, "").replace(",", ".")
+    const num = Number(cleaned)
+    if (!isNaN(num)) {
+      onChange(num)
+    }
+  }, [editValue, onChange])
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditValue(e.target.value)
+  }, [])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      ;(e.target as HTMLInputElement).blur()
+    }
+  }, [])
+
+  // +/- Buttons: direkt step addieren/subtrahieren
+  const increment = useCallback(() => {
+    const next = value + step
+    onChange(max !== undefined ? Math.min(next, max) : next)
+  }, [value, step, max, onChange])
+
+  const decrement = useCallback(() => {
+    const next = value - step
+    onChange(min !== undefined ? Math.max(next, min) : next)
+  }, [value, step, min, onChange])
+
   return (
     <div className="mb-3">
       <label className="block text-[11px] text-dimmed mb-1 font-mono tracking-wide">
@@ -31,25 +88,56 @@ export function FieldInput({
       <div
         className={`flex items-center gap-1.5 bg-input border border-border rounded-md px-2.5 py-1.5 ${
           disabled ? "opacity-50" : ""
-        }`}
+        } ${isFocused ? "ring-1 ring-primary border-primary" : ""}`}
       >
+        {!disabled && (
+          <button
+            type="button"
+            onClick={decrement}
+            className="text-subtle hover:text-foreground transition-colors text-sm font-mono leading-none select-none px-0.5"
+            tabIndex={-1}
+          >
+            \u2212
+          </button>
+        )}
         {prefix && (
           <span className="text-subtle text-[13px]">{prefix}</span>
         )}
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          step={step}
-          min={min}
-          max={max}
-          disabled={disabled}
-          className="flex-1 bg-transparent border-none outline-none text-foreground text-sm font-serif w-full disabled:cursor-not-allowed"
-        />
+        {isFocused ? (
+          <input
+            type="text"
+            inputMode="decimal"
+            value={editValue}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            autoFocus
+            className="flex-1 bg-transparent border-none outline-none text-foreground text-sm font-serif w-full"
+          />
+        ) : (
+          <input
+            type="text"
+            value={formatNumber(value)}
+            onFocus={handleFocus}
+            readOnly={disabled}
+            disabled={disabled}
+            className="flex-1 bg-transparent border-none outline-none text-foreground text-sm font-serif w-full disabled:cursor-not-allowed cursor-text"
+          />
+        )}
         {suffix && (
           <span className="text-subtle text-xs whitespace-nowrap">
             {suffix}
           </span>
+        )}
+        {!disabled && (
+          <button
+            type="button"
+            onClick={increment}
+            className="text-subtle hover:text-foreground transition-colors text-sm font-mono leading-none select-none px-0.5"
+            tabIndex={-1}
+          >
+            +
+          </button>
         )}
       </div>
     </div>

@@ -3,7 +3,7 @@
 import type { ProjectData, CalcResult } from "@/lib/rechner-types"
 import { eur, pct } from "@/lib/rechner-calc"
 import { FieldInput, SelectField, TextField } from "./field-input"
-import { SectionHeader, ResultRow, HighlightCard, Divider } from "./ui-parts"
+import { SectionHeader, ResultRow, HighlightCard } from "./ui-parts"
 
 interface Props {
   data: ProjectData
@@ -29,7 +29,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
 
   return (
     <>
-      {/* ─── Finanzierungsuebersicht ─────────────────────── */}
+      {/* Finanzierungsuebersicht */}
       <SectionHeader
         icon="landmark"
         title="Finanzierung"
