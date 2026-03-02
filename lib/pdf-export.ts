@@ -1,20 +1,20 @@
 import type { ProjectData, CalcResult } from "./rechner-types"
+import type { AdvisorProfile } from "./advisor"
 import { fmt, eur, pct } from "./rechner-calc"
 
-// Using jsPDF for client-side PDF generation
 export async function generatePdf(
   data: ProjectData,
-  calc: CalcResult
+  calc: CalcResult,
+  advisor?: AdvisorProfile
 ) {
   const { default: jsPDF } = await import("jspdf")
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" })
-  const pw = 210 // page width
+  const pw = 210
   const margin = 20
-  const cw = pw - 2 * margin // content width
+  const cw = pw - 2 * margin
   let y = 0
 
-  // Colors
   const gold: [number, number, number] = [197, 163, 85]
   const dark: [number, number, number] = [10, 10, 20]
   const text: [number, number, number] = [224, 224, 240]
@@ -34,13 +34,23 @@ export async function generatePdf(
     doc.text(
       "Hinweis: Diese Berechnung dient der Orientierung und stellt keine Steuer- oder Finanzberatung dar.",
       margin,
-      287
+      280
     )
     doc.text(
       "Steuerliche Auswirkungen sind individuell durch einen Steuerberater zu pruefen. Alle Angaben ohne Gewaehr.",
       margin,
-      291
+      284
     )
+
+    // Advisor contact in footer
+    if (advisor) {
+      doc.setFontSize(7)
+      doc.setTextColor(...gold)
+      const advisorLine = `${advisor.firstName} ${advisor.lastName} | ${advisor.phone} | ${advisor.email}`
+      doc.text(advisorLine, pw - margin, 280, { align: "right" })
+      const addressLine = `${advisor.street}, ${advisor.zip} ${advisor.city}`
+      doc.text(addressLine, pw - margin, 284, { align: "right" })
+    }
   }
 
   function heading(text: string) {
@@ -80,14 +90,13 @@ export async function generatePdf(
   }
 
   // ─── PAGE 1: Cover + Objekt ────────────────────────────────────
-  // Dark background
   doc.setFillColor(...dark)
   doc.rect(0, 0, pw, 297, "F")
   drawFooter()
 
   // Header bar
   doc.setFillColor(...cardBg)
-  doc.rect(0, 0, pw, 45, "F")
+  doc.rect(0, 0, pw, 50, "F")
   doc.setFontSize(8)
   doc.setTextColor(...gold)
   doc.text("KAPITALANLAGE-RECHNER PRO", margin, 15)
@@ -98,9 +107,21 @@ export async function generatePdf(
   doc.setTextColor(...dimmed)
   const today = new Date().toLocaleDateString("de-DE")
   doc.text(`Erstellt am ${today}`, margin, 36)
-  doc.text("Immobilien | KfW | Sonder-AfA", pw - margin, 36, { align: "right" })
 
-  y = 55
+  // Advisor info in header
+  if (advisor) {
+    doc.setFontSize(9)
+    doc.setTextColor(...text)
+    doc.text(`${advisor.firstName} ${advisor.lastName}`, pw - margin, 15, { align: "right" })
+    doc.setFontSize(8)
+    doc.setTextColor(...dimmed)
+    doc.text(advisor.phone, pw - margin, 21, { align: "right" })
+    doc.text(advisor.email, pw - margin, 26, { align: "right" })
+  } else {
+    doc.text("Immobilien | KfW | Sonder-AfA", pw - margin, 36, { align: "right" })
+  }
+
+  y = 60
 
   heading("Objektdaten")
   row("Wohnflaeche", `${fmt(data.wfl, 2)} m2`)
@@ -108,7 +129,7 @@ export async function generatePdf(
   row("Kaufpreis Wohnung", eur(data.kaufpreis))
   row("davon Grundstueck", eur(data.grundstueck))
   row("Stellplatz", eur(data.stellplatz))
-  row("Kaufpreis/m2", `${eur(data.kaufpreis / data.wfl, 0)}/m2`, { bold: true })
+  row("Kaufpreis/m2", `${eur((data.kaufpreis + data.stellplatz) / data.wfl, 0)}/m2`, { bold: true })
   y += 4
 
   heading("Kaufnebenkosten")
@@ -153,22 +174,33 @@ export async function generatePdf(
   drawFooter()
   y = margin
 
+  const isUeberschuss = calc.aufwandJ1 >= 0
+  const steuerErsparnis = Math.abs(calc.j1.steuerWirkung)
+
   heading("Einkuenfte V+V (Jahr 1)")
   row("Mieteinnahmen", `+ ${eur(calc.j1.miete)}`)
   row("Zinsen", `- ${eur(calc.j1.zinsen)}`, { neg: true })
   row("Verwaltung", `- ${eur(calc.j1.verwaltung)}`, { neg: true })
   row("Einmalige Werbungskosten", `- ${eur(calc.j1.einmalig)}`, { neg: true })
   row("AfA degressiv (5%)", `- ${eur(calc.j1.afaDegr)}`, { neg: true })
-  row("Sonder-AfA 7b (5%)", `- ${eur(calc.j1.afaSonder)}`, { neg: true })
+  if (calc.sonder7bBerechtigt) {
+    row("Sonder-AfA 7b (5%)", `- ${eur(calc.j1.afaSonder)}`, { neg: true })
+  } else {
+    row("Sonder-AfA 7b", "entfaellt (Baukostenobergrenze)")
+  }
   divider()
   row("Steuerliches Ergebnis", eur(calc.j1.steuerErgebnis), { bold: true })
-  row("Steuerwirkung", eur(Math.abs(calc.j1.steuerWirkung)), { highlight: true })
+  row(
+    calc.j1.steuerWirkung < 0 ? "Steuererstattung" : "Steuerlast",
+    eur(steuerErsparnis),
+    { highlight: true }
+  )
   y += 8
 
   heading("Cashflow (Jahr 1)")
   subheading("EINNAHMEN")
   row("Kaltmiete", `+ ${eur(calc.mieteJahr)}`)
-  row("Steuererstattung", `+ ${eur(Math.abs(calc.j1.steuerWirkung))}`)
+  row("Steuererstattung", `+ ${eur(steuerErsparnis)}`)
   divider()
   subheading("AUSGABEN")
   row("Rate Darlehen 1", `- ${eur(calc.j1.rate1)}`)
@@ -176,8 +208,12 @@ export async function generatePdf(
   row("Verwaltung", `- ${eur(calc.j1.verwaltung)}`)
   row("Instandhaltung", `- ${eur(calc.gebaeudeWert * 0.00036 * 12)}`)
   goldDivider()
-  row("Aufwand p.a.", eur(calc.aufwandJ1), { bold: true })
-  row("AUFWAND PRO MONAT", eur(calc.aufwandMonat, 2), { highlight: true })
+  row("Cashflow p.a.", `${isUeberschuss ? "+ " : ""}${eur(calc.aufwandJ1)}`, { bold: true })
+  row(
+    isUeberschuss ? "UEBERSCHUSS PRO MONAT" : "ZUSCHUSS PRO MONAT",
+    `${isUeberschuss ? "+ " : ""}${eur(calc.aufwandMonat, 2)}`,
+    { highlight: true }
+  )
 
   // ─── PAGE 3: 10-Jahres-Verlauf ────────────────────────────────
   newPage()
@@ -189,7 +225,6 @@ export async function generatePdf(
   heading("10-Jahres-Verlauf")
   y += 2
 
-  // Table header
   const cols = ["Jahr", "Miete", "AfA ges.", "Steuerl.", "Steuerwirk.", "Restschuld"]
   const colW = [15, 28, 28, 28, 28, 35]
   let cx = margin
@@ -206,7 +241,6 @@ export async function generatePdf(
   })
   y += 6
 
-  // Table rows
   calc.jahre.forEach((j, idx) => {
     cx = margin
     doc.setFontSize(8)
@@ -255,11 +289,17 @@ export async function generatePdf(
   drawFooter()
   y = margin
 
+  const isAvgUeberschuss = calc.avgMonat >= 0
+
   heading("Vermoegensbildung (10 Jahre)")
   y += 6
 
   row("Eingesetztes Eigenkapital", eur(data.eigenkapital), { bold: true })
-  row("Durchschn. mtl. Aufwand", eur(calc.avgMonat, 2), { bold: true })
+  row(
+    isAvgUeberschuss ? "Durchschn. mtl. Ueberschuss" : "Durchschn. mtl. Zuschuss",
+    `${isAvgUeberschuss ? "+ " : ""}${eur(calc.avgMonat, 2)}`,
+    { bold: true }
+  )
   divider()
   row("Immobilienwert (10 J.)", eur(calc.wertsteigerung))
   row("Restschuld (10 J.)", `- ${eur(calc.restschuldEnde)}`, { neg: true })
@@ -269,20 +309,19 @@ export async function generatePdf(
   goldDivider()
   row("RENDITE NACH STEUER", pct(calc.rendite), { highlight: true })
 
-  // Simple bar visualization
+  // Bar visualization
   y += 12
   subheading("Vergleich: Heute vs. In 10 Jahren")
   y += 6
 
   const barMaxVal = Math.max(calc.gesamtKP, calc.wertsteigerung, data.darlehen1 + data.darlehen2)
   const barWidth = 60
-  const barMaxW = barWidth
 
   function drawBar(label: string, value: number, color: [number, number, number]) {
     doc.setFontSize(8)
     doc.setTextColor(...dimmed)
     doc.text(label, margin, y)
-    const w = Math.max(2, (value / barMaxVal) * barMaxW)
+    const w = Math.max(2, (value / barMaxVal) * barWidth)
     doc.setFillColor(...color)
     doc.roundedRect(margin + 55, y - 3, w, 4, 1, 1, "F")
     doc.setTextColor(...text)
@@ -301,6 +340,5 @@ export async function generatePdf(
   drawBar("Restschuld", calc.restschuldEnde, [170, 58, 58])
   drawBar("Vermoegen", calc.vermoegenEnde, [74, 138, 74])
 
-  // Save
   doc.save(`${data.projektName.replace(/\s+/g, "-")}-Analyse.pdf`)
 }

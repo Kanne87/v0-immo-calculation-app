@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import { useSession } from "next-auth/react"
 import type { ProjectTemplate, ProjectData, CalcResult } from "@/lib/rechner-types"
 import {
   defaultProjectData,
@@ -10,15 +11,62 @@ import {
 import { decodeParamsToProject } from "@/lib/rechner-calc"
 import { ProjectList } from "@/components/rechner/project-list"
 import { Calculator } from "@/components/rechner/calculator"
+import { Onboarding } from "@/components/rechner/onboarding"
 import { generatePdf } from "@/lib/pdf-export"
+import type { AdvisorProfile } from "@/lib/advisor"
+import {
+  fetchAdvisorProfile,
+  saveAdvisorProfile,
+  getCachedProfile,
+} from "@/lib/advisor"
 
 function AppContent() {
   const searchParams = useSearchParams()
-  const [view, setView] = useState<"list" | "calc">("list")
+  const { data: session, status } = useSession()
+  const [view, setView] = useState<"loading" | "onboarding" | "list" | "calc">("loading")
   const [projects, setProjects] = useState<ProjectTemplate[]>(defaultTemplates)
   const [activeData, setActiveData] = useState<ProjectData | null>(null)
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
   const [isSharedView, setIsSharedView] = useState(false)
+  const [advisorProfile, setAdvisorProfile] = useState<AdvisorProfile | null>(null)
+
+  // Load advisor profile on mount
+  useEffect(() => {
+    if (status !== "authenticated") return
+
+    async function loadProfile() {
+      // Quick check: localStorage cache
+      const cached = getCachedProfile()
+      if (cached) {
+        setAdvisorProfile(cached)
+        setView("list")
+      }
+
+      // Then verify with server
+      const serverProfile = await fetchAdvisorProfile()
+      if (serverProfile) {
+        setAdvisorProfile(serverProfile)
+        if (view === "loading") setView("list")
+      } else if (!cached) {
+        setView("onboarding")
+      }
+    }
+
+    loadProfile()
+  }, [status])
+
+  // Handle shared URL
+  useEffect(() => {
+    if (view !== "list" && view !== "calc") return
+    const shared = searchParams.get("shared")
+    if (shared === "1") {
+      const decoded = decodeParamsToProject(searchParams)
+      const data = { ...defaultProjectData, ...decoded }
+      setActiveData(data)
+      setIsSharedView(true)
+      setView("calc")
+    }
+  }, [searchParams, view])
 
   // Load projects from localStorage
   useEffect(() => {
@@ -47,17 +95,23 @@ function AppContent() {
     }
   }, [projects])
 
-  // Handle shared URL
-  useEffect(() => {
-    const shared = searchParams.get("shared")
-    if (shared === "1") {
-      const decoded = decodeParamsToProject(searchParams)
-      const data = { ...defaultProjectData, ...decoded }
-      setActiveData(data)
-      setIsSharedView(true)
-      setView("calc")
-    }
-  }, [searchParams])
+  const handleOnboardingComplete = useCallback(
+    async (profileData: Omit<AdvisorProfile, "authentikSub" | "createdAt" | "updatedAt">) => {
+      const saved = await saveAdvisorProfile(profileData)
+      if (saved) {
+        setAdvisorProfile(saved)
+      } else {
+        // Fallback: create local profile
+        const localProfile: AdvisorProfile = {
+          ...profileData,
+          authentikSub: session?.user?.id || "local",
+        }
+        setAdvisorProfile(localProfile)
+      }
+      setView("list")
+    },
+    [session]
+  )
 
   const handleSelectProject = useCallback((project: ProjectTemplate) => {
     setActiveData({ ...project.defaults })
@@ -88,7 +142,6 @@ function AppContent() {
   }, [])
 
   const handleBack = useCallback(() => {
-    // If we have active data, save it back to the project
     if (activeData && activeProjectId) {
       setProjects((prev) =>
         prev.map((p) =>
@@ -102,7 +155,6 @@ function AppContent() {
     setActiveData(null)
     setActiveProjectId(null)
     setIsSharedView(false)
-    // Clean URL if shared
     if (searchParams.get("shared")) {
       window.history.replaceState({}, "", "/")
     }
@@ -110,15 +162,38 @@ function AppContent() {
 
   const handleExportPdf = useCallback(
     (pdfData: ProjectData, pdfCalc: CalcResult) => {
-      generatePdf(pdfData, pdfCalc)
+      generatePdf(pdfData, pdfCalc, advisorProfile || undefined)
     },
-    []
+    [advisorProfile]
   )
 
   const handleDataChange = useCallback((newData: ProjectData) => {
     setActiveData(newData)
   }, [])
 
+  // Loading state
+  if (status === "loading" || view === "loading") {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-primary font-mono text-sm animate-pulse">
+          Lade Kapitalanlage-Rechner...
+        </div>
+      </div>
+    )
+  }
+
+  // Onboarding
+  if (view === "onboarding") {
+    return (
+      <Onboarding
+        email={session?.user?.email || undefined}
+        name={session?.user?.name || undefined}
+        onComplete={handleOnboardingComplete}
+      />
+    )
+  }
+
+  // Calculator
   if (view === "calc" && activeData) {
     return (
       <Calculator
@@ -131,6 +206,7 @@ function AppContent() {
     )
   }
 
+  // Project list
   return (
     <ProjectList
       projects={projects}

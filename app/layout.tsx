@@ -1,38 +1,30 @@
-import type { Metadata, Viewport } from 'next'
-import { Geist_Mono } from 'next/font/google'
-import { Playfair_Display } from 'next/font/google'
-import './globals.css'
+import type { Metadata } from "next"
+import { Playfair_Display, JetBrains_Mono, Inter } from "next/font/google"
+import { SessionProvider } from "next-auth/react"
+import "./globals.css"
 
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-playfair",
+})
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jetbrains",
+})
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+})
 
 export const metadata: Metadata = {
-  title: 'Kapitalanlage-Rechner Pro',
-  description: 'Professionelles Beratungstool für Immobilien-Kapitalanlagen mit KfW, Sonder-AfA und Vermögensaufbau',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
-}
-
-export const viewport: Viewport = {
-  themeColor: '#0a0a14',
-  width: 'device-width',
-  initialScale: 1,
-  userScalable: true,
+  title: "Kapitalanlage-Rechner Pro",
+  description:
+    "Steueroptimierte Immobilienanalyse mit KfW-F\u00F6rderung, Sonder-AfA und 10-Jahres-Cashflow",
 }
 
 export default function RootLayout({
@@ -41,9 +33,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="de">
-      <body className={`${geistMono.variable} ${playfair.variable} antialiased`}>
-        {children}
+    <html
+      lang="de"
+      className={`${playfair.variable} ${jetbrains.variable} ${inter.variable}`}
+    >
+      <body className="font-[family-name:var(--font-inter)] antialiased">
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   )

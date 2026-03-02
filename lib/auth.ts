@@ -12,6 +12,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   ],
   callbacks: {
+    jwt({ token, profile }) {
+      if (profile) {
+        token.authentikSub = profile.sub as string
+        token.email = profile.email as string
+        token.name = profile.name as string
+      }
+      return token
+    },
+    session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.authentikSub as string
+        session.user.email = token.email as string
+        session.user.name = token.name as string
+      }
+      return session
+    },
     authorized({ auth }) {
       return !!auth?.user
     },
