@@ -101,14 +101,18 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
           step={0.1}
           disabled={readOnly}
         />
-        <FieldInput
-          label="Bauzeitzinsen"
-          value={data.bauzeitZinsPct}
-          onChange={(v) => onChange("bauzeitZinsPct", v)}
-          suffix="%"
-          step={0.1}
-          disabled={readOnly}
-        />
+        <div>
+          <div className="text-[11px] text-subtle mb-1 font-mono">
+            Fertigstellung (geplant)
+          </div>
+          <input
+            type="date"
+            value={data.fertigstellung}
+            onChange={(e) => onChange("fertigstellung", e.target.value)}
+            disabled={readOnly}
+            className="w-full text-sm font-mono bg-transparent border border-border rounded px-2 py-1.5 text-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </div>
       </div>
 
       <ResultCard>
@@ -118,7 +122,14 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
           label="Grundschuldgebuehren"
           value={eur(calc.grundschuldBetrag)}
         />
-        <ResultRow label="Bauzeitzinsen" value={eur(calc.bauzeitZinsen)} />
+        <ResultRow
+          label={`Bauzeitzinsen (${calc.bauzeitMonate} Mon. MaBV)`}
+          value={eur(calc.bauzeitZinsen)}
+        />
+        <div className="text-[10px] text-subtle mt-0.5 mb-1 pl-1">
+          Berechnet nach MaBV-Auszahlungsstufen mit gew. \u00D8-Zins der Darlehen.
+          Bauzeitzinsen fliessen als Herstellungskosten in die AfA-Bemessungsgrundlage.
+        </div>
         <Divider />
         <ResultRow
           label="Kaufnebenkosten gesamt"
@@ -130,6 +141,15 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
           value={eur(calc.gesamtInvest)}
           highlight
         />
+        <Divider />
+        <ResultRow
+          label="AfA-Bemessungsgrundlage (Gebaeudeanteil)"
+          value={eur(calc.gebaeudeWert)}
+          bold
+        />
+        <div className="text-[10px] text-subtle mt-0.5 mb-1 pl-1">
+          = Kaufpreis - Grundstueck + Stellplatz + Bauzeitzinsen
+        </div>
       </ResultCard>
 
       <div className="mt-4">
