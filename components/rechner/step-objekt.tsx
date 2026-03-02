@@ -13,6 +13,9 @@ interface Props {
 }
 
 export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
+  // Anschaffungsnebenkosten die in AfA fliessen
+  const anschaffungsNK = calc.gestBetrag + calc.notarBetrag + calc.bauzeitZinsen
+
   return (
     <>
       <SectionHeader
@@ -73,7 +76,7 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
 
       <SectionHeader
         icon="receipt"
-        title="Kaufnebenkosten"
+        title="Nebenkosten & Bauzeit"
         subtitle="Berlin = 6,5% GrESt, kein Makler (Direktvertrieb)"
       />
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
@@ -116,23 +119,35 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
       </div>
 
       <ResultCard>
+        <div className="text-[10px] text-subtle uppercase tracking-wider mb-2">
+          Anschaffungsnebenkosten {"\u2192"} erh\u00F6hen AfA-Basis
+        </div>
         <ResultRow label="Grunderwerbsteuer" value={eur(calc.gestBetrag)} />
         <ResultRow label="Notar + Grundbuch" value={eur(calc.notarBetrag)} />
-        <ResultRow
-          label="Grundschuldgebuehren"
-          value={eur(calc.grundschuldBetrag)}
-        />
         <ResultRow
           label={`Bauzeitzinsen (${calc.bauzeitMonate} Mon. MaBV)`}
           value={eur(calc.bauzeitZinsen)}
         />
-        <div className="text-[10px] text-subtle mt-0.5 mb-1 pl-1">
-          Berechnet nach MaBV-Auszahlungsstufen mit gew. \u00D8-Zins der Darlehen.
-          Bauzeitzinsen fliessen als Herstellungskosten in die AfA-Bemessungsgrundlage.
+        <div className="text-[10px] text-subtle mt-0.5 mb-2 pl-1">
+          MaBV-Auszahlungsstufen mit gew. \u00D8-Zins {calc.bauzeitMonate > 0
+            ? `\u00FCber ${calc.bauzeitMonate} Monate`
+            : ""}
         </div>
         <Divider />
         <ResultRow
-          label="Kaufnebenkosten gesamt"
+          label="Summe Anschaffungs-NK"
+          value={eur(anschaffungsNK)}
+          bold
+        />
+
+        <div className="mt-3 text-[10px] text-subtle uppercase tracking-wider mb-2">
+          Sofort absetzbare Werbungskosten (Jahr 1)
+        </div>
+        <ResultRow label="Grundschuldgebuehren" value={eur(calc.grundschuldBetrag)} />
+        <Divider />
+
+        <ResultRow
+          label="Nebenkosten gesamt"
           value={eur(calc.nkGesamt)}
           bold
         />
@@ -143,12 +158,12 @@ export function StepObjekt({ data, calc, onChange, readOnly }: Props) {
         />
         <Divider />
         <ResultRow
-          label="AfA-Bemessungsgrundlage (Gebaeudeanteil)"
+          label="AfA-Bemessungsgrundlage"
           value={eur(calc.gebaeudeWert)}
           bold
         />
         <div className="text-[10px] text-subtle mt-0.5 mb-1 pl-1">
-          = Kaufpreis - Grundstueck + Stellplatz + Bauzeitzinsen
+          = Kaufpreis {eur(data.kaufpreis)} - Grundst\u00FCck {eur(data.grundstueck)} + Stellplatz {eur(data.stellplatz)} + Anschaffungs-NK {eur(anschaffungsNK)}
         </div>
       </ResultCard>
 
