@@ -9,6 +9,7 @@ import { decodeParamsToProject, calculate } from "@/lib/rechner-calc"
 import { weToProjectData } from "@/lib/units-data"
 import type { WohneinheitData } from "@/lib/units-data"
 import { ALLE_PROJEKTE } from "@/lib/projects-data"
+import { createFreeCalculationData } from "@/lib/free-calculation"
 import {
   getSavedCalculations, saveCalculation, updateCalculation, deleteCalculation,
 } from "@/lib/calculations-store"
@@ -74,6 +75,16 @@ function AppContent() {
     setEditingCalcId(null); setIsSharedView(false); setView("calc")
   }, [])
 
+  const handleFreeCalc = useCallback(() => {
+    const freeData = createFreeCalculationData()
+    setActiveData(freeData)
+    setIsTemplate(false)
+    setSourceUnitId("FREI")
+    setEditingCalcId(null)
+    setIsSharedView(false)
+    setView("calc")
+  }, [])
+
   const handleSelectCalc = useCallback((calc: SavedCalculation) => {
     setActiveData({ ...calc.projectData }); setIsTemplate(false)
     setSourceUnitId(calc.sourceUnitId); setEditingCalcId(calc.id)
@@ -103,6 +114,13 @@ function AppContent() {
     updateCalculation(editingCalcId, { projectData: activeData })
     setSavedCalcs(getSavedCalculations())
   }, [editingCalcId, activeData])
+
+  const handleProfileSave = useCallback(async (
+    updates: Omit<AdvisorProfile, "authentikSub" | "createdAt" | "updatedAt">
+  ) => {
+    const saved = await saveAdvisorProfile(updates)
+    if (saved) setAdvisorProfile(saved)
+  }, [])
 
   const handleExportPdf = useCallback((pdfData: ProjectData, pdfCalc: CalcResult) => {
     generatePdf(pdfData, pdfCalc, advisorProfile || undefined)
@@ -136,7 +154,9 @@ function AppContent() {
   return (
     <ProjectList
       projekte={ALLE_PROJEKTE} savedCalcs={savedCalcs}
+      advisorProfile={advisorProfile}
       onSelectUnit={handleSelectUnit} onSelectCalc={handleSelectCalc} onDeleteCalc={handleDeleteCalc}
+      onFreeCalc={handleFreeCalc} onProfileSave={handleProfileSave}
     />
   )
 }
