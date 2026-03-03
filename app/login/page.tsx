@@ -1,6 +1,13 @@
-import { signIn } from "@/lib/auth"
+import { signIn, auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  // Wenn bereits eingeloggt, direkt weiter
+  const session = await auth()
+  if (session) {
+    redirect("/")
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md px-6">
