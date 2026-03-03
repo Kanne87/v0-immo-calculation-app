@@ -1,17 +1,16 @@
 "use client"
 
-import { useState, useMemo, useCallback, useEffect } from "react"
-import { Building2, CreditCard, BarChart3, TrendingUp, Trophy, Eye, Pencil, Share2, FileDown, ArrowLeft } from "lucide-react"
+import { useState, useMemo, useCallback, useEffect, useRef } from "react"
+import { Building2, CreditCard, BarChart3, TrendingUp, Trophy, Eye, Pencil, Share2, FileDown, ArrowLeft, Save, CircleDot } from "lucide-react"
 import type { ProjectData, CalcResult } from "@/lib/rechner-types"
 import { defaultProjectData } from "@/lib/rechner-types"
 import { calculate, encodeProjectToParams } from "@/lib/rechner-calc"
-import { HAUS1_EINHEITEN, weToProjectData } from "@/lib/units-data"
-import type { WohneinheitData } from "@/lib/units-data"
 import { StepObjekt } from "./step-objekt"
 import { StepFinanzierung } from "./step-finanzierung"
 import { StepErgebnis } from "./step-ergebnis"
 import { StepVerlauf } from "./step-verlauf"
 import { StepRendite } from "./step-rendite"
+import { SaveDialog, UnsavedWarning } from "./save-dialog"
 
 const steps = [
   { label: "Objekt", icon: Building2 },
@@ -21,20 +20,43 @@ const steps = [
   { label: "Rendite", icon: Trophy },
 ]
 
+// ─── Finanzierungs-Keys fuer Change Detection ─────────────────────
+const FINANCE_KEYS: (keyof ProjectData)[] = [
+  "eigenkapital",
+  "darlehen1Label", "darlehen1", "zins1", "tilgung1", "zinsbindung1", "tilgungsfrei1",
+  "darlehen2Label", "darlehen2", "zins2", "tilgung2", "zinsbindung2",
+  "married", "einkommen", "kirche",
+  "inflation",
+]
+
+function hasFinanceChanges(current: ProjectData, original: ProjectData): boolean {
+  return FINANCE_KEYS.some((key) => current[key] !== original[key])
+}
+
 interface CalculatorProps {
   initialData?: ProjectData
   isSharedView?: boolean
+  isTemplate?: boolean
+  sourceUnitId?: string
+  editingCalcId?: string | null
   onBack?: () => void
   onExportPdf?: (data: ProjectData, calc: CalcResult) => void
   onDataChange?: (data: ProjectData) => void
+  onSave?: (description: string) => void
+  onSaveExisting?: () => void
 }
 
 export function Calculator({
   initialData,
   isSharedView = false,
+  isTemplate = false,
+  sourceUnitId,
+  editingCalcId,
   onBack,
   onExportPdf,
   onDataChange,
+  onSave,
+  onSaveExisting,
 }: CalculatorProps) {
   const [step, setStep] = useState(isSharedView ? 2 : 0)
   const [isClientView, setIsClientView] = useState(isSharedView)
@@ -42,23 +64,29 @@ export function Calculator({
     initialData || { ...defaultProjectData }
   )
   const [shareToast, setShareToast] = useState(false)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
+  const [isSaved, setIsSaved] = useState(!isTemplate) // saved calcs start as "saved"
+
+  // Store original data for change detection
+  const originalData = useRef<ProjectData>(initialData || { ...defaultProjectData })
+
+  const hasChanges = useMemo(
+    () => hasFinanceChanges(data, originalData.current),
+    [data]
+  )
 
   const onChange = useCallback(
     <K extends keyof ProjectData>(key: K, val: ProjectData[K]) => {
       setData((prev) => ({ ...prev, [key]: val }))
+      setIsSaved(false)
     },
     []
   )
 
-  // WE-Auswahl: kompletten State ersetzen
-  const onSelectUnit = useCallback((unit: WohneinheitData) => {
-    setData(weToProjectData(unit))
-  }, [])
-
   const calc = useMemo(() => calculate(data), [data])
 
   // Auto-EK: Gesamtinvestition - Darlehen1 - Darlehen2
-  // Wird nach jeder Berechnung aktualisiert, aber nur wenn sich der Wert aendert
   useEffect(() => {
     const autoEK = Math.max(0, Math.round(calc.gesamtInvest - data.darlehen1 - data.darlehen2))
     if (data.eigenkapital !== autoEK) {
@@ -87,6 +115,29 @@ export function Calculator({
     })
   }, [data])
 
+  // Back with unsaved changes check
+  const handleBack = useCallback(() => {
+    if (hasChanges && !isSaved) {
+      setShowUnsavedWarning(true)
+    } else {
+      onBack?.()
+    }
+  }, [hasChanges, isSaved, onBack])
+
+  const handleSaveFromDialog = useCallback(
+    (description: string) => {
+      onSave?.(description)
+      setShowSaveDialog(false)
+      setIsSaved(true)
+    },
+    [onSave]
+  )
+
+  const handleSaveExisting = useCallback(() => {
+    onSaveExisting?.()
+    setIsSaved(true)
+  }, [onSaveExisting])
+
   const visibleSteps = isClientView ? steps.slice(2) : steps
 
   return (
@@ -97,16 +148,29 @@ export function Calculator({
           <div className="flex items-center gap-3">
             {onBack && (
               <button
-                onClick={onBack}
+                onClick={handleBack}
                 className="p-1.5 rounded-md hover:bg-secondary transition-colors text-dimmed hover:text-foreground"
-                aria-label="Zurueck zur Projektliste"
+                aria-label="Zur\u00FCck zur Projektliste"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
             <div>
-              <div className="text-[11px] text-primary font-mono tracking-[3px] uppercase mb-0.5">
-                Kapitalanlage-Rechner
+              <div className="flex items-center gap-2">
+                <div className="text-[11px] text-primary font-mono tracking-[3px] uppercase mb-0.5">
+                  Kapitalanlage-Rechner
+                </div>
+                {isTemplate && (
+                  <span className="text-[9px] font-mono bg-primary/15 text-primary px-1.5 py-0.5 rounded border border-primary/20">
+                    Vorlage
+                  </span>
+                )}
+                {hasChanges && !isSaved && (
+                  <span className="flex items-center gap-1 text-[9px] font-mono text-amber-400">
+                    <CircleDot className="w-3 h-3" />
+                    Ungespeichert
+                  </span>
+                )}
               </div>
               <div className="text-[9px] text-subtle font-mono">
                 {data.projektName} &middot; Immobilien &middot; KfW &middot; Sonder-AfA
@@ -115,6 +179,26 @@ export function Calculator({
           </div>
 
           <div className="flex items-center gap-1.5">
+            {/* Save button */}
+            {(isTemplate || editingCalcId) && hasChanges && (
+              <button
+                onClick={() => {
+                  if (editingCalcId) {
+                    handleSaveExisting()
+                  } else {
+                    setShowSaveDialog(true)
+                  }
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
+                aria-label="Berechnung speichern"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">
+                  {editingCalcId ? "Speichern" : "Speichern als..."}
+                </span>
+              </button>
+            )}
+
             {/* Berater/Kunden Toggle */}
             {!isSharedView && (
               <button
@@ -196,8 +280,8 @@ export function Calculator({
             data={data}
             calc={calc}
             onChange={onChange}
-            onSelectUnit={onSelectUnit}
-            readOnly={isClientView}
+            readOnly={isClientView || isTemplate}
+            isTemplate={isTemplate}
           />
         )}
         {step === 1 && (
@@ -227,6 +311,35 @@ export function Calculator({
           />
         )}
       </main>
+
+      {/* Save Dialog */}
+      {showSaveDialog && sourceUnitId && (
+        <SaveDialog
+          sourceUnitId={sourceUnitId}
+          onSave={handleSaveFromDialog}
+          onCancel={() => setShowSaveDialog(false)}
+        />
+      )}
+
+      {/* Unsaved Warning */}
+      {showUnsavedWarning && (
+        <UnsavedWarning
+          onSave={() => {
+            setShowUnsavedWarning(false)
+            if (editingCalcId) {
+              handleSaveExisting()
+              onBack?.()
+            } else {
+              setShowSaveDialog(true)
+            }
+          }}
+          onDiscard={() => {
+            setShowUnsavedWarning(false)
+            onBack?.()
+          }}
+          onCancel={() => setShowUnsavedWarning(false)}
+        />
+      )}
     </div>
   )
 }

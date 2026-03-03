@@ -3,12 +3,17 @@
 import { useState, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
-import type { ProjectTemplate, ProjectData, CalcResult } from "@/lib/rechner-types"
+import type { ProjectData, CalcResult, SavedCalculation } from "@/lib/rechner-types"
+import { defaultProjectData } from "@/lib/rechner-types"
+import { decodeParamsToProject, calculate } from "@/lib/rechner-calc"
+import { weToProjectData } from "@/lib/units-data"
+import type { WohneinheitData } from "@/lib/units-data"
 import {
-  defaultProjectData,
-  defaultTemplates,
-} from "@/lib/rechner-types"
-import { decodeParamsToProject } from "@/lib/rechner-calc"
+  getSavedCalculations,
+  saveCalculation,
+  updateCalculation,
+  deleteCalculation,
+} from "@/lib/calculations-store"
 import { ProjectList } from "@/components/rechner/project-list"
 import { Calculator } from "@/components/rechner/calculator"
 import { Onboarding } from "@/components/rechner/onboarding"
@@ -24,40 +29,45 @@ function AppContent() {
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
   const [view, setView] = useState<"loading" | "onboarding" | "list" | "calc">("loading")
-  const [projects, setProjects] = useState<ProjectTemplate[]>(defaultTemplates)
   const [activeData, setActiveData] = useState<ProjectData | null>(null)
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null)
   const [isSharedView, setIsSharedView] = useState(false)
   const [advisorProfile, setAdvisorProfile] = useState<AdvisorProfile | null>(null)
+
+  // Template vs saved calc tracking
+  const [isTemplate, setIsTemplate] = useState(false)
+  const [sourceUnitId, setSourceUnitId] = useState<string | null>(null)
+  const [editingCalcId, setEditingCalcId] = useState<string | null>(null)
+
+  // Saved calculations from localStorage
+  const [savedCalcs, setSavedCalcs] = useState<SavedCalculation[]>([])
+
+  // Load saved calculations
+  useEffect(() => {
+    setSavedCalcs(getSavedCalculations())
+  }, [])
 
   // Load advisor profile on mount
   useEffect(() => {
     if (status !== "authenticated") return
 
-    // user.id comes from authentikSub via JWT callback – may be undefined
     const sub = session?.user?.id || session?.user?.email || "unknown"
 
     async function loadProfile() {
-      // Quick check: user-scoped localStorage cache
       const cached = getCachedProfile(sub)
       if (cached) {
         setAdvisorProfile(cached)
         setView("list")
       }
 
-      // Then verify with server (authoritative)
       const serverResult = await fetchAdvisorProfile()
 
       if (serverResult) {
-        // Server found a profile
         setAdvisorProfile(serverResult)
         setView("list")
       } else if (serverResult === null) {
-        // Server explicitly said: no profile exists → onboarding
         setAdvisorProfile(null)
         setView("onboarding")
       } else {
-        // undefined = network error → trust cache if available
         if (!cached) {
           setView("onboarding")
         }
@@ -76,36 +86,11 @@ function AppContent() {
       const data = { ...defaultProjectData, ...decoded }
       setActiveData(data)
       setIsSharedView(true)
+      setIsTemplate(false)
+      setEditingCalcId(null)
       setView("calc")
     }
   }, [searchParams, view])
-
-  // Load projects from localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("kapitalanlage-projects")
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setProjects(parsed)
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, [])
-
-  // Save projects to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        "kapitalanlage-projects",
-        JSON.stringify(projects)
-      )
-    } catch {
-      // ignore
-    }
-  }, [projects])
 
   const handleOnboardingComplete = useCallback(
     async (profileData: Omit<AdvisorProfile, "authentikSub" | "createdAt" | "updatedAt">) => {
@@ -113,7 +98,6 @@ function AppContent() {
       if (saved) {
         setAdvisorProfile(saved)
       } else {
-        // Fallback: create local profile
         const localProfile: AdvisorProfile = {
           ...profileData,
           authentikSub: session?.user?.id || "local",
@@ -125,52 +109,77 @@ function AppContent() {
     [session]
   )
 
-  const handleSelectProject = useCallback((project: ProjectTemplate) => {
-    setActiveData({ ...project.defaults })
-    setActiveProjectId(project.id)
+  // ─── Template WE selection ──────────────────────────────────────
+
+  const handleSelectUnit = useCallback((unit: WohneinheitData) => {
+    const projectData = weToProjectData(unit)
+    setActiveData(projectData)
+    setIsTemplate(true)
+    setSourceUnitId(unit.id)
+    setEditingCalcId(null)
     setIsSharedView(false)
     setView("calc")
   }, [])
 
-  const handleNewProject = useCallback(() => {
-    const id = `project-${Date.now()}`
-    const newProject: ProjectTemplate = {
-      id,
-      name: "Neues Projekt",
-      ort: "Standort",
-      weAnzahl: 0,
-      status: "In Planung",
-      defaults: { ...defaultProjectData, projektName: "Neues Projekt" },
-    }
-    setProjects((prev) => [...prev, newProject])
-    setActiveData({ ...newProject.defaults })
-    setActiveProjectId(id)
+  // ─── Saved calc selection ───────────────────────────────────────
+
+  const handleSelectCalc = useCallback((calc: SavedCalculation) => {
+    setActiveData({ ...calc.projectData })
+    setIsTemplate(false)
+    setSourceUnitId(calc.sourceUnitId)
+    setEditingCalcId(calc.id)
     setIsSharedView(false)
     setView("calc")
   }, [])
 
-  const handleDeleteProject = useCallback((id: string) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id))
+  // ─── Delete saved calc ──────────────────────────────────────────
+
+  const handleDeleteCalc = useCallback((id: string) => {
+    deleteCalculation(id)
+    setSavedCalcs(getSavedCalculations())
   }, [])
+
+  // ─── Back to list ───────────────────────────────────────────────
 
   const handleBack = useCallback(() => {
-    if (activeData && activeProjectId) {
-      setProjects((prev) =>
-        prev.map((p) =>
-          p.id === activeProjectId
-            ? { ...p, name: activeData.projektName, defaults: activeData }
-            : p
-        )
-      )
-    }
     setView("list")
     setActiveData(null)
-    setActiveProjectId(null)
+    setIsTemplate(false)
+    setSourceUnitId(null)
+    setEditingCalcId(null)
     setIsSharedView(false)
+    setSavedCalcs(getSavedCalculations()) // refresh
     if (searchParams.get("shared")) {
       window.history.replaceState({}, "", "/")
     }
-  }, [activeData, activeProjectId, searchParams])
+  }, [searchParams])
+
+  // ─── Save new calculation ───────────────────────────────────────
+
+  const handleSaveNew = useCallback(
+    (description: string) => {
+      if (!activeData || !sourceUnitId) return
+      const sub = session?.user?.id || session?.user?.email || "unknown"
+      saveCalculation({
+        description,
+        sourceUnitId,
+        projectData: activeData,
+        authentikSub: sub,
+      })
+      setSavedCalcs(getSavedCalculations())
+    },
+    [activeData, sourceUnitId, session]
+  )
+
+  // ─── Update existing calculation ────────────────────────────────
+
+  const handleSaveExisting = useCallback(() => {
+    if (!editingCalcId || !activeData) return
+    updateCalculation(editingCalcId, { projectData: activeData })
+    setSavedCalcs(getSavedCalculations())
+  }, [editingCalcId, activeData])
+
+  // ─── PDF Export ─────────────────────────────────────────────────
 
   const handleExportPdf = useCallback(
     (pdfData: ProjectData, pdfCalc: CalcResult) => {
@@ -183,7 +192,8 @@ function AppContent() {
     setActiveData(newData)
   }, [])
 
-  // Loading state
+  // ─── Render ─────────────────────────────────────────────────────
+
   if (status === "loading" || view === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -194,7 +204,6 @@ function AppContent() {
     )
   }
 
-  // Onboarding
   if (view === "onboarding") {
     return (
       <Onboarding
@@ -205,26 +214,29 @@ function AppContent() {
     )
   }
 
-  // Calculator
   if (view === "calc" && activeData) {
     return (
       <Calculator
         initialData={activeData}
         isSharedView={isSharedView}
+        isTemplate={isTemplate}
+        sourceUnitId={sourceUnitId || undefined}
+        editingCalcId={editingCalcId}
         onBack={isSharedView ? undefined : handleBack}
         onExportPdf={handleExportPdf}
         onDataChange={handleDataChange}
+        onSave={handleSaveNew}
+        onSaveExisting={handleSaveExisting}
       />
     )
   }
 
-  // Project list
   return (
     <ProjectList
-      projects={projects}
-      onSelect={handleSelectProject}
-      onNew={handleNewProject}
-      onDelete={handleDeleteProject}
+      savedCalcs={savedCalcs}
+      onSelectUnit={handleSelectUnit}
+      onSelectCalc={handleSelectCalc}
+      onDeleteCalc={handleDeleteCalc}
     />
   )
 }
