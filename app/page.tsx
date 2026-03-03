@@ -47,7 +47,7 @@ function AppContent() {
         setView("list")
       }
 
-      // 2. Try server (Payload CMS)
+      // 2. Try server (Payload CMS) - with retry on 401
       const serverResult = await fetchAdvisorProfile()
 
       if (serverResult) {
@@ -55,15 +55,21 @@ function AppContent() {
         setAdvisorProfile(serverResult)
         setView("list")
       } else if (serverResult === null && !cached) {
-        // Server explicitly says "no profile" AND no cache -> onboarding
+        // Server DEFINITIVELY says "no profile" AND no cache -> onboarding
         setAdvisorProfile(null)
         setView("onboarding")
-      } else if (serverResult === undefined && !cached) {
-        // Network/auth error AND no cache -> onboarding as last resort
-        setAdvisorProfile(null)
-        setView("onboarding")
+      } else if (serverResult === undefined) {
+        // Server error (even after retries)
+        if (cached) {
+          // Cache exists -> stay on list (already set above)
+        } else {
+          // No cache AND server unreachable -> still show onboarding
+          // but log it for debugging
+          console.warn("[advisor] Server unreachable after retries, no cache. Showing onboarding.")
+          setAdvisorProfile(null)
+          setView("onboarding")
+        }
       }
-      // If cached exists but server fails -> keep cached, stay on list
     }
     loadProfile()
   }, [status, session?.user?.id, session?.user?.email])

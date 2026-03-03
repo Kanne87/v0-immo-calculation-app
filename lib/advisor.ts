@@ -1,4 +1,4 @@
-// ─── Berater-Profil: Types + Storage ─────────────────────────────
+// ─── Berater-Profil: Types + Storage ─────────────────────
 
 export interface AdvisorProfile {
   authentikSub: string
@@ -14,14 +14,21 @@ export interface AdvisorProfile {
 }
 
 const STORAGE_PREFIX = "immo-advisor-profile-"
+const STORAGE_ANY = "immo-advisor-profile-any"
 
-// ─── Client-side cache (localStorage, user-scoped) ───────────────
+// ─── Client-side cache (localStorage, user-scoped) ───────────
 
 export function getCachedProfile(sub: string): AdvisorProfile | null {
-  if (typeof window === "undefined" || !sub) return null
+  if (typeof window === "undefined") return null
   try {
-    const stored = localStorage.getItem(STORAGE_PREFIX + sub)
-    if (stored) return JSON.parse(stored)
+    // Try user-specific key first
+    if (sub) {
+      const stored = localStorage.getItem(STORAGE_PREFIX + sub)
+      if (stored) return JSON.parse(stored)
+    }
+    // Fallback: any cached profile (covers case where sub changed)
+    const any = localStorage.getItem(STORAGE_ANY)
+    if (any) return JSON.parse(any)
   } catch {
     // ignore
   }
@@ -29,18 +36,23 @@ export function getCachedProfile(sub: string): AdvisorProfile | null {
 }
 
 export function setCachedProfile(profile: AdvisorProfile): void {
-  if (typeof window === "undefined" || !profile.authentikSub) return
+  if (typeof window === "undefined") return
   try {
-    localStorage.setItem(STORAGE_PREFIX + profile.authentikSub, JSON.stringify(profile))
+    if (profile.authentikSub) {
+      localStorage.setItem(STORAGE_PREFIX + profile.authentikSub, JSON.stringify(profile))
+    }
+    // Also store under generic key as fallback
+    localStorage.setItem(STORAGE_ANY, JSON.stringify(profile))
   } catch {
     // ignore
   }
 }
 
 export function clearCachedProfile(sub: string): void {
-  if (typeof window === "undefined" || !sub) return
+  if (typeof window === "undefined") return
   try {
-    localStorage.removeItem(STORAGE_PREFIX + sub)
+    if (sub) localStorage.removeItem(STORAGE_PREFIX + sub)
+    localStorage.removeItem(STORAGE_ANY)
   } catch {
     // ignore
   }
@@ -48,29 +60,51 @@ export function clearCachedProfile(sub: string): void {
 
 // ─── API calls (to our Next.js API route → Payload CMS) ─────────
 
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 /**
- * Fetch advisor profile from server.
- * Returns the profile if found, null if no profile exists,
- * or undefined on network/server error (caller can fall back to cache).
+ * Fetch advisor profile from server with retry.
+ * Returns the profile if found, null if no profile exists (definitive),
+ * or undefined on persistent error (caller should fall back to cache).
+ *
+ * Retries up to 3 times on 401/network errors (session might not be ready).
  */
 export async function fetchAdvisorProfile(): Promise<AdvisorProfile | null | undefined> {
-  try {
-    const res = await fetch("/api/advisor")
-    if (res.ok) {
-      const data = await res.json()
-      if (data.profile) {
-        setCachedProfile(data.profile)
-        return data.profile
+  const maxRetries = 3
+  const retryDelays = [500, 1500, 3000]
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const res = await fetch("/api/advisor")
+      if (res.ok) {
+        const data = await res.json()
+        if (data.profile) {
+          setCachedProfile(data.profile)
+          return data.profile
+        }
+        // Server explicitly said: no profile (200 with profile: null)
+        return null
       }
-      // Server explicitly said: no profile
-      return null
+      if (res.status === 401 && attempt < maxRetries - 1) {
+        // Session not ready yet – wait and retry
+        console.log(`[advisor] 401 on attempt ${attempt + 1}, retrying in ${retryDelays[attempt]}ms...`)
+        await delay(retryDelays[attempt])
+        continue
+      }
+      // Other error status – treat as error
+      return undefined
+    } catch {
+      if (attempt < maxRetries - 1) {
+        console.log(`[advisor] Network error on attempt ${attempt + 1}, retrying...`)
+        await delay(retryDelays[attempt])
+        continue
+      }
+      return undefined
     }
-    // Non-OK response → treat as error
-    return undefined
-  } catch {
-    // Network error → caller should fall back to cache
-    return undefined
   }
+  return undefined
 }
 
 export async function saveAdvisorProfile(
