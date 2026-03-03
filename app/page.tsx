@@ -18,7 +18,7 @@ import { Calculator } from "@/components/rechner/calculator"
 import { Onboarding } from "@/components/rechner/onboarding"
 import { generatePdf } from "@/lib/pdf-export"
 import type { AdvisorProfile } from "@/lib/advisor"
-import { fetchAdvisorProfile, saveAdvisorProfile, getCachedProfile } from "@/lib/advisor"
+import { fetchAdvisorProfile, saveAdvisorProfile, getCachedProfile, setCachedProfile } from "@/lib/advisor"
 
 function AppContent() {
   const searchParams = useSearchParams()
@@ -36,14 +36,34 @@ function AppContent() {
 
   useEffect(() => {
     if (status !== "authenticated") return
-    const sub = session?.user?.id || session?.user?.email || "unknown"
+    const sub = session?.user?.id || session?.user?.email || ""
+    if (!sub) return
+
     async function loadProfile() {
+      // 1. Check localStorage cache first (instant, no network)
       const cached = getCachedProfile(sub)
-      if (cached) { setAdvisorProfile(cached); setView("list") }
+      if (cached) {
+        setAdvisorProfile(cached)
+        setView("list")
+      }
+
+      // 2. Try server (Payload CMS)
       const serverResult = await fetchAdvisorProfile()
-      if (serverResult) { setAdvisorProfile(serverResult); setView("list") }
-      else if (serverResult === null) { setAdvisorProfile(null); setView("onboarding") }
-      else { if (!cached) setView("onboarding") }
+
+      if (serverResult) {
+        // Server found profile -> use it (freshest data)
+        setAdvisorProfile(serverResult)
+        setView("list")
+      } else if (serverResult === null && !cached) {
+        // Server explicitly says "no profile" AND no cache -> onboarding
+        setAdvisorProfile(null)
+        setView("onboarding")
+      } else if (serverResult === undefined && !cached) {
+        // Network/auth error AND no cache -> onboarding as last resort
+        setAdvisorProfile(null)
+        setView("onboarding")
+      }
+      // If cached exists but server fails -> keep cached, stay on list
     }
     loadProfile()
   }, [status, session?.user?.id, session?.user?.email])
@@ -61,10 +81,14 @@ function AppContent() {
   const handleOnboardingComplete = useCallback(
     async (profileData: Omit<AdvisorProfile, "authentikSub" | "createdAt" | "updatedAt">) => {
       const saved = await saveAdvisorProfile(profileData)
-      if (saved) setAdvisorProfile(saved)
-      else {
-        const localProfile: AdvisorProfile = { ...profileData, authentikSub: session?.user?.id || "local" }
+      if (saved) {
+        setAdvisorProfile(saved)
+      } else {
+        // Fallback: create local profile so user is not stuck
+        const sub = session?.user?.id || session?.user?.email || "local"
+        const localProfile: AdvisorProfile = { ...profileData, authentikSub: sub }
         setAdvisorProfile(localProfile)
+        setCachedProfile(localProfile)
       }
       setView("list")
     }, [session])
