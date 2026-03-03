@@ -32,28 +32,39 @@ function AppContent() {
 
   // Load advisor profile on mount
   useEffect(() => {
-    if (status !== "authenticated") return
+    if (status !== "authenticated" || !session?.user?.id) return
+
+    const sub = session.user.id
 
     async function loadProfile() {
-      // Quick check: localStorage cache
-      const cached = getCachedProfile()
+      // Quick check: user-scoped localStorage cache
+      const cached = getCachedProfile(sub)
       if (cached) {
         setAdvisorProfile(cached)
         setView("list")
       }
 
-      // Then verify with server
-      const serverProfile = await fetchAdvisorProfile()
-      if (serverProfile) {
-        setAdvisorProfile(serverProfile)
-        if (view === "loading") setView("list")
-      } else if (!cached) {
+      // Then verify with server (authoritative)
+      const serverResult = await fetchAdvisorProfile()
+
+      if (serverResult) {
+        // Server found a profile
+        setAdvisorProfile(serverResult)
+        setView("list")
+      } else if (serverResult === null) {
+        // Server explicitly said: no profile exists → onboarding
+        setAdvisorProfile(null)
         setView("onboarding")
+      } else {
+        // undefined = network error → trust cache if available
+        if (!cached) {
+          setView("onboarding")
+        }
       }
     }
 
     loadProfile()
-  }, [status])
+  }, [status, session?.user?.id])
 
   // Handle shared URL
   useEffect(() => {

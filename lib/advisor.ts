@@ -13,14 +13,14 @@ export interface AdvisorProfile {
   updatedAt?: string
 }
 
-const STORAGE_KEY = "immo-advisor-profile"
+const STORAGE_PREFIX = "immo-advisor-profile-"
 
-// ─── Client-side cache (localStorage) ────────────────────────────
+// ─── Client-side cache (localStorage, user-scoped) ───────────────
 
-export function getCachedProfile(): AdvisorProfile | null {
-  if (typeof window === "undefined") return null
+export function getCachedProfile(sub: string): AdvisorProfile | null {
+  if (typeof window === "undefined" || !sub) return null
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = localStorage.getItem(STORAGE_PREFIX + sub)
     if (stored) return JSON.parse(stored)
   } catch {
     // ignore
@@ -29,18 +29,18 @@ export function getCachedProfile(): AdvisorProfile | null {
 }
 
 export function setCachedProfile(profile: AdvisorProfile): void {
-  if (typeof window === "undefined") return
+  if (typeof window === "undefined" || !profile.authentikSub) return
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile))
+    localStorage.setItem(STORAGE_PREFIX + profile.authentikSub, JSON.stringify(profile))
   } catch {
     // ignore
   }
 }
 
-export function clearCachedProfile(): void {
-  if (typeof window === "undefined") return
+export function clearCachedProfile(sub: string): void {
+  if (typeof window === "undefined" || !sub) return
   try {
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(STORAGE_PREFIX + sub)
   } catch {
     // ignore
   }
@@ -48,7 +48,12 @@ export function clearCachedProfile(): void {
 
 // ─── API calls (to our Next.js API route → Payload CMS) ─────────
 
-export async function fetchAdvisorProfile(): Promise<AdvisorProfile | null> {
+/**
+ * Fetch advisor profile from server.
+ * Returns the profile if found, null if no profile exists,
+ * or undefined on network/server error (caller can fall back to cache).
+ */
+export async function fetchAdvisorProfile(): Promise<AdvisorProfile | null | undefined> {
   try {
     const res = await fetch("/api/advisor")
     if (res.ok) {
@@ -57,11 +62,15 @@ export async function fetchAdvisorProfile(): Promise<AdvisorProfile | null> {
         setCachedProfile(data.profile)
         return data.profile
       }
+      // Server explicitly said: no profile
+      return null
     }
+    // Non-OK response → treat as error
+    return undefined
   } catch {
-    // Fallback to cache
+    // Network error → caller should fall back to cache
+    return undefined
   }
-  return getCachedProfile()
 }
 
 export async function saveAdvisorProfile(
