@@ -12,6 +12,102 @@ export const fmt = (v: number, d = 0): string => {
 export const eur = (v: number, d = 0): string => `${fmt(v, d)} \u20AC`
 export const pct = (v: number): string => `${fmt(v, 2)} %`
 
+// ─── IRR (Internal Rate of Return) via Newton-Raphson ──────────
+
+/**
+ * Berechnet den internen Zinsfu\u00DF (IRR) f\u00FCr eine j\u00E4hrliche Cashflow-Reihe.
+ * cashflows[0] = Jahr 0 (typischerweise negativ: EK-Einsatz)
+ * cashflows[1..n] = Jahr 1..n (laufende \u00DCbersch\u00FCsse + ggf. Endwert)
+ *
+ * Gibt die j\u00E4hrliche Rendite in Prozent zur\u00FCck (z.B. 14.5 f\u00FCr 14,5%).
+ * Gibt null zur\u00FCck wenn keine Konvergenz.
+ */
+function calcIRR(cashflows: number[], guess = 0.1, maxIter = 200, tol = 1e-7): number | null {
+  // Trivial-Check: Wenn kein negativer Cashflow, ist IRR nicht definiert
+  const hasNeg = cashflows.some(cf => cf < 0)
+  const hasPos = cashflows.some(cf => cf > 0)
+  if (!hasNeg || !hasPos) return null
+
+  let rate = guess
+
+  for (let i = 0; i < maxIter; i++) {
+    let npv = 0
+    let dnpv = 0 // Ableitung
+
+    for (let t = 0; t < cashflows.length; t++) {
+      const discountFactor = Math.pow(1 + rate, t)
+      if (discountFactor === 0) return null
+      npv += cashflows[t] / discountFactor
+      if (t > 0) {
+        dnpv -= (t * cashflows[t]) / Math.pow(1 + rate, t + 1)
+      }
+    }
+
+    if (Math.abs(dnpv) < 1e-14) {
+      // Ableitung zu klein – Bisection als Fallback
+      return calcIRRBisection(cashflows)
+    }
+
+    const newRate = rate - npv / dnpv
+
+    if (Math.abs(newRate - rate) < tol) {
+      return newRate * 100
+    }
+
+    rate = newRate
+
+    // Schutz vor Divergenz
+    if (rate < -0.99 || rate > 100 || !isFinite(rate)) {
+      return calcIRRBisection(cashflows)
+    }
+  }
+
+  // Newton hat nicht konvergiert – Bisection
+  return calcIRRBisection(cashflows)
+}
+
+/**
+ * Fallback: Bisection-Methode f\u00FCr IRR (robuster, langsamer).
+ */
+function calcIRRBisection(cashflows: number[]): number | null {
+  let lo = -0.5
+  let hi = 5.0 // bis 500% p.a.
+  const maxIter = 300
+  const tol = 1e-7
+
+  const npvAt = (r: number) => {
+    let npv = 0
+    for (let t = 0; t < cashflows.length; t++) {
+      npv += cashflows[t] / Math.pow(1 + r, t)
+    }
+    return npv
+  }
+
+  // Sicherstellen dass lo und hi verschiedene Vorzeichen haben
+  if (npvAt(lo) * npvAt(hi) > 0) {
+    // Bereich erweitern
+    hi = 20.0
+    if (npvAt(lo) * npvAt(hi) > 0) return null
+  }
+
+  for (let i = 0; i < maxIter; i++) {
+    const mid = (lo + hi) / 2
+    const npvMid = npvAt(mid)
+
+    if (Math.abs(npvMid) < tol || (hi - lo) / 2 < tol) {
+      return mid * 100
+    }
+
+    if (npvAt(lo) * npvMid < 0) {
+      hi = mid
+    } else {
+      lo = mid
+    }
+  }
+
+  return null
+}
+
 // ─── Tax calculation (simplified German income tax 2025) ─────
 function calcTax(
   income: number,
@@ -259,17 +355,36 @@ export function calculate(data: ProjectData): CalcResult {
   const vermoegenEnde = wertsteigerung - restschuldEnde
   const gewinn = vermoegenEnde
 
-  // Gesamt-Rendite auf Eigenkapital (10 Jahre)
+  // Gesamt-Rendite auf Eigenkapital (10 Jahre) – einfach
   const renditeGesamt = eigenkapital > 0 ? (gewinn / eigenkapital) * 100 : 0
 
-  // Eigenkapitalrendite p.a. (CAGR)
-  // Formel: (Endvermoegen / EK)^(1/n) - 1
+  // ─── IRR (Interner Zinsfu\u00DF) ────────────────────────────
+  // Cashflow-Reihe f\u00FCr IRR:
+  //   Jahr 0: -Eigenkapital (Anfangsinvestition)
+  //   Jahre 1-9: j\u00E4hrlicher Cashflow (\u00DCberschuss nach Steuer, Zins, Tilgung)
+  //   Jahr 10: j\u00E4hrlicher Cashflow + Verm\u00F6gen (Verkaufserl\u00F6s - Restschuld)
+  const irrCashflows: number[] = [-eigenkapital]
+  for (let i = 0; i < 10; i++) {
+    const cf = jahre[i].ueberschuss
+    if (i === 9) {
+      // Jahr 10: laufender Cashflow + steuerfreier Verkaufserl\u00F6s
+      irrCashflows.push(cf + vermoegenEnde)
+    } else {
+      irrCashflows.push(cf)
+    }
+  }
+
   let rendite = 0
-  if (eigenkapital > 0 && vermoegenEnde > 0) {
-    rendite = (Math.pow(vermoegenEnde / eigenkapital, 1 / 10) - 1) * 100
-  } else if (eigenkapital > 0) {
-    // Negativer Endwert -> negative Rendite
-    rendite = -100
+  if (eigenkapital > 0) {
+    const irrResult = calcIRR(irrCashflows)
+    if (irrResult !== null) {
+      rendite = irrResult
+    } else {
+      // Fallback: CAGR wenn IRR nicht konvergiert
+      if (vermoegenEnde > 0) {
+        rendite = (Math.pow(vermoegenEnde / eigenkapital, 1 / 10) - 1) * 100
+      }
+    }
   }
 
   // Durchschnittlicher monatlicher Aufwand ueber 10 Jahre
