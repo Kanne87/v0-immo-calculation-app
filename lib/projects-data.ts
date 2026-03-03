@@ -23,6 +23,7 @@ export interface ProjektDefinition {
   stellplatzPreis: number
   weGesamt: number
   einheiten: WohneinheitData[]
+  videoUrl?: string
 }
 
 export const SPANDAUER_TOR_HAUS1: ProjektDefinition = {
@@ -46,6 +47,7 @@ export const SPANDAUER_TOR_HAUS1: ProjektDefinition = {
   stellplatzPreis: STELLPLATZ_PREIS,
   weGesamt: PROJEKT_ECKDATEN.weGesamt,
   einheiten: HAUS1_EINHEITEN,
+  videoUrl: "https://cloud.kailohmann.de/s/2ZQ6bbpLzmMgtJk/download",
 }
 
 // Neue Projekte hier anhängen
