@@ -48,15 +48,15 @@
   --primary: #9a7b2e;
   --primary-foreground: #ffffff;
   --secondary: #f0ede6;
-  --secondary-foreground: #5a5a6a;
+  --secondary-foreground: #3a3a4a;
   --muted: #f0ede6;
-  --muted-foreground: #7a7a8a;
+  --muted-foreground: #4a4a5a;
   --accent: #9a7b2e;
   --accent-foreground: #ffffff;
   --destructive: #d04040;
   --destructive-foreground: #ffffff;
-  --border: #e0ddd4;
-  --input: #f0ede6;
+  --border: #d0cdc4;
+  --input: #ffffff;
   --ring: #9a7b2e;
   --chart-1: #3a6aba;
   --chart-2: #ba3a3a;
@@ -66,8 +66,8 @@
   --positive: #2a7a2a;
   --negative: #d04040;
   --surface: #f4f2ed;
-  --dimmed: #6a6a7a;
-  --subtle: #9a9aaa;
+  --dimmed: #3a3a4e;
+  --subtle: #5a5a6e;
 }
 
 @theme inline {
@@ -117,7 +117,7 @@
     @apply bg-background text-foreground;
   }
 
-  /* Custom scrollbar – dark */
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
