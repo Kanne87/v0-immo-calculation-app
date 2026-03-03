@@ -12,11 +12,14 @@ import {
   FileText,
   MapPin,
   Leaf,
+  Plus,
 } from "lucide-react"
 import type { SavedCalculation } from "@/lib/rechner-types"
 import type { WohneinheitData } from "@/lib/units-data"
 import type { ProjektDefinition } from "@/lib/projects-data"
+import type { AdvisorProfile } from "@/lib/advisor"
 import { eur } from "@/lib/rechner-calc"
+import { ProfileMenu } from "./profile-menu"
 
 type SortKey = "nr" | "wfl" | "kaufpreis"
 type SortDir = "asc" | "desc"
@@ -24,9 +27,12 @@ type SortDir = "asc" | "desc"
 interface Props {
   projekte: ProjektDefinition[]
   savedCalcs: SavedCalculation[]
+  advisorProfile?: AdvisorProfile | null
   onSelectUnit: (unit: WohneinheitData, projektId: string) => void
   onSelectCalc: (calc: SavedCalculation) => void
   onDeleteCalc: (id: string) => void
+  onFreeCalc?: () => void
+  onProfileSave?: (updates: Omit<AdvisorProfile, "authentikSub" | "createdAt" | "updatedAt">) => Promise<void>
 }
 
 const STATUS_DOT: Record<string, string> = {
@@ -251,15 +257,18 @@ function ProjektSektion({
 export function ProjectList({
   projekte,
   savedCalcs,
+  advisorProfile,
   onSelectUnit,
   onSelectCalc,
   onDeleteCalc,
+  onFreeCalc,
+  onProfileSave,
 }: Props) {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   return (
     <div className="w-full max-w-[480px] md:max-w-[900px] mx-auto min-h-screen bg-background">
-      <header className="px-5 pt-8 pb-5 border-b border-border">
+      <header className="px-5 pt-8 pb-5 border-b border-border relative">
         <div className="text-[11px] text-primary font-mono tracking-[3px] uppercase mb-1">
           Kapitalanlage-Rechner Pro
         </div>
@@ -269,19 +278,36 @@ export function ProjectList({
         <p className="text-xs text-dimmed font-mono">
           Neubauprojekte analysieren und vergleichen
         </p>
+        {advisorProfile && onProfileSave && (
+          <div className="absolute top-6 right-5">
+            <ProfileMenu profile={advisorProfile} onSave={onProfileSave} />
+          </div>
+        )}
       </header>
 
       <main className="p-5">
         <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Calculator className="w-4 h-4 text-primary" />
-            <h2 className="text-sm font-serif font-semibold text-foreground">
-              Meine Berechnungen
-            </h2>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Calculator className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-serif font-semibold text-foreground">
+                Meine Berechnungen
+              </h2>
             {savedCalcs.length > 0 && (
               <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-0.5 rounded">
                 {savedCalcs.length}
               </span>
+            )}
+            </div>
+            {onFreeCalc && (
+              <button
+                onClick={onFreeCalc}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
+              >
+                <Plus className="w-3 h-3" />
+                <span className="hidden sm:inline">Freie Berechnung</span>
+                <span className="sm:hidden">Neu</span>
+              </button>
             )}
           </div>
 
@@ -292,7 +318,7 @@ export function ProjectList({
                 Noch keine Berechnungen gespeichert.
               </p>
               <p className="text-[10px] text-subtle font-mono mt-1">
-                W\u00e4hle eine Wohneinheit aus und erstelle deine erste Berechnung.
+                W\u00e4hle eine Wohneinheit oder starte eine freie Berechnung.
               </p>
             </div>
           ) : (
