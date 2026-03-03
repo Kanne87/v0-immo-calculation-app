@@ -55,13 +55,13 @@ export function StepRendite({
     <>
       <SectionHeader
         icon="trophy"
-        title="Vermoegensbildung"
+        title="Verm\u00F6gensbildung"
         subtitle="10-Jahres-Ergebnis"
       />
 
       <div className="bg-surface rounded-lg p-4 border border-border">
         <div className="text-xs text-dimmed mb-3 text-center font-mono">
-          Vermoegensbildung in 10 Jahren
+          Verm\u00F6gensbildung in 10 Jahren
         </div>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={chartData} barGap={8}>
@@ -145,9 +145,14 @@ export function StepRendite({
           />
           <GoldDivider />
           <ResultRow
-            label="RENDITE NACH STEUER"
+            label="EK-RENDITE P.A."
             value={pct(calc.rendite)}
             highlight
+          />
+          <ResultRow
+            label="Gesamt (10 J.)"
+            value={pct(calc.renditeGesamt)}
+            indent
           />
         </ResultCard>
       </div>

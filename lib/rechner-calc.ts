@@ -1,7 +1,7 @@
 import type { ProjectData, CalcResult, YearResult } from "./rechner-types"
 import { MABV_STUFEN } from "./rechner-types"
 
-// ─── Helpers ──────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────
 export const fmt = (v: number, d = 0): string => {
   const n = Number(v) || 0
   return n.toLocaleString("de-DE", {
@@ -12,7 +12,7 @@ export const fmt = (v: number, d = 0): string => {
 export const eur = (v: number, d = 0): string => `${fmt(v, d)} \u20AC`
 export const pct = (v: number): string => `${fmt(v, 2)} %`
 
-// ─── Tax calculation (simplified German income tax 2025) ─────────
+// ─── Tax calculation (simplified German income tax 2025) ─────
 function calcTax(
   income: number,
   married: number,
@@ -50,7 +50,7 @@ export function calcMarginalRate(
   return ((t2 - t1) / 1000) * 100
 }
 
-// ─── Bauzeitzinsen nach MaBV-Stufen ─────────────────────────────
+// ─── Bauzeitzinsen nach MaBV-Stufen ─────────────────────
 export function calcBauzeitZinsen(
   darlehenGesamt: number,
   darlehen1: number,
@@ -138,7 +138,7 @@ export function calculate(data: ProjectData): CalcResult {
   const nkGesamt = nebenkosten + bauzeitZinsen
   const gesamtInvest = gesamtKP + nkGesamt
 
-  // ─── Steuerliche Zuordnung der Nebenkosten ───────────────────
+  // ─── Steuerliche Zuordnung der Nebenkosten ───────────────
   const anschaffungsNK = gestBetrag + notarBetrag + bauzeitZinsen
 
   // Gebaeudewert fuer AfA: Gebaeudeanteil + Anschaffungsnebenkosten
@@ -154,10 +154,7 @@ export function calculate(data: ProjectData): CalcResult {
   const kirchePct = kirche === 0 ? 0 : kirche === 1 ? 8 : 9
   const marginalRate = calcMarginalRate(einkommen, married, kirchePct)
 
-  // ─── Sonder-AfA §7b EStG ──────────────────────────────────────
-  // Baukostenobergrenze: max 5.200 EUR/m² BGF (inkl. Nebenraeume/TG)
-  // Wenn ueberschritten -> kein §7b, komplett
-  // Foerderhoechstgrenze: max 4.000 EUR/m² Wfl (Bemessungsgrundlage)
+  // ─── Sonder-AfA \u00A77b EStG ──────────────────────────────
   const gebaeudeKostenProQmBGF = bgf > 0 ? (kaufpreis - grundstueck) / bgf : 0
   const sonder7bBerechtigt = gebaeudeKostenProQmBGF <= 5200
 
@@ -192,7 +189,7 @@ export function calculate(data: ProjectData): CalcResult {
     const afaDegr = restwertDegr * 0.05
     restwertDegr -= afaDegr
 
-    // Sonder-AfA §7b (4 Jahre, nur wenn berechtigt)
+    // Sonder-AfA \u00A77b (4 Jahre, nur wenn berechtigt)
     const afaSonder = j <= 4 ? sonderAfaBasis * 0.05 : 0
 
     // Einmalige WK nur Jahr 1
@@ -210,10 +207,7 @@ export function calculate(data: ProjectData): CalcResult {
       afaSonder
     const steuerWirkung = (steuerErgebnis * marginalRate) / 100
 
-    // ─── Cashflow ────────────────────────────────────────────
-    // steuerWirkung ist negativ bei Verlust = Erstattung (Cash+)
-    // steuerWirkung ist positiv bei Gewinn = Nachzahlung (Cash-)
-    // Daher: miete - steuerWirkung (nicht + steuerWirkung)
+    // ─── Cashflow ────────────────────────────────────────
     const ueberschuss =
       mieteJ -
       steuerWirkung -
@@ -264,7 +258,19 @@ export function calculate(data: ProjectData): CalcResult {
     gesamtKP * Math.pow(1 + inflation / 100, 10)
   const vermoegenEnde = wertsteigerung - restschuldEnde
   const gewinn = vermoegenEnde
-  const rendite = eigenkapital > 0 ? (gewinn / eigenkapital) * 100 : 0
+
+  // Gesamt-Rendite auf Eigenkapital (10 Jahre)
+  const renditeGesamt = eigenkapital > 0 ? (gewinn / eigenkapital) * 100 : 0
+
+  // Eigenkapitalrendite p.a. (CAGR)
+  // Formel: (Endvermoegen / EK)^(1/n) - 1
+  let rendite = 0
+  if (eigenkapital > 0 && vermoegenEnde > 0) {
+    rendite = (Math.pow(vermoegenEnde / eigenkapital, 1 / 10) - 1) * 100
+  } else if (eigenkapital > 0) {
+    // Negativer Endwert -> negative Rendite
+    rendite = -100
+  }
 
   // Durchschnittlicher monatlicher Aufwand ueber 10 Jahre
   let totalCashflow = 0
@@ -300,13 +306,14 @@ export function calculate(data: ProjectData): CalcResult {
     vermoegenEnde,
     gewinn,
     rendite,
+    renditeGesamt,
     kumSteuer,
     kumTilgung,
     avgMonat,
   }
 }
 
-// ─── Sharing: encode/decode params to URL ────────────────────────
+// ─── Sharing: encode/decode params to URL ────────────────────
 export function encodeProjectToParams(data: ProjectData): string {
   const params = new URLSearchParams()
   for (const [key, value] of Object.entries(data)) {

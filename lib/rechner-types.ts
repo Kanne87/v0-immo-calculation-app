@@ -1,4 +1,4 @@
-// ─── Types ──────────────────────────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────
 
 export interface ProjectTemplate {
   id: string
@@ -57,18 +57,17 @@ export interface ProjectData {
   verwaltung: number
 }
 
-// ─── Gespeicherte Berechnung ─────────────────────────────────────
-// Datenmodell vorbereitet fuer spaetere Payload CMS Collection "calculations"
+// ─── Gespeicherte Berechnung ─────────────────────────────────
 export interface SavedCalculation {
   id: string
   authentikSub: string
   description: string
-  sourceUnitId: string         // z.B. "WE-003"
+  sourceUnitId: string
   projectData: ProjectData
-  createdAt: string            // ISO date
-  updatedAt: string            // ISO date
-  householdId?: string         // spaeter: lo-board household
-  eventId?: string             // spaeter: household-events
+  createdAt: string
+  updatedAt: string
+  householdId?: string
+  eventId?: string
 }
 
 export interface YearResult {
@@ -117,13 +116,13 @@ export interface CalcResult {
   vermoegenEnde: number
   gewinn: number
   rendite: number
+  renditeGesamt: number
   kumSteuer: number
   kumTilgung: number
   avgMonat: number
 }
 
-// ─── MaBV Auszahlungsstufen ─────────────────────────────────────
-// §3 Abs. 2 MaBV: Raten bei Bautraegervertrag
+// ─── MaBV Auszahlungsstufen ─────────────────────────────────
 export const MABV_STUFEN = [
   { pct: 0.30, label: "Beginn Erdarbeiten" },
   { pct: 0.28, label: "Rohbau inkl. Zimmererarbeiten" },
@@ -137,9 +136,7 @@ export const MABV_STUFEN = [
   { pct: 0.035, label: "Fassade" },
 ]
 
-// ─── Default data (WE-003, EG, 1 Zi, 48,27 m²) ────────────────
-// Korrigierte Werte aus Expose/Telis-Portal Stand 02.03.2026
-
+// ─── Default data (WE-003, EG, 1 Zi, 48,27 m\u00B2) ────────────────
 export const defaultProjectData: ProjectData = {
   projektName: "Spandauer Tor \u2013 WE-003 (EG, 1 Zi.)",
   wfl: 48.27,
