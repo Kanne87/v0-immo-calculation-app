@@ -32,9 +32,10 @@ function AppContent() {
 
   // Load advisor profile on mount
   useEffect(() => {
-    if (status !== "authenticated" || !session?.user?.id) return
+    if (status !== "authenticated") return
 
-    const sub = session.user.id
+    // user.id comes from authentikSub via JWT callback – may be undefined
+    const sub = session?.user?.id || session?.user?.email || "unknown"
 
     async function loadProfile() {
       // Quick check: user-scoped localStorage cache
@@ -64,7 +65,7 @@ function AppContent() {
     }
 
     loadProfile()
-  }, [status, session?.user?.id])
+  }, [status, session?.user?.id, session?.user?.email])
 
   // Handle shared URL
   useEffect(() => {
