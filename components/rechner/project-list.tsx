@@ -13,6 +13,7 @@ import {
   MapPin,
   Leaf,
   Plus,
+  Play,
 } from "lucide-react"
 import type { SavedCalculation } from "@/lib/rechner-types"
 import type { WohneinheitData } from "@/lib/units-data"
@@ -21,6 +22,7 @@ import type { AdvisorProfile } from "@/lib/advisor"
 import { eur } from "@/lib/rechner-calc"
 import { ProfileMenu } from "./profile-menu"
 import { ThemeToggle } from "./theme-toggle"
+import { VideoPlayer } from "./video-player"
 
 type SortKey = "nr" | "wfl" | "kaufpreis"
 type SortDir = "asc" | "desc"
@@ -49,6 +51,7 @@ function ProjektSektion({
   const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [showFilters, setShowFilters] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
+  const [showVideo, setShowVideo] = useState(false)
 
   const etagen = useMemo(() => {
     const set = new Set(projekt.einheiten.map((u) => u.etage))
@@ -83,19 +86,19 @@ function ProjektSektion({
     return sortDir === "asc" ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />
   }
 
-  const displayName = projekt.haus ? `${projekt.name} – ${projekt.haus}` : projekt.name
+  const displayName = projekt.haus ? `${projekt.name} \u2013 ${projekt.haus}` : projekt.name
 
   return (
     <section className="mb-6">
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between mb-3 group"
-      >
-        <div className="flex items-start gap-3">
+      <div className="w-full flex items-center justify-between mb-3 group">
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex items-start gap-3 flex-1 min-w-0 text-left"
+        >
           <div className="p-2 bg-primary/10 rounded-lg mt-0.5">
             <Building2 className="w-5 h-5 text-primary" />
           </div>
-          <div className="text-left">
+          <div className="min-w-0">
             <h2 className="text-base font-serif font-semibold text-foreground group-hover:text-primary transition-colors">
               {displayName}
             </h2>
@@ -110,14 +113,26 @@ function ProjektSektion({
               </span>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
+        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {projekt.videoUrl && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowVideo(true) }}
+              className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all"
+              title="Projektvideo abspielen"
+            >
+              <Play className="w-3 h-3 fill-current" />
+              <span className="hidden sm:inline">Video</span>
+            </button>
+          )}
           <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-0.5 rounded">
             {projekt.einheiten.length} Einheiten
           </span>
-          {collapsed ? <ChevronDown className="w-4 h-4 text-subtle" /> : <ChevronUp className="w-4 h-4 text-subtle" />}
+          <button onClick={() => setCollapsed(!collapsed)}>
+            {collapsed ? <ChevronDown className="w-4 h-4 text-subtle" /> : <ChevronUp className="w-4 h-4 text-subtle" />}
+          </button>
         </div>
-      </button>
+      </div>
 
       {!collapsed && (
         <>
@@ -170,12 +185,12 @@ function ProjektSektion({
               <span>Etage</span>
               <span>Zi.</span>
               <button onClick={() => toggleSort("wfl")} className="flex items-center gap-0.5 hover:text-foreground transition-colors">
-                m² <SortIcon col="wfl" />
+                m&#178; <SortIcon col="wfl" />
               </button>
               <button onClick={() => toggleSort("kaufpreis")} className="flex items-center gap-0.5 hover:text-foreground transition-colors">
                 Kaufpreis <SortIcon col="kaufpreis" />
               </button>
-              <span className="hidden md:block">€/m²</span>
+              <span className="hidden md:block">&#8364;/m&#178;</span>
             </div>
 
             <div className="max-h-[500px] overflow-y-auto">
@@ -189,7 +204,7 @@ function ProjektSektion({
                   <span>{we.etage}</span>
                   <span>{we.zimmer}</span>
                   <span>{we.wfl}</span>
-                  <span>{`${(we.gesamtKaufpreis / 1000).toFixed(0)}T€`}</span>
+                  <span>{`${(we.gesamtKaufpreis / 1000).toFixed(0)}T\u20AC`}</span>
                   <span className="hidden md:block text-subtle">
                     {we.qmPreis.toLocaleString("de-DE")}
                   </span>
@@ -204,6 +219,14 @@ function ProjektSektion({
             </div>
           </div>
         </>
+      )}
+
+      {showVideo && projekt.videoUrl && (
+        <VideoPlayer
+          url={projekt.videoUrl}
+          title={displayName}
+          onClose={() => setShowVideo(false)}
+        />
       )}
     </section>
   )
@@ -274,7 +297,7 @@ export function ProjectList({
                 Noch keine Berechnungen gespeichert.
               </p>
               <p className="text-[10px] text-subtle font-mono mt-1">
-                Wähle eine Wohneinheit oder starte eine freie Berechnung.
+                W&#228;hle eine Wohneinheit oder starte eine freie Berechnung.
               </p>
             </div>
           ) : (
@@ -295,14 +318,14 @@ export function ProjectList({
                     </div>
                     <div className="flex gap-4 text-[10px] font-mono text-dimmed">
                       <span>{`KP ${eur(calc.projectData.kaufpreis + calc.projectData.stellplatz, 0)}`}</span>
-                      <span>{`${calc.projectData.wfl} m²`}</span>
+                      <span>{`${calc.projectData.wfl} m\u00B2`}</span>
                       <span>{`EK ${eur(calc.projectData.eigenkapital, 0)}`}</span>
                     </div>
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); setPendingDeleteId(calc.id) }}
                     className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-subtle hover:text-destructive transition-all"
-                    aria-label="Berechnung löschen"
+                    aria-label="Berechnung l&#246;schen"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -314,7 +337,7 @@ export function ProjectList({
 
         <div className="mb-4">
           <h2 className="text-[11px] text-subtle font-mono uppercase tracking-[2px]">
-            Verfügbare Projekte
+            Verf&#252;gbare Projekte
           </h2>
         </div>
 
@@ -332,14 +355,14 @@ export function ProjectList({
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setPendingDeleteId(null)} />
           <div className="relative w-full max-w-sm bg-card border border-border rounded-lg shadow-xl">
             <div className="px-4 py-4">
-              <h3 className="text-sm font-serif font-semibold text-foreground mb-2">Berechnung löschen?</h3>
+              <h3 className="text-sm font-serif font-semibold text-foreground mb-2">Berechnung l&#246;schen?</h3>
               <p className="text-xs text-dimmed font-mono">
-                {`„${savedCalcs.find((c) => c.id === pendingDeleteId)?.description}“ wird unwiderruflich gelöscht.`}
+                {`\u201E${savedCalcs.find((c) => c.id === pendingDeleteId)?.description}\u201C wird unwiderruflich gel\u00F6scht.`}
               </p>
             </div>
             <div className="flex gap-2 px-4 py-3 border-t border-border">
               <button onClick={() => setPendingDeleteId(null)} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-secondary text-dimmed border border-border hover:text-foreground transition-all">Abbrechen</button>
-              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all">Löschen</button>
+              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all">L&#246;schen</button>
             </div>
           </div>
         </div>
