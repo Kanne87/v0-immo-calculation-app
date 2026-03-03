@@ -24,8 +24,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Kapitalanlage-Rechner Pro",
   description:
-    "Steueroptimierte Immobilienanalyse mit KfW-F\u00F6rderung, Sonder-AfA und 10-Jahres-Cashflow",
+    "Steueroptimierte Immobilienanalyse mit KfW-Förderung, Sonder-AfA und 10-Jahres-Cashflow",
 }
+
+const themeScript = '(function(){try{var t=localStorage.getItem("immo-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}})();'
 
 export default function RootLayout({
   children,
@@ -35,8 +37,12 @@ export default function RootLayout({
   return (
     <html
       lang="de"
-      className={`${playfair.variable} ${jetbrains.variable} ${inter.variable}`}
+      data-theme="dark"
+      className={[playfair.variable, jetbrains.variable, inter.variable].join(" ")}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="font-[family-name:var(--font-inter)] antialiased">
         <SessionProvider>{children}</SessionProvider>
       </body>

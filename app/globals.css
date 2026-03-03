@@ -3,6 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ─── Dark theme (default) ────────────────────────────────────── */
 :root {
   --background: #0a0a14;
   --foreground: #e0e0f0;
@@ -34,6 +35,39 @@
   --surface: #0d0d1a;
   --dimmed: #8a8a9a;
   --subtle: #5a5a7a;
+}
+
+/* ─── Light theme ─────────────────────────────────────────────── */
+:root[data-theme="light"] {
+  --background: #f8f7f4;
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a2e;
+  --primary: #9a7b2e;
+  --primary-foreground: #ffffff;
+  --secondary: #f0ede6;
+  --secondary-foreground: #5a5a6a;
+  --muted: #f0ede6;
+  --muted-foreground: #7a7a8a;
+  --accent: #9a7b2e;
+  --accent-foreground: #ffffff;
+  --destructive: #d04040;
+  --destructive-foreground: #ffffff;
+  --border: #e0ddd4;
+  --input: #f0ede6;
+  --ring: #9a7b2e;
+  --chart-1: #3a6aba;
+  --chart-2: #ba3a3a;
+  --chart-3: #3a8a3a;
+  --chart-4: #9a7b2e;
+  --chart-5: #7a7a8a;
+  --positive: #2a7a2a;
+  --negative: #d04040;
+  --surface: #f4f2ed;
+  --dimmed: #6a6a7a;
+  --subtle: #9a9aaa;
 }
 
 @theme inline {
@@ -83,7 +117,7 @@
     @apply bg-background text-foreground;
   }
 
-  /* Custom scrollbar */
+  /* Custom scrollbar – dark */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -92,11 +126,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a2a3e;
+    background: var(--border);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a3a4e;
+    background: var(--subtle);
   }
 
   /* Number input arrows */

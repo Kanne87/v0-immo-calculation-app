@@ -20,6 +20,7 @@ import type { ProjektDefinition } from "@/lib/projects-data"
 import type { AdvisorProfile } from "@/lib/advisor"
 import { eur } from "@/lib/rechner-calc"
 import { ProfileMenu } from "./profile-menu"
+import { ThemeToggle } from "./theme-toggle"
 
 type SortKey = "nr" | "wfl" | "kaufpreis"
 type SortDir = "asc" | "desc"
@@ -232,11 +233,12 @@ export function ProjectList({
         <p className="text-xs text-dimmed font-mono">
           Neubauprojekte analysieren und vergleichen
         </p>
-        {advisorProfile && onProfileSave && (
-          <div className="absolute top-6 right-5">
+        <div className="absolute top-6 right-5 flex items-center gap-2">
+          <ThemeToggle />
+          {advisorProfile && onProfileSave && (
             <ProfileMenu profile={advisorProfile} onSave={onProfileSave} />
-          </div>
-        )}
+          )}
+        </div>
       </header>
 
       <main className="p-5">
