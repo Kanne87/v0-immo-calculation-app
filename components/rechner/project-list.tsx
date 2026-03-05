@@ -87,7 +87,7 @@ function ProjektSektion({
   }
 
   const displayName = projekt.haus ? `${projekt.name} \u2013 ${projekt.haus}` : projekt.name
-  const hasPraesentation = projekt.coverImageUrl || (projekt.faktenblatt?.length ?? 0) > 0 || projekt.videoUrl
+  const hasPraesentation = projekt.coverImageUrl || (projekt.keyfacts?.length ?? 0) > 0 || (projekt.praesektionen?.length ?? 0) > 0 || projekt.videoUrl
 
   return (
     <section className="mb-6">
@@ -120,10 +120,10 @@ function ProjektSektion({
             <button
               onClick={(e) => { e.stopPropagation(); setShowPraesentation(true) }}
               className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all"
-              title="Objektpräsentation öffnen"
+              title="Objektpr\u00e4sentation \u00f6ffnen"
             >
               <BookOpen className="w-3 h-3" />
-              <span className="hidden sm:inline">Präsentation</span>
+              <span className="hidden sm:inline">Pr\u00e4sentation</span>
             </button>
           )}
           <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-0.5 rounded">
@@ -243,7 +243,8 @@ export function ProjectList({
   onProfileSave,
 }: Props) {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
-  const [calcsCollapsed, setCalcsCollapsed] = useState(false)
+  // Berechnungen standardm\u00e4\u00dfig eingeklappt
+  const [calcsCollapsed, setCalcsCollapsed] = useState(true)
 
   return (
     <div className="w-full max-w-[480px] md:max-w-[900px] mx-auto min-h-screen bg-background">
@@ -266,8 +267,23 @@ export function ProjectList({
       </header>
 
       <main className="p-5">
-        <section className="mb-8">
-          {/* Header row – immer sichtbar */}
+        {/* Projekte zuerst */}
+        <div className="mb-4">
+          <h2 className="text-[11px] text-subtle font-mono uppercase tracking-[2px]">
+            Verf&#252;gbare Projekte
+          </h2>
+        </div>
+
+        {projekte.map((projekt) => (
+          <ProjektSektion
+            key={projekt.id}
+            projekt={projekt}
+            onSelectUnit={(unit) => onSelectUnit(unit, projekt.id)}
+          />
+        ))}
+
+        {/* Berechnungen darunter, eingeklappt */}
+        <section className="mt-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => setCalcsCollapsed(!calcsCollapsed)}
@@ -301,7 +317,6 @@ export function ProjectList({
             )}
           </div>
 
-          {/* Inhalt – collapsible */}
           {!calcsCollapsed && (
             savedCalcs.length === 0 ? (
               <div className="py-8 px-4 rounded-lg border border-dashed border-border bg-secondary/20 text-center">
@@ -348,20 +363,6 @@ export function ProjectList({
             )
           )}
         </section>
-
-        <div className="mb-4">
-          <h2 className="text-[11px] text-subtle font-mono uppercase tracking-[2px]">
-            Verf&#252;gbare Projekte
-          </h2>
-        </div>
-
-        {projekte.map((projekt) => (
-          <ProjektSektion
-            key={projekt.id}
-            projekt={projekt}
-            onSelectUnit={(unit) => onSelectUnit(unit, projekt.id)}
-          />
-        ))}
       </main>
 
       {pendingDeleteId && (

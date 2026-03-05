@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useCallback, useState, useRef } from "react"
-import { X, ChevronLeft, ChevronRight } from "lucide-react"
+import { X, ChevronDown, ChevronUp, Play, Maximize2, Minimize2 } from "lucide-react"
 import type { ProjektDefinition } from "@/lib/projects-data"
 
 interface Props {
@@ -9,35 +9,17 @@ interface Props {
   onClose: () => void
 }
 
-type SlideType = "image" | "faktenblatt" | "video"
-
-const SLIDE_LABELS: Record<SlideType, string> = {
-  image: "Objekt",
-  faktenblatt: "Eckdaten",
-  video: "Video",
-}
-
 export function ObjektPraesentation({ projekt, onClose }: Props) {
-  const slides: SlideType[] = [
-    ...(projekt.coverImageUrl ? ["image" as const] : []),
-    ...(projekt.faktenblatt?.length ? ["faktenblatt" as const] : []),
-    ...(projekt.videoUrl ? ["video" as const] : []),
-  ]
-
-  const [current, setCurrent] = useState(0)
+  const [openSektionen, setOpenSektionen] = useState<Set<number>>(new Set())
+  const [showVideo, setShowVideo] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const displayName = projekt.haus ? `${projekt.name} – ${projekt.haus}` : projekt.name
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  const prev = () => setCurrent((c) => Math.max(0, c - 1))
-  const next = () => setCurrent((c) => Math.min(slides.length - 1, c + 1))
+  const displayName = projekt.haus ? `${projekt.name} \u2013 ${projekt.haus}` : projekt.name
 
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-      if (e.key === "ArrowLeft") prev()
-      if (e.key === "ArrowRight") next()
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    (e: KeyboardEvent) => { if (e.key === "Escape") onClose() },
     [onClose]
   )
 
@@ -50,9 +32,27 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
     }
   }, [handleKeyDown])
 
-  if (slides.length === 0) return null
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement)
+    document.addEventListener("fullscreenchange", handler)
+    return () => document.removeEventListener("fullscreenchange", handler)
+  }, [])
 
-  const slideType = slides[current]
+  const toggleSektion = (i: number) => {
+    setOpenSektionen((prev) => {
+      const next = new Set(prev)
+      next.has(i) ? next.delete(i) : next.add(i)
+      return next
+    })
+  }
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {})
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {})
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
@@ -60,135 +60,175 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
       <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-4xl z-10 flex flex-col" style={{ maxHeight: "90vh" }}>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
+      <div
+        ref={containerRef}
+        className="relative w-full max-w-3xl z-10 flex flex-col rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-[#0f0f0f]"
+        style={{ maxHeight: "90vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10 flex-shrink-0">
+          <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-mono text-white/70 tracking-wider uppercase">
+            <span className="text-[11px] font-mono text-white/60 tracking-wider uppercase">
               {displayName}
             </span>
-            <span className="text-[10px] font-mono text-white/40 bg-white/10 px-1.5 py-0.5 rounded">
-              {SLIDE_LABELS[slideType]}
-            </span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleFullscreen}
+              className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all"
+              title={isFullscreen ? "Vollbild beenden" : "Vollbild"}
+            >
+              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
-        {/* Slide content */}
-        <div className="relative rounded-xl overflow-hidden bg-black shadow-2xl ring-1 ring-white/10 flex-1">
-          {slideType === "image" && projekt.coverImageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={projekt.coverImageUrl}
-              alt={displayName}
-              className="w-full h-full object-cover"
-              style={{ maxHeight: "70vh" }}
-            />
-          )}
-
-          {slideType === "faktenblatt" && projekt.faktenblatt && (
-            <div
-              className="overflow-y-auto"
-              style={{ maxHeight: "70vh" }}
-            >
-              <div className="px-5 py-4">
-                <div className="text-[9px] font-mono text-white/40 tracking-[3px] uppercase mb-3">
-                  Liegenschaft | {projekt.adresse}
-                </div>
-                <table className="w-full border-collapse">
-                  <tbody>
-                    {projekt.faktenblatt.map((row, i) => (
-                      <tr
-                        key={i}
-                        className="border-t border-white/10 group hover:bg-white/5 transition-colors"
-                      >
-                        <td className="py-2.5 pr-4 text-[11px] font-mono text-white/50 align-top whitespace-nowrap w-[180px]">
-                          {row.label}
-                        </td>
-                        <td className="py-2.5 text-[11px] font-mono text-white/85 align-top leading-relaxed">
-                          {row.value}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1">
+          {/* Hero: Bild oder Placeholder */}
+          <div className="relative w-full bg-black" style={{ aspectRatio: "16/7" }}>
+            {projekt.coverImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={projekt.coverImageUrl}
+                alt={displayName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                <div className="text-white/10 text-[10px] font-mono tracking-[4px] uppercase">Bild</div>
+                <div className="text-white/5 text-[9px] font-mono">coverImageUrl in projects-data.ts eintragen</div>
               </div>
+            )}
+            {/* Video-Overlay-Button */}
+            {projekt.videoUrl && (
+              <button
+                onClick={() => setShowVideo(true)}
+                className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-mono bg-black/70 text-white/80 border border-white/20 hover:bg-black/90 hover:text-white transition-all backdrop-blur-sm"
+              >
+                <Play className="w-3 h-3 fill-current" />
+                Video abspielen
+              </button>
+            )}
+            {/* Gradient for keyfacts readability */}
+            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
+          </div>
+
+          {/* Key Facts Bar */}
+          {projekt.keyfacts && projekt.keyfacts.length > 0 && (
+            <div className="grid border-b border-white/10"
+              style={{ gridTemplateColumns: `repeat(${projekt.keyfacts.length}, 1fr)` }}
+            >
+              {projekt.keyfacts.map((fact, i) => (
+                <div
+                  key={i}
+                  className={`px-3 py-3 flex flex-col items-center justify-center text-center ${
+                    i < projekt.keyfacts!.length - 1 ? "border-r border-white/10" : ""
+                  }`}
+                >
+                  <div className="text-base font-serif text-white font-semibold leading-tight">
+                    {fact.value}
+                  </div>
+                  <div className="text-[9px] font-mono text-white/40 mt-0.5 uppercase tracking-wider">
+                    {fact.label}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
-          {slideType === "video" && projekt.videoUrl && (
-            <video
-              ref={videoRef}
-              src={projekt.videoUrl}
-              controls
-              autoPlay
-              playsInline
-              className="w-full aspect-video"
-              controlsList="nodownload"
-              style={{ maxHeight: "70vh" }}
-            >
-              Dein Browser unterstützt keine Videowiedergabe.
-            </video>
+          {/* Accordion Sektionen */}
+          {projekt.praesektionen && projekt.praesektionen.length > 0 && (
+            <div className="divide-y divide-white/10">
+              {projekt.praesektionen.map((sektion, i) => {
+                const isOpen = openSektionen.has(i)
+                return (
+                  <div key={i}>
+                    <button
+                      onClick={() => toggleSektion(i)}
+                      className="w-full flex items-center justify-between px-5 py-3 hover:bg-white/5 transition-colors"
+                    >
+                      <span className="text-[11px] font-mono text-white/70 uppercase tracking-[2px]">
+                        {sektion.title}
+                      </span>
+                      {isOpen
+                        ? <ChevronUp className="w-3.5 h-3.5 text-white/30" />
+                        : <ChevronDown className="w-3.5 h-3.5 text-white/30" />
+                      }
+                    </button>
+                    {isOpen && (
+                      <div className="px-5 pb-4">
+                        <table className="w-full border-collapse">
+                          <tbody>
+                            {sektion.rows.map((row, j) => (
+                              <tr key={j} className="border-t border-white/8 hover:bg-white/3 transition-colors">
+                                <td className="py-2 pr-5 text-[10px] font-mono text-white/40 align-top w-[160px] whitespace-nowrap">
+                                  {row.label}
+                                </td>
+                                <td className="py-2 text-[11px] font-mono text-white/80 align-top leading-relaxed">
+                                  {row.value}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           )}
-        </div>
 
-        {/* Navigation */}
-        <div className="mt-3 flex items-center justify-between">
-          <button
-            onClick={prev}
-            disabled={current === 0}
-            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          {/* Dots + labels */}
-          <div className="flex items-center gap-3">
-            {slides.map((slide, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className="flex flex-col items-center gap-1 group"
-              >
-                <div
-                  className={`h-1 rounded-full transition-all ${
-                    i === current
-                      ? "w-6 bg-primary"
-                      : "w-2 bg-white/25 hover:bg-white/50"
-                  }`}
-                />
-                <span
-                  className={`text-[9px] font-mono transition-colors ${
-                    i === current ? "text-primary" : "text-white/30 group-hover:text-white/60"
-                  }`}
-                >
-                  {SLIDE_LABELS[slide]}
-                </span>
-              </button>
-            ))}
+          <div className="px-5 py-3 border-t border-white/10">
+            <span className="text-[9px] font-mono text-white/20">
+              ESC zum Schlie\u00dfen
+            </span>
           </div>
-
-          <button
-            onClick={next}
-            disabled={current === slides.length - 1}
-            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="mt-1 text-center">
-          <span className="text-[10px] font-mono text-white/25">
-            {current + 1} / {slides.length} · ESC zum Schließen · ← → Navigation
-          </span>
         </div>
       </div>
+
+      {/* Video Modal (layered on top) */}
+      {showVideo && projekt.videoUrl && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 md:p-8">
+          <div className="absolute inset-0 bg-black/80" onClick={() => setShowVideo(false)} />
+          <div className="relative w-full max-w-4xl z-10">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-mono text-white/60 tracking-wider uppercase">{displayName}</span>
+              <button
+                onClick={() => setShowVideo(false)}
+                className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="rounded-xl overflow-hidden bg-black shadow-2xl ring-1 ring-white/10">
+              <video
+                ref={videoRef}
+                src={projekt.videoUrl}
+                controls
+                autoPlay
+                playsInline
+                className="w-full aspect-video"
+                controlsList="nodownload"
+              >
+                Dein Browser unterst\u00fctzt keine Videowiedergabe.
+              </video>
+            </div>
+            <div className="mt-2 text-center">
+              <span className="text-[10px] font-mono text-white/30">ESC zum Schlie\u00dfen</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
