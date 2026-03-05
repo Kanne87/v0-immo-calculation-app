@@ -113,8 +113,8 @@ export const SPANDAUER_TOR_HAUS1: ProjektDefinition = {
   stellplatzPreis: STELLPLATZ_PREIS,
   weGesamt: PROJEKT_ECKDATEN.weGesamt,
   einheiten: HAUS1_EINHEITEN,
-  videoUrl: "https://cloud.kailohmann.de/public.php/dav/files/2ZQ6bbpLzmMgtJk",
-  // coverImageUrl: "https://...",  ← Bild-URL hier eintragen
+  videoUrl: "https://kailohmann.de/spandauer_tor.mp4",
+  // coverImageUrl: "https://...",
   keyfacts: SPANDAU_KEYFACTS,
   praesektionen: SPANDAU_SEKTIONEN,
 }
