@@ -92,7 +92,7 @@ export function FieldInput({
             className="text-subtle hover:text-foreground transition-colors text-sm font-mono leading-none select-none px-0.5"
             tabIndex={-1}
           >
-            {"\u2212"}
+            {"−"}
           </button>
         )}
         {prefix && (

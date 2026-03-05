@@ -23,7 +23,7 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
       name: `J${j.j}`,
       Restschuld: Math.round(j.restschuldGesamt),
       Immobilienwert: Math.round(immobilienwert),
-      "Verm\u00f6gen": Math.round(immobilienwert - j.restschuldGesamt),
+      "Vermögen": Math.round(immobilienwert - j.restschuldGesamt),
     }
   })
 
@@ -35,10 +35,10 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
     { key: "rate2", label: `${darlehen2Label}`, w: "" },
     { key: "restschuld2", label: `Rest 2`, w: "" },
     { key: "afaDegr", label: "AfA d.", w: "" },
-    { key: "afaSonder", label: "\u00a77b", w: "" },
+    { key: "afaSonder", label: "§7b", w: "" },
     { key: "steuerErgebnis", label: "Steuerl.", w: "" },
     { key: "steuerWirkung", label: "St.wirk.", w: "" },
-    { key: "ueberschuss", label: "\u00dcbersch.", w: "" },
+    { key: "ueberschuss", label: "Übersch.", w: "" },
   ]
 
   return (
@@ -75,7 +75,7 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
                   <td className="py-1 px-1.5 text-right text-foreground/70">{fmt(j.rate2)}</td>
                   <td className="py-1 px-1.5 text-right text-foreground/50">{fmt(j.restschuld2)}</td>
                   <td className="py-1 px-1.5 text-right text-foreground/70">{fmt(j.afaDegr)}</td>
-                  <td className="py-1 px-1.5 text-right text-foreground/50">{j.afaSonder > 0 ? fmt(j.afaSonder) : "\u2014"}</td>
+                  <td className="py-1 px-1.5 text-right text-foreground/50">{j.afaSonder > 0 ? fmt(j.afaSonder) : "—"}</td>
                   <td className={`py-1 px-1.5 text-right ${j.steuerErgebnis < 0 ? "text-red-500" : "text-green-600"}`}>{fmt(j.steuerErgebnis)}</td>
                   <td className={`py-1 px-1.5 text-right ${j.steuerWirkung < 0 ? "text-primary" : "text-foreground/70"}`}>{fmt(j.steuerWirkung)}</td>
                   <td className={`py-1 px-1.5 text-right font-semibold ${j.ueberschuss >= 0 ? "text-green-600" : "text-red-500"}`}>{fmt(j.ueberschuss)}</td>
@@ -97,8 +97,8 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
       <div className="mt-6">
         <SectionHeader
           icon="chart"
-          title="Verm\u00f6gensentwicklung"
-          subtitle="Immobilienwert, Restschuld und Verm\u00f6gen"
+          title="Vermögensentwicklung"
+          subtitle="Immobilienwert, Restschuld und Vermögen"
         />
         <div className="bg-surface rounded-lg p-4 border border-border">
           <ResponsiveContainer width="100%" height={280}>
@@ -114,7 +114,7 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
               <Legend wrapperStyle={{ fontSize: 11, color: "var(--subtle)" }} />
               <Line type="monotone" dataKey="Immobilienwert" stroke="#3a5aaa" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="Restschuld" stroke="#aa3a3a" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Verm\u00f6gen" stroke="#4a8a4a" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Vermögen" stroke="#4a8a4a" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

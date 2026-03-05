@@ -27,7 +27,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
     ? Math.round((darlehenGesamt / calc.gesamtInvest) * 100)
     : 0
 
-  // Wenn EK ge\u00e4ndert wird, Darlehen 2 automatisch anpassen
+  // Wenn EK geändert wird, Darlehen 2 automatisch anpassen
   const handleEKChange = (newEK: number) => {
     onChange("eigenkapital", newEK)
     // D2 = GesamtInvest - EK - D1
@@ -74,12 +74,12 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
         label="Eigenkapitaleinsatz"
         value={data.eigenkapital}
         onChange={handleEKChange}
-        suffix="\u20ac"
+        suffix="€"
         step={5000}
         disabled={readOnly}
       />
       <div className="text-[9px] text-subtle font-mono mb-4 -mt-1 pl-1">
-        Nebenkosten (GrESt + Notar + Grundschuld) = {eur(calc.nebenkosten)} \u2013 Darlehen 2 passt sich automatisch an
+        Nebenkosten (GrESt + Notar + Grundschuld) = {eur(calc.nebenkosten)} – Darlehen 2 passt sich automatisch an
       </div>
 
       <SectionHeader
@@ -98,7 +98,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
           label="Darlehensbetrag"
           value={data.darlehen1}
           onChange={(v) => onChange("darlehen1", v)}
-          suffix="\u20ac"
+          suffix="€"
           step={5000}
           disabled={readOnly}
         />
@@ -158,7 +158,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
           label="Darlehensbetrag"
           value={data.darlehen2}
           onChange={(v) => onChange("darlehen2", v)}
-          suffix="\u20ac"
+          suffix="€"
           step={5000}
           disabled={readOnly}
         />
@@ -201,7 +201,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
       <SectionHeader
         icon="file"
         title="Steuerdaten"
-        subtitle="F\u00fcr Berechnung Grenzsteuersatz"
+        subtitle="Für Berechnung Grenzsteuersatz"
       />
       <SelectField
         label="Familienstand"
@@ -217,7 +217,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
         label="Zu versteuerndes Einkommen"
         value={data.einkommen}
         onChange={(v) => onChange("einkommen", v)}
-        suffix="\u20ac"
+        suffix="€"
         step={5000}
         disabled={readOnly}
       />

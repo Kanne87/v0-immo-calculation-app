@@ -16,7 +16,7 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const displayName = projekt.haus ? `${projekt.name} \u2013 ${projekt.haus}` : projekt.name
+  const displayName = projekt.haus ? `${projekt.name} – ${projekt.haus}` : projekt.name
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => { if (e.key === "Escape") { showVideo ? setShowVideo(false) : onClose() } },
@@ -56,7 +56,7 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
 
   return (
     <>
-      {/* Pr\u00e4sentations-Modal */}
+      {/* Präsentations-Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
         <div className="absolute inset-0 bg-foreground/60 backdrop-blur-md" onClick={onClose} />
 
@@ -187,13 +187,13 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
             )}
 
             <div className="px-5 py-3 border-t border-border">
-              <span className="text-[9px] font-mono text-subtle/50">ESC zum Schlie\u00dfen</span>
+              <span className="text-[9px] font-mono text-subtle/50">ESC zum Schließen</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Video Modal \u2013 als Sibling auf Top-Level, nicht nested */}
+      {/* Video Modal – als Sibling auf Top-Level, nicht nested */}
       {showVideo && projekt.videoUrl && (
         <div className="fixed inset-0 flex items-center justify-center p-4 md:p-8" style={{ zIndex: 60 }}>
           <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={() => setShowVideo(false)} />
@@ -217,11 +217,11 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
                 className="w-full aspect-video"
                 controlsList="nodownload"
               >
-                Dein Browser unterst\u00fctzt keine Videowiedergabe.
+                Dein Browser unterstützt keine Videowiedergabe.
               </video>
             </div>
             <div className="mt-2 text-center">
-              <span className="text-[10px] font-mono text-white/30">ESC zum Schlie\u00dfen</span>
+              <span className="text-[10px] font-mono text-white/30">ESC zum Schließen</span>
             </div>
           </div>
         </div>

@@ -86,7 +86,7 @@ function ProjektSektion({
     return sortDir === "asc" ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />
   }
 
-  const displayName = projekt.haus ? `${projekt.name} \u2013 ${projekt.haus}` : projekt.name
+  const displayName = projekt.haus ? `${projekt.name} – ${projekt.haus}` : projekt.name
   const hasPraesentation = projekt.coverImageUrl || (projekt.keyfacts?.length ?? 0) > 0 || (projekt.praesektionen?.length ?? 0) > 0 || projekt.videoUrl
 
   return (

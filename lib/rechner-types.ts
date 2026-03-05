@@ -1,4 +1,4 @@
-// \u2500\u2500\u2500 Types \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// ─── Types ──────────────────────────────────────────────────────────────
 
 export interface ProjectTemplate {
   id: string
@@ -57,7 +57,7 @@ export interface ProjectData {
   verwaltung: number
 }
 
-// \u2500\u2500\u2500 Gespeicherte Berechnung \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// ─── Gespeicherte Berechnung ─────────────────────────────────
 export interface SavedCalculation {
   id: string
   authentikSub: string
@@ -122,7 +122,7 @@ export interface CalcResult {
   avgMonat: number
 }
 
-// \u2500\u2500\u2500 MaBV Auszahlungsstufen \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// ─── MaBV Auszahlungsstufen ──────────────────────────────────
 export const MABV_STUFEN = [
   { pct: 0.300, label: "Beginn Erdarbeiten",                        monatRef: 0 },
   { pct: 0.280, label: "Rohbaufertigstellung inkl. Zimmererarbeiten", monatRef: 5 },
@@ -141,11 +141,11 @@ export const MABV_STUFEN = [
 
 export const MABV_REF_MONATE = 18
 
-// \u2500\u2500\u2500 Default data (WE-003, EG, 1 Zi, 48,27 m\u00b2) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// ─── Default data (WE-003, EG, 1 Zi, 48,27 m²) ──────────────
 // EK = Nebenkosten (348.000 * 8% = 27.840)
 // D2 = GesamtKP - D1 (348.000 - 150.000 = 198.000)
 export const defaultProjectData: ProjectData = {
-  projektName: "Spandauer Tor \u2013 WE-003 (EG, 1 Zi.)",
+  projektName: "Spandauer Tor – WE-003 (EG, 1 Zi.)",
   wfl: 48.27,
   bgf: 65.16,
   kaufpreis: 319000,

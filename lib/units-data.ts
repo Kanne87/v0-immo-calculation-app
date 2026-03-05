@@ -1,4 +1,4 @@
-// \u2500\u2500\u2500 Haus 1 Spandauer Tor \u2013 Einheitendatenbank \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// ─── Haus 1 Spandauer Tor – Einheitendatenbank ──────────────────
 
 export interface WohneinheitData {
   id: string
@@ -84,7 +84,7 @@ export function weToProjectData(we: WohneinheitData): ProjectData {
   const darlehen2 = gesamtKP - PROJEKT_ECKDATEN.darlehen1
 
   return {
-    projektName: `${PROJEKT_ECKDATEN.name} \u2013 ${we.id} (${we.etage}, ${we.zimmer} Zi.)`,
+    projektName: `${PROJEKT_ECKDATEN.name} – ${we.id} (${we.etage}, ${we.zimmer} Zi.)`,
     wfl: we.wfl,
     bgf: Math.round(we.wfl * 1.35 * 100) / 100,
     kaufpreis: we.kaufpreis,

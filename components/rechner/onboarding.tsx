@@ -51,8 +51,8 @@ export function Onboarding({ email, name, onComplete }: Props) {
             </h1>
             <p className="text-sm text-muted-foreground">
               {step === 1
-                ? "Bitte vervollst\u00E4ndige dein Beraterprofil. Diese Daten erscheinen auf deinen PDF-Berechnungen."
-                : "Noch deine Kontaktadresse \u2013 dann kann es losgehen."}
+                ? "Bitte vervollständige dein Beraterprofil. Diese Daten erscheinen auf deinen PDF-Berechnungen."
+                : "Noch deine Kontaktadresse – dann kann es losgehen."}
             </p>
           </div>
 
@@ -117,7 +117,7 @@ export function Onboarding({ email, name, onComplete }: Props) {
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-[11px] text-muted-foreground mb-1 font-mono">{`Stra\u00DFe + Hausnummer`}</label>
+                <label className="block text-[11px] text-muted-foreground mb-1 font-mono">{`Straße + Hausnummer`}</label>
                 <input
                   type="text"
                   value={street}
@@ -152,7 +152,7 @@ export function Onboarding({ email, name, onComplete }: Props) {
                   onClick={() => setStep(1)}
                   className="h-11 px-6 rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  {`Zur\u00FCck`}
+                  {`Zurück`}
                 </button>
                 <button
                   onClick={handleSubmit}
@@ -167,7 +167,7 @@ export function Onboarding({ email, name, onComplete }: Props) {
         </div>
 
         <p className="text-center text-[10px] text-muted-foreground mt-4">
-          Diese Daten werden f\u00FCr den PDF-Export und dein Beraterprofil gespeichert.
+          Diese Daten werden für den PDF-Export und dein Beraterprofil gespeichert.
         </p>
       </div>
     </div>

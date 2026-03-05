@@ -24,7 +24,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Kapitalanlage-Rechner Pro",
   description:
-    "Steueroptimierte Immobilienanalyse mit KfW-F\u00f6rderung, Sonder-AfA und 10-Jahres-Cashflow",
+    "Steueroptimierte Immobilienanalyse mit KfW-Förderung, Sonder-AfA und 10-Jahres-Cashflow",
 }
 
 // Light ist Standard; nur überschreiben wenn User explizit dark gesetzt hat
