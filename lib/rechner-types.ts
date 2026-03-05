@@ -126,21 +126,28 @@ export interface CalcResult {
 // Quelle: Exposé Spandauer Tor / Immo Projekt Berlin-Spandau I GmbH
 // Kaufvertrag §3 Abs. 2 MaBV, Seite 80 des Verkaufsprospekts (Stand Jan. 2026)
 // 13 projektspezifische Stufen, Summe = 100 %
+//
+// monatRef = realistischer Abrufzeitpunkt bei 18 Monaten Bauzeit
+// (Basis: MFH 5+ Geschosse, Massiv/Betonfertigteile, TG, KfW EH40)
+// Skaliert proportional bei abweichender Bauzeit.
 export const MABV_STUFEN = [
-  { pct: 0.300, label: "Beginn Erdarbeiten" },
-  { pct: 0.280, label: "Rohbaufertigstellung inkl. Zimmererarbeiten" },
-  { pct: 0.056, label: "Herstellung der Dachflaechen und Dachrinnen" },
-  { pct: 0.021, label: "Rohinstallation Heizungsanlagen" },
-  { pct: 0.021, label: "Rohinstallation Sanitaranlagen" },
-  { pct: 0.021, label: "Rohinstallation Elektroanlagen" },
-  { pct: 0.070, label: "Fenstereinbau inkl. Verglasung" },
-  { pct: 0.042, label: "Innenputz (ohne Beiputzarbeiten)" },
-  { pct: 0.021, label: "Estrich" },
-  { pct: 0.028, label: "Fliesenarbeiten im Sanitaerbereich" },
-  { pct: 0.084, label: "Bezugsfertigkeit und Besitzuebergabe" },
-  { pct: 0.021, label: "Fassadenarbeiten" },
-  { pct: 0.035, label: "Vollstaendige Fertigstellung" },
+  { pct: 0.300, label: "Beginn Erdarbeiten",                        monatRef: 0 },
+  { pct: 0.280, label: "Rohbaufertigstellung inkl. Zimmererarbeiten", monatRef: 5 },
+  { pct: 0.056, label: "Herstellung der Dachflaechen und Dachrinnen", monatRef: 6 },
+  { pct: 0.021, label: "Rohinstallation Heizungsanlagen",            monatRef: 8 },
+  { pct: 0.021, label: "Rohinstallation Sanitaranlagen",             monatRef: 8 },
+  { pct: 0.021, label: "Rohinstallation Elektroanlagen",             monatRef: 8 },
+  { pct: 0.070, label: "Fenstereinbau inkl. Verglasung",             monatRef: 7 },
+  { pct: 0.042, label: "Innenputz (ohne Beiputzarbeiten)",           monatRef: 10 },
+  { pct: 0.021, label: "Estrich",                                    monatRef: 11 },
+  { pct: 0.028, label: "Fliesenarbeiten im Sanitaerbereich",         monatRef: 13 },
+  { pct: 0.084, label: "Bezugsfertigkeit und Besitzuebergabe",       monatRef: 16 },
+  { pct: 0.021, label: "Fassadenarbeiten",                           monatRef: 17 },
+  { pct: 0.035, label: "Vollstaendige Fertigstellung",               monatRef: 18 },
 ]
+
+// Referenz-Bauzeit zu der die monatRef-Werte gehören
+export const MABV_REF_MONATE = 18
 
 // ─── Default data (WE-003, EG, 1 Zi, 48,27 m²) ──────────────
 export const defaultProjectData: ProjectData = {
@@ -153,8 +160,8 @@ export const defaultProjectData: ProjectData = {
   gestPct: 6.0,
   notarPct: 2.0,
   grundschuldPct: 0.5,
-  baubeginn: "2026-04-01",
-  fertigstellung: "2028-12-31",
+  baubeginn: "2026-05-01",
+  fertigstellung: "2027-11-01",
   mieteQm: 21.0,
   mieteStellplatz: 80,
   inflation: 2.5,

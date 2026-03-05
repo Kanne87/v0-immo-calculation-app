@@ -4,7 +4,7 @@ import { useState } from "react"
 import type { CalcResult } from "@/lib/rechner-types"
 import type { ProjectData } from "@/lib/rechner-types"
 import { MABV_STUFEN } from "@/lib/rechner-types"
-import { eur, fmt } from "@/lib/rechner-calc"
+import { eur, fmt, mabvMonatSkaliert } from "@/lib/rechner-calc"
 import {
   SectionHeader, ResultRow, Divider, GoldDivider, ResultCard, Disclaimer,
 } from "./ui-parts"
@@ -20,6 +20,13 @@ interface Props {
   data: ProjectData
 }
 
+// Datum aus Baubeginn + Monate berechnen
+function addMonths(isoDate: string, months: number): string {
+  const d = new Date(isoDate)
+  d.setMonth(d.getMonth() + months)
+  return d.toLocaleDateString("de-DE", { month: "2-digit", year: "numeric" })
+}
+
 export function StepErgebnis({ calc, gebaeudeWert, data }: Props) {
   const steuerErsparnis = Math.abs(calc.j1.steuerWirkung)
   const isUeberschuss = calc.aufwandJ1 >= 0
@@ -31,18 +38,19 @@ export function StepErgebnis({ calc, gebaeudeWert, data }: Props) {
     ? (data.darlehen1 * data.zins1 + data.darlehen2 * data.zins2) / darlehenGesamt / 100
     : 0
   const monate = calc.bauzeitMonate
-  const intervall = monate / MABV_STUFEN.length
 
   let kumulierteZinsen = 0
   const mabvData = MABV_STUFEN.map((stufe, i) => {
     const betrag = Math.round(darlehenGesamt * stufe.pct)
-    const restMonate = monate - (i + 1) * intervall
+    const abrufMonat = mabvMonatSkaliert(stufe.monatRef, monate)
+    const restMonate = monate - abrufMonat
     const zinsen = restMonate > 0 ? betrag * gewZins * (restMonate / 12) : 0
     kumulierteZinsen += zinsen
     return {
       name: stufe.label.replace("inkl. ", "").replace("Heizung/Sanitaer/Elektro", "HLS").split(" ")[0],
       label: stufe.label,
-      monat: Math.round((i + 1) * intervall),
+      monat: abrufMonat,
+      datum: addMonths(data.baubeginn, abrufMonat),
       pct: Math.round(stufe.pct * 100),
       betrag,
       zinsen: Math.round(zinsen),
@@ -127,10 +135,10 @@ export function StepErgebnis({ calc, gebaeudeWert, data }: Props) {
           <div className="px-4 pb-4">
             {/* Tabelle */}
             <div className="overflow-x-auto mb-4">
-              <table className="w-full border-collapse text-[10px] font-mono" style={{ minWidth: 560 }}>
+              <table className="w-full border-collapse text-[10px] font-mono" style={{ minWidth: 640 }}>
                 <thead>
                   <tr className="bg-secondary">
-                    {["Bauabschnitt", "Monat", "%", "Abruf (€)", "Zinsen (€)", "Kum. Zinsen (€)"].map((h, i) => (
+                    {["Bauabschnitt", "Monat", "Datum", "%", "Abruf (€)", "Zinsen (€)", "Kum. Zinsen (€)"].map((h, i) => (
                       <th key={i} className="py-1.5 px-2 text-primary text-[9px] font-semibold border-b border-border"
                         style={{ textAlign: i === 0 ? "left" : "right" }}>{h}</th>
                     ))}
@@ -141,6 +149,7 @@ export function StepErgebnis({ calc, gebaeudeWert, data }: Props) {
                     <tr key={i} className={i % 2 ? "bg-foreground/[0.02]" : ""}>
                       <td className="py-1.5 px-2 text-foreground/80">{MABV_STUFEN[i].label}</td>
                       <td className="py-1.5 px-2 text-right text-subtle">{row.monat}</td>
+                      <td className="py-1.5 px-2 text-right text-subtle">{row.datum}</td>
                       <td className="py-1.5 px-2 text-right text-subtle">{row.pct} %</td>
                       <td className="py-1.5 px-2 text-right text-foreground/70">{fmt(row.betrag)}</td>
                       <td className="py-1.5 px-2 text-right text-primary">{fmt(row.zinsen)}</td>
@@ -148,7 +157,7 @@ export function StepErgebnis({ calc, gebaeudeWert, data }: Props) {
                     </tr>
                   ))}
                   <tr className="border-t-2 border-primary/30">
-                    <td className="py-1.5 px-2 text-foreground font-semibold" colSpan={3}>Summe</td>
+                    <td className="py-1.5 px-2 text-foreground font-semibold" colSpan={4}>Summe</td>
                     <td className="py-1.5 px-2 text-right text-foreground font-semibold">{fmt(darlehenGesamt)}</td>
                     <td className="py-1.5 px-2 text-right text-primary font-semibold">{fmt(calc.bauzeitZinsen)}</td>
                     <td className="py-1.5 px-2 text-right text-foreground font-semibold">{fmt(calc.bauzeitZinsen)}</td>
@@ -182,7 +191,7 @@ export function StepErgebnis({ calc, gebaeudeWert, data }: Props) {
                     ]}
                     labelFormatter={(label: string, payload) => {
                       const row = payload?.[0]?.payload
-                      return row ? `${row.label} (Monat ${row.monat})` : label
+                      return row ? `${row.label} (Monat ${row.monat}, ${row.datum})` : label
                     }}
                   />
                   <Bar yAxisId="left" dataKey="betrag" name="Abruf" fill="#3a5aaa" radius={[3, 3, 0, 0]} opacity={0.8} />

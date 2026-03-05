@@ -66,8 +66,8 @@ export const PROJEKT_ECKDATEN = {
   haus: "Haus 1",
   adresse: "Brunsbuetteler Damm 60-80, 13581 Berlin (Spandau)",
   bautraeger: "Immo Projekt Berlin-Spandau I GmbH (MAXAR AG)",
-  baubeginn: "2026-04-01",      // Q1/Q2 2026
-  fertigstellung: "2028-12-31", // lt. Kaufvertrag
+  baubeginn: "2026-05-01",      // Realistisch: 1. des übernächsten Monats ab Vertriebsstart
+  fertigstellung: "2027-11-01", // 18 Monate Bauzeit (realistisch für Einzel-MFH)
   energiestandard: "KfW EH40 QNG Plus",
   mietgarantie: 21.00,          // €/m² NKM, 1 Jahr nach Besitzuebergang
   stellplatzMiete: 80,          // €/mtl.
@@ -110,7 +110,7 @@ export function weToProjectData(we: WohneinheitData): ProjectData {
     zinsbindung1: 10,
     tilgungsfrei1: 0,
     darlehen2Label: "Hausbank",
-    darlehen2: we.gesamtKaufpreis - 150000, // Rest nach KfW
+    darlehen2: Math.round(we.gesamtKaufpreis * 1.085 - 150000),
     zins2: 4.30,
     tilgung2: 1.50,
     zinsbindung2: 10,

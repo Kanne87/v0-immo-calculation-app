@@ -1,5 +1,5 @@
 import type { ProjectData, CalcResult, YearResult } from "./rechner-types"
-import { MABV_STUFEN } from "./rechner-types"
+import { MABV_STUFEN, MABV_REF_MONATE } from "./rechner-types"
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 export const fmt = (v: number, d = 0): string => {
@@ -78,6 +78,13 @@ export function calcMarginalRate(income: number, married: number, kirchePct: num
   return ((t2 - t1) / 1000) * 100
 }
 
+// ─── MaBV-Monat skaliert auf tatsächliche Bauzeit ─────────────
+// monatRef bezieht sich auf MABV_REF_MONATE (18). Bei anderer
+// Bauzeit wird proportional skaliert.
+export function mabvMonatSkaliert(monatRef: number, bauzeitMonate: number): number {
+  return Math.round(monatRef * bauzeitMonate / MABV_REF_MONATE)
+}
+
 // ─── Bauzeitzinsen nach MaBV ─────────────────────────────────
 export function calcBauzeitZinsen(
   darlehenGesamt: number, darlehen1: number, zins1: number,
@@ -88,12 +95,12 @@ export function calcBauzeitZinsen(
   const diffMs = fertig.getTime() - start.getTime()
   const monate = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24 * 30.44)))
   const gewZins = darlehenGesamt > 0 ? (darlehen1 * zins1 + darlehen2 * zins2) / darlehenGesamt / 100 : 0
-  const anzahlStufen = MABV_STUFEN.length
-  const intervall = monate / anzahlStufen
+
   let zinsenGesamt = 0
-  for (let i = 0; i < anzahlStufen; i++) {
+  for (let i = 0; i < MABV_STUFEN.length; i++) {
     const auszahlungsBetrag = darlehenGesamt * MABV_STUFEN[i].pct
-    const restMonate = monate - (i + 1) * intervall
+    const abrufMonat = mabvMonatSkaliert(MABV_STUFEN[i].monatRef, monate)
+    const restMonate = monate - abrufMonat
     if (restMonate > 0) zinsenGesamt += auszahlungsBetrag * gewZins * (restMonate / 12)
   }
   return { zinsen: Math.round(zinsenGesamt), monate }
