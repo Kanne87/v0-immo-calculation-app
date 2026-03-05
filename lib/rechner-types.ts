@@ -122,21 +122,27 @@ export interface CalcResult {
   avgMonat: number
 }
 
-// ─── MaBV Auszahlungsstufen ─────────────────────────────────
+// ─── MaBV Auszahlungsstufen ──────────────────────────────────
+// Quelle: Exposé Spandauer Tor / Immo Projekt Berlin-Spandau I GmbH
+// Kaufvertrag §3 Abs. 2 MaBV, Seite 80 des Verkaufsprospekts (Stand Jan. 2026)
+// 13 projektspezifische Stufen, Summe = 100 %
 export const MABV_STUFEN = [
-  { pct: 0.30, label: "Beginn Erdarbeiten" },
-  { pct: 0.28, label: "Rohbau inkl. Zimmererarbeiten" },
-  { pct: 0.063, label: "Herstellung der Dachflaechen und Dachrinnen" },
-  { pct: 0.063, label: "Rohinstallation Heizung/Sanitaer/Elektro" },
-  { pct: 0.063, label: "Fenstereinbau inkl. Verglasung" },
-  { pct: 0.063, label: "Innenputz (ohne Beiputzarbeiten)" },
-  { pct: 0.063, label: "Estrich" },
-  { pct: 0.042, label: "Fliesen" },
-  { pct: 0.035, label: "Bezugsfertigkeit / Uebergabe" },
-  { pct: 0.035, label: "Fassade" },
+  { pct: 0.300, label: "Beginn Erdarbeiten" },
+  { pct: 0.280, label: "Rohbaufertigstellung inkl. Zimmererarbeiten" },
+  { pct: 0.056, label: "Herstellung der Dachflaechen und Dachrinnen" },
+  { pct: 0.021, label: "Rohinstallation Heizungsanlagen" },
+  { pct: 0.021, label: "Rohinstallation Sanitaranlagen" },
+  { pct: 0.021, label: "Rohinstallation Elektroanlagen" },
+  { pct: 0.070, label: "Fenstereinbau inkl. Verglasung" },
+  { pct: 0.042, label: "Innenputz (ohne Beiputzarbeiten)" },
+  { pct: 0.021, label: "Estrich" },
+  { pct: 0.028, label: "Fliesenarbeiten im Sanitaerbereich" },
+  { pct: 0.084, label: "Bezugsfertigkeit und Besitzuebergabe" },
+  { pct: 0.021, label: "Fassadenarbeiten" },
+  { pct: 0.035, label: "Vollstaendige Fertigstellung" },
 ]
 
-// ─── Default data (WE-003, EG, 1 Zi, 48,27 m\u00B2) ────────────────
+// ─── Default data (WE-003, EG, 1 Zi, 48,27 m²) ──────────────
 export const defaultProjectData: ProjectData = {
   projektName: "Spandauer Tor \u2013 WE-003 (EG, 1 Zi.)",
   wfl: 48.27,
