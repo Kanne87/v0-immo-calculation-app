@@ -55,13 +55,13 @@ export function StepRendite({
     <>
       <SectionHeader
         icon="trophy"
-        title="Verm\u00F6gensbildung"
+        title="Vermögensbildung"
         subtitle="10-Jahres-Ergebnis"
       />
 
       <div className="bg-surface rounded-lg p-4 border border-border">
         <div className="text-xs text-dimmed mb-3 text-center font-mono">
-          Verm\u00F6gensbildung in 10 Jahren
+          Vermögensbildung in 10 Jahren
         </div>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={chartData} barGap={8}>
@@ -118,7 +118,7 @@ export function StepRendite({
             bold
           />
           <ResultRow
-            label={isUeberschuss ? `Durchschn. mtl. \u00DCberschuss` : "Durchschn. mtl. Zuschuss"}
+            label={isUeberschuss ? "Durchschn. mtl. Überschuss" : "Durchschn. mtl. Zuschuss"}
             value={`${isUeberschuss ? "+ " : ""}${eur(calc.avgMonat, 2)}`}
             bold
           />
@@ -129,12 +129,12 @@ export function StepRendite({
           />
           <ResultRow
             label="Restschuld (10 J.)"
-            value={`\u2212 ${eur(calc.restschuldEnde)}`}
+            value={`− ${eur(calc.restschuldEnde)}`}
             negative
           />
           <Divider />
           <ResultRow
-            label={`M\u00F6glicher steuerfreier Gewinn`}
+            label="Möglicher steuerfreier Gewinn"
             value={eur(calc.vermoegenEnde)}
             highlight
           />
