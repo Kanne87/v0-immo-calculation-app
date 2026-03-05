@@ -20,15 +20,6 @@ export function StepObjekt({ data, calc, onChange, readOnly, isTemplate }: Props
 
   return (
     <>
-      {isTemplate && (
-        <div className="mb-4 p-3 rounded-lg border border-primary/20 bg-primary/5">
-          <div className="text-[11px] font-mono text-primary">Vorlage – Objektdaten sind gesperrt</div>
-          <div className="text-[10px] font-mono text-subtle mt-0.5">
-            Wechsle zu „Finanzierung“, um individuelle Berechnungen durchzuführen.
-          </div>
-        </div>
-      )}
-
       <SectionHeader icon="building" title="Objektdaten" subtitle="Wohnung und Kaufpreis" />
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
         <FieldInput label="Wohnfläche" value={data.wfl} onChange={(v) => onChange("wfl", v)} suffix="m²" step={0.01} disabled={objLocked} />

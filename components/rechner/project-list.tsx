@@ -13,7 +13,7 @@ import {
   MapPin,
   Leaf,
   Plus,
-  Play,
+  BookOpen,
 } from "lucide-react"
 import type { SavedCalculation } from "@/lib/rechner-types"
 import type { WohneinheitData } from "@/lib/units-data"
@@ -22,7 +22,7 @@ import type { AdvisorProfile } from "@/lib/advisor"
 import { eur } from "@/lib/rechner-calc"
 import { ProfileMenu } from "./profile-menu"
 import { ThemeToggle } from "./theme-toggle"
-import { VideoPlayer } from "./video-player"
+import { ObjektPraesentation } from "./objekt-praesentation"
 
 type SortKey = "nr" | "wfl" | "kaufpreis"
 type SortDir = "asc" | "desc"
@@ -51,7 +51,7 @@ function ProjektSektion({
   const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [showFilters, setShowFilters] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
-  const [showVideo, setShowVideo] = useState(false)
+  const [showPraesentation, setShowPraesentation] = useState(false)
 
   const etagen = useMemo(() => {
     const set = new Set(projekt.einheiten.map((u) => u.etage))
@@ -87,6 +87,7 @@ function ProjektSektion({
   }
 
   const displayName = projekt.haus ? `${projekt.name} \u2013 ${projekt.haus}` : projekt.name
+  const hasPraesentation = projekt.coverImageUrl || (projekt.faktenblatt?.length ?? 0) > 0 || projekt.videoUrl
 
   return (
     <section className="mb-6">
@@ -115,14 +116,14 @@ function ProjektSektion({
           </div>
         </button>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {projekt.videoUrl && (
+          {hasPraesentation && (
             <button
-              onClick={(e) => { e.stopPropagation(); setShowVideo(true) }}
+              onClick={(e) => { e.stopPropagation(); setShowPraesentation(true) }}
               className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all"
-              title="Projektvideo abspielen"
+              title="Objektpräsentation öffnen"
             >
-              <Play className="w-3 h-3 fill-current" />
-              <span className="hidden sm:inline">Video</span>
+              <BookOpen className="w-3 h-3" />
+              <span className="hidden sm:inline">Präsentation</span>
             </button>
           )}
           <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-0.5 rounded">
@@ -221,11 +222,10 @@ function ProjektSektion({
         </>
       )}
 
-      {showVideo && projekt.videoUrl && (
-        <VideoPlayer
-          url={projekt.videoUrl}
-          title={displayName}
-          onClose={() => setShowVideo(false)}
+      {showPraesentation && (
+        <ObjektPraesentation
+          projekt={projekt}
+          onClose={() => setShowPraesentation(false)}
         />
       )}
     </section>
@@ -243,6 +243,7 @@ export function ProjectList({
   onProfileSave,
 }: Props) {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+  const [calcsCollapsed, setCalcsCollapsed] = useState(false)
 
   return (
     <div className="w-full max-w-[480px] md:max-w-[900px] mx-auto min-h-screen bg-background">
@@ -266,18 +267,28 @@ export function ProjectList({
 
       <main className="p-5">
         <section className="mb-8">
+          {/* Header row – immer sichtbar */}
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Calculator className="w-4 h-4 text-primary" />
-              <h2 className="text-sm font-serif font-semibold text-foreground">
+            <button
+              onClick={() => setCalcsCollapsed(!calcsCollapsed)}
+              className="flex items-center gap-2 group"
+            >
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Calculator className="w-4 h-4 text-primary" />
+              </div>
+              <h2 className="text-sm font-serif font-semibold text-foreground group-hover:text-primary transition-colors">
                 Meine Berechnungen
               </h2>
-            {savedCalcs.length > 0 && (
-              <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-0.5 rounded">
-                {savedCalcs.length}
-              </span>
-            )}
-            </div>
+              {savedCalcs.length > 0 && (
+                <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-0.5 rounded">
+                  {savedCalcs.length}
+                </span>
+              )}
+              {calcsCollapsed
+                ? <ChevronDown className="w-4 h-4 text-subtle" />
+                : <ChevronUp className="w-4 h-4 text-subtle" />
+              }
+            </button>
             {onFreeCalc && (
               <button
                 onClick={onFreeCalc}
@@ -290,48 +301,51 @@ export function ProjectList({
             )}
           </div>
 
-          {savedCalcs.length === 0 ? (
-            <div className="py-8 px-4 rounded-lg border border-dashed border-border bg-secondary/20 text-center">
-              <FileText className="w-8 h-8 text-subtle mx-auto mb-2" />
-              <p className="text-xs text-dimmed font-mono">
-                Noch keine Berechnungen gespeichert.
-              </p>
-              <p className="text-[10px] text-subtle font-mono mt-1">
-                W&#228;hle eine Wohneinheit oder starte eine freie Berechnung.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {savedCalcs.map((calc) => (
-                <div key={calc.id} className="group relative bg-card rounded-lg border border-primary/15 hover:border-primary/40 transition-all cursor-pointer">
-                  <button onClick={() => onSelectCalc(calc)} className="w-full p-3.5 text-left">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-serif text-foreground font-semibold truncate">{calc.description}</div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] font-mono text-primary/70 bg-primary/10 px-1.5 py-0.5 rounded">{calc.sourceUnitId}</span>
-                          <span className="text-[10px] font-mono text-subtle">
-                            {new Date(calc.updatedAt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" })}
-                          </span>
+          {/* Inhalt – collapsible */}
+          {!calcsCollapsed && (
+            savedCalcs.length === 0 ? (
+              <div className="py-8 px-4 rounded-lg border border-dashed border-border bg-secondary/20 text-center">
+                <FileText className="w-8 h-8 text-subtle mx-auto mb-2" />
+                <p className="text-xs text-dimmed font-mono">
+                  Noch keine Berechnungen gespeichert.
+                </p>
+                <p className="text-[10px] text-subtle font-mono mt-1">
+                  W&#228;hle eine Wohneinheit oder starte eine freie Berechnung.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {savedCalcs.map((calc) => (
+                  <div key={calc.id} className="group relative bg-card rounded-lg border border-primary/15 hover:border-primary/40 transition-all cursor-pointer">
+                    <button onClick={() => onSelectCalc(calc)} className="w-full p-3.5 text-left">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-serif text-foreground font-semibold truncate">{calc.description}</div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] font-mono text-primary/70 bg-primary/10 px-1.5 py-0.5 rounded">{calc.sourceUnitId}</span>
+                            <span className="text-[10px] font-mono text-subtle">
+                              {new Date(calc.updatedAt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex gap-4 text-[10px] font-mono text-dimmed">
-                      <span>{`KP ${eur(calc.projectData.kaufpreis + calc.projectData.stellplatz, 0)}`}</span>
-                      <span>{`${calc.projectData.wfl} m\u00B2`}</span>
-                      <span>{`EK ${eur(calc.projectData.eigenkapital, 0)}`}</span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setPendingDeleteId(calc.id) }}
-                    className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-subtle hover:text-destructive transition-all"
-                    aria-label="Berechnung l&#246;schen"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
+                      <div className="flex gap-4 text-[10px] font-mono text-dimmed">
+                        <span>{`KP ${eur(calc.projectData.kaufpreis + calc.projectData.stellplatz, 0)}`}</span>
+                        <span>{`${calc.projectData.wfl} m\u00B2`}</span>
+                        <span>{`EK ${eur(calc.projectData.eigenkapital, 0)}`}</span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setPendingDeleteId(calc.id) }}
+                      className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-subtle hover:text-destructive transition-all"
+                      aria-label="Berechnung l\u00F6schen"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </section>
 
@@ -362,7 +376,7 @@ export function ProjectList({
             </div>
             <div className="flex gap-2 px-4 py-3 border-t border-border">
               <button onClick={() => setPendingDeleteId(null)} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-secondary text-dimmed border border-border hover:text-foreground transition-all">Abbrechen</button>
-              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all">L&#246;schen</button>
+              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all">L\u00F6schen</button>
             </div>
           </div>
         </div>
