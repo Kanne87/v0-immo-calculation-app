@@ -123,8 +123,8 @@ export interface CalcResult {
 }
 
 // ─── MaBV Auszahlungsstufen ──────────────────────────────────
-// Quelle: Exposé Spandauer Tor / Immo Projekt Berlin-Spandau I GmbH
-// Kaufvertrag §3 Abs. 2 MaBV, Seite 80 des Verkaufsprospekts (Stand Jan. 2026)
+// Quelle: Expos&#xe9; Spandauer Tor / Immo Projekt Berlin-Spandau I GmbH
+// Kaufvertrag &#xa7;3 Abs. 2 MaBV, Seite 80 des Verkaufsprospekts (Stand Jan. 2026)
 // 13 projektspezifische Stufen, Summe = 100 %
 //
 // monatRef = realistischer Abrufzeitpunkt bei 18 Monaten Bauzeit
@@ -146,10 +146,12 @@ export const MABV_STUFEN = [
   { pct: 0.035, label: "Vollstaendige Fertigstellung",               monatRef: 18 },
 ]
 
-// Referenz-Bauzeit zu der die monatRef-Werte gehören
+// Referenz-Bauzeit zu der die monatRef-Werte geh&#xf6;ren
 export const MABV_REF_MONATE = 18
 
-// ─── Default data (WE-003, EG, 1 Zi, 48,27 m²) ──────────────
+// ─── Default data (WE-003, EG, 1 Zi, 48,27 m&#xb2;) ──────────────
+// EK = Nebenkosten (348.000 * 8,5% = 29.580)
+// D2 = GesamtKP - D1 (348.000 - 150.000 = 198.000)
 export const defaultProjectData: ProjectData = {
   projektName: "Spandauer Tor \u2013 WE-003 (EG, 1 Zi.)",
   wfl: 48.27,
@@ -165,7 +167,7 @@ export const defaultProjectData: ProjectData = {
   mieteQm: 21.0,
   mieteStellplatz: 80,
   inflation: 2.5,
-  eigenkapital: 0,
+  eigenkapital: 29580,
   darlehen1Label: "KfW 298",
   darlehen1: 150000,
   zins1: 2.83,
