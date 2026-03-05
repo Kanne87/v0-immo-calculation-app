@@ -80,17 +80,70 @@ export const PROJEKT_ECKDATEN = {
   grundstueckAnteil: 0.10,      // ca. 10% des Kaufpreises lt. Expose
   weGesamt: 264,                // lt. Expose (10 MFH)
   haus1WE: 29,
+  // Finanzierung Defaults
+  darlehen1: 150000,
+  zins1: 2.83,
+  tilgung1: 1.78,
+  zins2: 4.30,
+  tilgung2: 1.50,
 }
 
 // ─── Helper: WE in ProjectData umwandeln ────────────────────────
 import type { ProjectData } from "./rechner-types"
+import { calcBauzeitZinsen } from "./rechner-calc"
+
+/**
+ * Iterative Darlehen2-Berechnung für Vollfinanzierung (EK ≈ 0).
+ *
+ * Problem: BZZ hängen vom Darlehensbetrag ab, Darlehensbetrag hängt
+ * von BZZ ab (zirkulär). Lösung: 3-4 Iterationen bis Konvergenz (<1€).
+ *
+ * GesamtInvest = KP + Stellplatz + GrESt + Notar + Grundschuld + BZZ
+ * Darlehen2    = GesamtInvest - Darlehen1
+ */
+function calcDarlehen2Vollfinanzierung(
+  gesamtKP: number,
+  nkPctSumme: number, // (gestPct + notarPct + grundschuldPct) / 100
+  darlehen1: number,
+  zins1: number,
+  zins2: number,
+  baubeginn: string,
+  fertigstellung: string,
+): number {
+  const nkOhneBZZ = gesamtKP * nkPctSumme
+  // Startwert: ohne BZZ
+  let darlehen2 = gesamtKP + nkOhneBZZ - darlehen1
+
+  for (let i = 0; i < 10; i++) {
+    const darlehenGesamt = darlehen1 + darlehen2
+    const bzz = calcBauzeitZinsen(
+      darlehenGesamt, darlehen1, zins1, darlehen2, zins2,
+      baubeginn, fertigstellung,
+    )
+    const gesamtInvest = gesamtKP + nkOhneBZZ + bzz.zinsen
+    const neuesDarlehen2 = gesamtInvest - darlehen1
+    if (Math.abs(neuesDarlehen2 - darlehen2) < 1) break
+    darlehen2 = neuesDarlehen2
+  }
+
+  return Math.round(darlehen2)
+}
 
 export function weToProjectData(we: WohneinheitData): ProjectData {
   const grundstueck = Math.round(we.kaufpreis * PROJEKT_ECKDATEN.grundstueckAnteil)
+  const gesamtKP = we.kaufpreis + we.stellplatz
+  const nkPctSumme = (PROJEKT_ECKDATEN.gestPct + PROJEKT_ECKDATEN.notarPct + PROJEKT_ECKDATEN.grundschuldPct) / 100
+
+  const darlehen2 = calcDarlehen2Vollfinanzierung(
+    gesamtKP, nkPctSumme,
+    PROJEKT_ECKDATEN.darlehen1, PROJEKT_ECKDATEN.zins1, PROJEKT_ECKDATEN.zins2,
+    PROJEKT_ECKDATEN.baubeginn, PROJEKT_ECKDATEN.fertigstellung,
+  )
+
   return {
     projektName: `${PROJEKT_ECKDATEN.name} \u2013 ${we.id} (${we.etage}, ${we.zimmer} Zi.)`,
     wfl: we.wfl,
-    bgf: Math.round(we.wfl * 1.35 * 100) / 100, // Schaetzung BGF ~1,35x WoFlV
+    bgf: Math.round(we.wfl * 1.35 * 100) / 100,
     kaufpreis: we.kaufpreis,
     grundstueck,
     stellplatz: we.stellplatz,
@@ -102,17 +155,17 @@ export function weToProjectData(we: WohneinheitData): ProjectData {
     mieteQm: PROJEKT_ECKDATEN.mietgarantie,
     mieteStellplatz: PROJEKT_ECKDATEN.stellplatzMiete,
     inflation: 2.5,
-    eigenkapital: 0, // wird automatisch berechnet
+    eigenkapital: 0,
     darlehen1Label: "KfW 298",
-    darlehen1: 150000,
-    zins1: 2.83,
-    tilgung1: 1.78,
+    darlehen1: PROJEKT_ECKDATEN.darlehen1,
+    zins1: PROJEKT_ECKDATEN.zins1,
+    tilgung1: PROJEKT_ECKDATEN.tilgung1,
     zinsbindung1: 10,
     tilgungsfrei1: 0,
     darlehen2Label: "Hausbank",
-    darlehen2: Math.round(we.gesamtKaufpreis * 1.085 - 150000),
-    zins2: 4.30,
-    tilgung2: 1.50,
+    darlehen2,
+    zins2: PROJEKT_ECKDATEN.zins2,
+    tilgung2: PROJEKT_ECKDATEN.tilgung2,
     zinsbindung2: 10,
     married: 1,
     einkommen: 60000,
