@@ -185,7 +185,7 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
           )}
 
           <div className="px-5 py-3 border-t border-border">
-            <span className="text-[9px] font-mono text-subtle/50">ESC zum Schlie\u00dfen</span>
+            <span className="text-[9px] font-mono text-subtle/50">ESC zum Schlie&#xdf;en</span>
           </div>
         </div>
       </div>
@@ -213,13 +213,12 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
                 playsInline
                 className="w-full aspect-video"
                 controlsList="nodownload"
-                crossOrigin="anonymous"
               >
-                Dein Browser unterst\u00fctzt keine Videowiedergabe.
+                Dein Browser unterst&#xfc;tzt keine Videowiedergabe.
               </video>
             </div>
             <div className="mt-2 text-center">
-              <span className="text-[10px] font-mono text-white/30">ESC zum Schlie\u00dfen</span>
+              <span className="text-[10px] font-mono text-white/30">ESC zum Schlie&#xdf;en</span>
             </div>
           </div>
         </div>
