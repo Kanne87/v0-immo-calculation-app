@@ -66,21 +66,20 @@ export const PROJEKT_ECKDATEN = {
   haus: "Haus 1",
   adresse: "Brunsbuetteler Damm 60-80, 13581 Berlin (Spandau)",
   bautraeger: "Immo Projekt Berlin-Spandau I GmbH (MAXAR AG)",
-  baubeginn: "2026-05-01",      // Realistisch: 1. des übernächsten Monats ab Vertriebsstart
-  fertigstellung: "2027-11-01", // 18 Monate Bauzeit (realistisch für Einzel-MFH)
+  baubeginn: "2026-05-01",
+  fertigstellung: "2027-11-01",
   energiestandard: "KfW EH40 QNG Plus",
-  mietgarantie: 21.00,          // €/m² NKM, 1 Jahr nach Besitzuebergang
-  stellplatzMiete: 80,          // €/mtl.
-  verwaltungWEG: 31.54,         // €/mtl. (26,50 + USt.)
-  verwaltungSE: 35.70,          // €/mtl. (30,00 + USt.)
-  instandhaltung: 0.25,         // €/m²/Monat
-  gestPct: 6.0,                 // GrESt Berlin
-  notarPct: 2.0,                // Notar + Grundbuch
+  mietgarantie: 21.00,
+  stellplatzMiete: 80,
+  verwaltungWEG: 31.54,
+  verwaltungSE: 35.70,
+  instandhaltung: 0.25,
+  gestPct: 6.0,
+  notarPct: 2.0,
   grundschuldPct: 0.5,
-  grundstueckAnteil: 0.10,      // ca. 10% des Kaufpreises lt. Expose
-  weGesamt: 264,                // lt. Expose (10 MFH)
+  grundstueckAnteil: 0.10,
+  weGesamt: 264,
   haus1WE: 29,
-  // Finanzierung Defaults
   darlehen1: 150000,
   zins1: 2.83,
   tilgung1: 1.78,
@@ -90,55 +89,18 @@ export const PROJEKT_ECKDATEN = {
 
 // ─── Helper: WE in ProjectData umwandeln ────────────────────────
 import type { ProjectData } from "./rechner-types"
-import { calcBauzeitZinsen } from "./rechner-calc"
-
-/**
- * Iterative Darlehen2-Berechnung für Vollfinanzierung (EK ≈ 0).
- *
- * Problem: BZZ hängen vom Darlehensbetrag ab, Darlehensbetrag hängt
- * von BZZ ab (zirkulär). Lösung: 3-4 Iterationen bis Konvergenz (<1€).
- *
- * GesamtInvest = KP + Stellplatz + GrESt + Notar + Grundschuld + BZZ
- * Darlehen2    = GesamtInvest - Darlehen1
- */
-function calcDarlehen2Vollfinanzierung(
-  gesamtKP: number,
-  nkPctSumme: number, // (gestPct + notarPct + grundschuldPct) / 100
-  darlehen1: number,
-  zins1: number,
-  zins2: number,
-  baubeginn: string,
-  fertigstellung: string,
-): number {
-  const nkOhneBZZ = gesamtKP * nkPctSumme
-  // Startwert: ohne BZZ
-  let darlehen2 = gesamtKP + nkOhneBZZ - darlehen1
-
-  for (let i = 0; i < 10; i++) {
-    const darlehenGesamt = darlehen1 + darlehen2
-    const bzz = calcBauzeitZinsen(
-      darlehenGesamt, darlehen1, zins1, darlehen2, zins2,
-      baubeginn, fertigstellung,
-    )
-    const gesamtInvest = gesamtKP + nkOhneBZZ + bzz.zinsen
-    const neuesDarlehen2 = gesamtInvest - darlehen1
-    if (Math.abs(neuesDarlehen2 - darlehen2) < 1) break
-    darlehen2 = neuesDarlehen2
-  }
-
-  return Math.round(darlehen2)
-}
 
 export function weToProjectData(we: WohneinheitData): ProjectData {
   const grundstueck = Math.round(we.kaufpreis * PROJEKT_ECKDATEN.grundstueckAnteil)
   const gesamtKP = we.kaufpreis + we.stellplatz
   const nkPctSumme = (PROJEKT_ECKDATEN.gestPct + PROJEKT_ECKDATEN.notarPct + PROJEKT_ECKDATEN.grundschuldPct) / 100
 
-  const darlehen2 = calcDarlehen2Vollfinanzierung(
-    gesamtKP, nkPctSumme,
-    PROJEKT_ECKDATEN.darlehen1, PROJEKT_ECKDATEN.zins1, PROJEKT_ECKDATEN.zins2,
-    PROJEKT_ECKDATEN.baubeginn, PROJEKT_ECKDATEN.fertigstellung,
-  )
+  // EK-Default = Erwerbsnebenkosten (GrESt + Notar + Grundschuld)
+  const eigenkapital = Math.round(gesamtKP * nkPctSumme)
+
+  // Darlehen2 = Kaufpreis + Stellplatz - KfW (Rest wird fremdfinanziert)
+  // EK deckt die Nebenkosten, Darlehen decken den Kaufpreis
+  const darlehen2 = gesamtKP - PROJEKT_ECKDATEN.darlehen1
 
   return {
     projektName: `${PROJEKT_ECKDATEN.name} \u2013 ${we.id} (${we.etage}, ${we.zimmer} Zi.)`,
@@ -155,7 +117,7 @@ export function weToProjectData(we: WohneinheitData): ProjectData {
     mieteQm: PROJEKT_ECKDATEN.mietgarantie,
     mieteStellplatz: PROJEKT_ECKDATEN.stellplatzMiete,
     inflation: 2.5,
-    eigenkapital: 0,
+    eigenkapital,
     darlehen1Label: "KfW 298",
     darlehen1: PROJEKT_ECKDATEN.darlehen1,
     zins1: PROJEKT_ECKDATEN.zins1,

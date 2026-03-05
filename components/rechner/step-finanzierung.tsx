@@ -21,10 +21,19 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
 
   const rate2 = (data.darlehen2 * (data.zins2 + data.tilgung2)) / 100 / 12
 
-  const computedEK = Math.max(0, Math.round(calc.gesamtInvest - data.darlehen1 - data.darlehen2))
+  const darlehenGesamt = data.darlehen1 + data.darlehen2
+  const computedEK = Math.max(0, Math.round(calc.gesamtInvest - darlehenGesamt))
   const finanzierungPct = calc.gesamtInvest > 0
-    ? Math.round(((data.darlehen1 + data.darlehen2) / calc.gesamtInvest) * 100)
+    ? Math.round((darlehenGesamt / calc.gesamtInvest) * 100)
     : 0
+
+  // Wenn EK ge\u00e4ndert wird, Darlehen 2 automatisch anpassen
+  const handleEKChange = (newEK: number) => {
+    onChange("eigenkapital", newEK)
+    // D2 = GesamtInvest - EK - D1 (BZZ-Drift ist minimal, <100\u20ac)
+    const newD2 = Math.max(0, Math.round(calc.gesamtInvest - newEK - data.darlehen1))
+    onChange("darlehen2", newD2)
+  }
 
   return (
     <>
@@ -42,22 +51,35 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
           </div>
           <div>
             <div className="text-[9px] text-subtle font-mono uppercase tracking-wider">Darlehen</div>
-            <div className="text-sm text-foreground font-mono mt-1">{eur(data.darlehen1 + data.darlehen2)}</div>
+            <div className="text-sm text-foreground font-mono mt-1">{eur(darlehenGesamt)}</div>
           </div>
           <div>
             <div className="text-[9px] text-subtle font-mono uppercase tracking-wider">Eigenkapital</div>
             <div className={`text-sm font-mono mt-1 ${
-              computedEK > 0 ? "text-amber-400" : "text-emerald-400"
+              computedEK > 0 ? "text-primary" : "text-emerald-400"
             }`}>
               {eur(computedEK)}
             </div>
           </div>
         </div>
-        {computedEK > 0 && (
-          <div className="text-[9px] text-subtle font-mono text-center mt-2">
-            {"Eigenkapitalbedarf = Gesamtinvestition \u2212 Darlehen 1 \u2212 Darlehen 2"}
-          </div>
-        )}
+      </div>
+
+      {/* Eigenkapital-Eingabe */}
+      <SectionHeader
+        icon="wallet"
+        title="Eigenkapital"
+        subtitle="Empfehlung: mind. Erwerbsnebenkosten"
+      />
+      <FieldInput
+        label="Eigenkapitaleinsatz"
+        value={data.eigenkapital}
+        onChange={handleEKChange}
+        suffix="\u20ac"
+        step={5000}
+        disabled={readOnly}
+      />
+      <div className="text-[9px] text-subtle font-mono mb-4 -mt-1 pl-1">
+        Nebenkosten (GrESt + Notar + Grundschuld) = {eur(calc.nebenkosten)} \u2013 Darlehen 2 passt sich automatisch an
       </div>
 
       <SectionHeader
@@ -76,7 +98,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
           label="Darlehensbetrag"
           value={data.darlehen1}
           onChange={(v) => onChange("darlehen1", v)}
-          suffix={"\u20AC"}
+          suffix="\u20ac"
           step={5000}
           disabled={readOnly}
         />
@@ -136,7 +158,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
           label="Darlehensbetrag"
           value={data.darlehen2}
           onChange={(v) => onChange("darlehen2", v)}
-          suffix={"\u20AC"}
+          suffix="\u20ac"
           step={5000}
           disabled={readOnly}
         />
@@ -179,7 +201,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
       <SectionHeader
         icon="file"
         title="Steuerdaten"
-        subtitle={"F\u00FCr Berechnung Grenzsteuersatz"}
+        subtitle="F\u00fcr Berechnung Grenzsteuersatz"
       />
       <SelectField
         label="Familienstand"
@@ -195,7 +217,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
         label="Zu versteuerndes Einkommen"
         value={data.einkommen}
         onChange={(v) => onChange("einkommen", v)}
-        suffix={"\u20AC"}
+        suffix="\u20ac"
         step={5000}
         disabled={readOnly}
       />
