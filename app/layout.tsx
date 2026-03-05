@@ -24,10 +24,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Kapitalanlage-Rechner Pro",
   description:
-    "Steueroptimierte Immobilienanalyse mit KfW-Förderung, Sonder-AfA und 10-Jahres-Cashflow",
+    "Steueroptimierte Immobilienanalyse mit KfW-F\u00f6rderung, Sonder-AfA und 10-Jahres-Cashflow",
 }
 
-const themeScript = '(function(){try{var t=localStorage.getItem("immo-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}})();'
+// Light ist Standard; nur überschreiben wenn User explizit dark gesetzt hat
+const themeScript = '(function(){try{var t=localStorage.getItem("immo-theme");if(t){document.documentElement.setAttribute("data-theme",t)}else{document.documentElement.setAttribute("data-theme","light")}}catch(e){document.documentElement.setAttribute("data-theme","light")}})();'
 
 export default function RootLayout({
   children,
@@ -37,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="de"
-      data-theme="dark"
+      data-theme="light"
       className={[playfair.variable, jetbrains.variable, inter.variable].join(" ")}
     >
       <head>

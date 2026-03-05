@@ -120,10 +120,10 @@ function ProjektSektion({
             <button
               onClick={(e) => { e.stopPropagation(); setShowPraesentation(true) }}
               className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all"
-              title="Objektpr\u00e4sentation \u00f6ffnen"
+              title="Objektpräsentation öffnen"
             >
               <BookOpen className="w-3 h-3" />
-              <span className="hidden sm:inline">Pr\u00e4sentation</span>
+              <span className="hidden sm:inline">Präsentation</span>
             </button>
           )}
           <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-0.5 rounded">
@@ -205,7 +205,7 @@ function ProjektSektion({
                   <span>{we.etage}</span>
                   <span>{we.zimmer}</span>
                   <span>{we.wfl}</span>
-                  <span>{`${(we.gesamtKaufpreis / 1000).toFixed(0)}T\u20AC`}</span>
+                  <span>{`${(we.gesamtKaufpreis / 1000).toFixed(0)}T€`}</span>
                   <span className="hidden md:block text-subtle">
                     {we.qmPreis.toLocaleString("de-DE")}
                   </span>
@@ -243,7 +243,6 @@ export function ProjectList({
   onProfileSave,
 }: Props) {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
-  // Berechnungen standardm\u00e4\u00dfig eingeklappt
   const [calcsCollapsed, setCalcsCollapsed] = useState(true)
 
   return (
@@ -267,10 +266,9 @@ export function ProjectList({
       </header>
 
       <main className="p-5">
-        {/* Projekte zuerst */}
         <div className="mb-4">
           <h2 className="text-[11px] text-subtle font-mono uppercase tracking-[2px]">
-            Verf&#252;gbare Projekte
+            Verfügbare Projekte
           </h2>
         </div>
 
@@ -282,7 +280,6 @@ export function ProjectList({
           />
         ))}
 
-        {/* Berechnungen darunter, eingeklappt */}
         <section className="mt-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between mb-3">
             <button
@@ -325,7 +322,7 @@ export function ProjectList({
                   Noch keine Berechnungen gespeichert.
                 </p>
                 <p className="text-[10px] text-subtle font-mono mt-1">
-                  W&#228;hle eine Wohneinheit oder starte eine freie Berechnung.
+                  Wähle eine Wohneinheit oder starte eine freie Berechnung.
                 </p>
               </div>
             ) : (
@@ -346,14 +343,14 @@ export function ProjectList({
                       </div>
                       <div className="flex gap-4 text-[10px] font-mono text-dimmed">
                         <span>{`KP ${eur(calc.projectData.kaufpreis + calc.projectData.stellplatz, 0)}`}</span>
-                        <span>{`${calc.projectData.wfl} m\u00B2`}</span>
+                        <span>{`${calc.projectData.wfl} m²`}</span>
                         <span>{`EK ${eur(calc.projectData.eigenkapital, 0)}`}</span>
                       </div>
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); setPendingDeleteId(calc.id) }}
                       className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-subtle hover:text-destructive transition-all"
-                      aria-label="Berechnung l\u00F6schen"
+                      aria-label="Berechnung löschen"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -370,14 +367,14 @@ export function ProjectList({
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setPendingDeleteId(null)} />
           <div className="relative w-full max-w-sm bg-card border border-border rounded-lg shadow-xl">
             <div className="px-4 py-4">
-              <h3 className="text-sm font-serif font-semibold text-foreground mb-2">Berechnung l&#246;schen?</h3>
+              <h3 className="text-sm font-serif font-semibold text-foreground mb-2">Berechnung löschen?</h3>
               <p className="text-xs text-dimmed font-mono">
-                {`\u201E${savedCalcs.find((c) => c.id === pendingDeleteId)?.description}\u201C wird unwiderruflich gel\u00F6scht.`}
+                {`„${savedCalcs.find((c) => c.id === pendingDeleteId)?.description}“ wird unwiderruflich gelöscht.`}
               </p>
             </div>
             <div className="flex gap-2 px-4 py-3 border-t border-border">
               <button onClick={() => setPendingDeleteId(null)} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-secondary text-dimmed border border-border hover:text-foreground transition-all">Abbrechen</button>
-              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all">L\u00F6schen</button>
+              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all">Löschen</button>
             </div>
           </div>
         </div>
