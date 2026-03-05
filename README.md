@@ -1,5 +1,5 @@
-# v0 Immo Calculation App
+# Immo-Rechner (Kapitalanlage-Rechner Pro)
 
-Kapitalanlage-Rechner für Immobilien-Investments.
+Steueroptimierte Immobilienanalyse mit KfW-Förderung, Sonder-AfA und 10-Jahres-Cashflow.
 
-Built with Next.js 16, deployed via GitHub Actions to Coolify.
+Deployed: https://immo.kailohmann.de
