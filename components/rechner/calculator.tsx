@@ -68,9 +68,7 @@ export function Calculator({
 
   useEffect(() => {
     const autoEK = Math.max(0, Math.round(calc.gesamtInvest - data.darlehen1 - data.darlehen2))
-    if (data.eigenkapital !== autoEK) {
-      setData((prev) => ({ ...prev, eigenkapital: autoEK }))
-    }
+    if (data.eigenkapital !== autoEK) setData((prev) => ({ ...prev, eigenkapital: autoEK }))
   }, [calc.gesamtInvest, data.darlehen1, data.darlehen2]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { onDataChange?.(data) }, [data, onDataChange])
@@ -181,8 +179,8 @@ export function Calculator({
       <main className="p-5 pb-10">
         {step === 0 && <StepObjekt data={data} calc={calc} onChange={onChange} readOnly={isClientView || isTemplate} isTemplate={isTemplate} />}
         {step === 1 && <StepFinanzierung data={data} calc={calc} onChange={onChange} readOnly={isClientView} />}
-        {step === 2 && <StepErgebnis calc={calc} gebaeudeWert={calc.gebaeudeWert} />}
-        {step === 3 && <StepVerlauf calc={calc} gesamtKP={calc.gesamtKP} inflation={data.inflation} />}
+        {step === 2 && <StepErgebnis calc={calc} gebaeudeWert={calc.gebaeudeWert} data={data} />}
+        {step === 3 && <StepVerlauf calc={calc} gesamtKP={calc.gesamtKP} inflation={data.inflation} darlehen1Label={data.darlehen1Label} darlehen2Label={data.darlehen2Label} />}
         {step === 4 && <StepRendite calc={calc} eigenkapital={data.eigenkapital} darlehen1={data.darlehen1} darlehen2={data.darlehen2} />}
       </main>
 
