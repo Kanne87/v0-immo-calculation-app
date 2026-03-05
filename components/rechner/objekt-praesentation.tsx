@@ -16,7 +16,7 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const displayName = projekt.haus ? `${projekt.name} \u2013 ${projekt.haus}` : projekt.name
+  const displayName = projekt.haus ? `${projekt.name} – ${projekt.haus}` : projekt.name
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => { if (e.key === "Escape") onClose() },
@@ -56,10 +56,8 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
 
-      {/* Modal */}
       <div
         ref={containerRef}
         className="relative w-full max-w-3xl z-10 flex flex-col rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-[#0f0f0f]"
@@ -93,7 +91,7 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
 
         {/* Scrollable content */}
         <div className="overflow-y-auto flex-1">
-          {/* Hero: Bild oder Placeholder */}
+          {/* Hero */}
           <div className="relative w-full bg-black" style={{ aspectRatio: "16/7" }}>
             {projekt.coverImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -108,7 +106,6 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
                 <div className="text-white/5 text-[9px] font-mono">coverImageUrl in projects-data.ts eintragen</div>
               </div>
             )}
-            {/* Video-Overlay-Button */}
             {projekt.videoUrl && (
               <button
                 onClick={() => setShowVideo(true)}
@@ -118,7 +115,6 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
                 Video abspielen
               </button>
             )}
-            {/* Gradient for keyfacts readability */}
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
 
@@ -145,7 +141,7 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
             </div>
           )}
 
-          {/* Accordion Sektionen */}
+          {/* Accordion */}
           {projekt.praesektionen && projekt.praesektionen.length > 0 && (
             <div className="divide-y divide-white/10">
               {projekt.praesektionen.map((sektion, i) => {
@@ -189,14 +185,12 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
           )}
 
           <div className="px-5 py-3 border-t border-white/10">
-            <span className="text-[9px] font-mono text-white/20">
-              ESC zum Schlie\u00dfen
-            </span>
+            <span className="text-[9px] font-mono text-white/20">ESC zum Schließen</span>
           </div>
         </div>
       </div>
 
-      {/* Video Modal (layered on top) */}
+      {/* Video Modal */}
       {showVideo && projekt.videoUrl && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 md:p-8">
           <div className="absolute inset-0 bg-black/80" onClick={() => setShowVideo(false)} />
@@ -220,11 +214,11 @@ export function ObjektPraesentation({ projekt, onClose }: Props) {
                 className="w-full aspect-video"
                 controlsList="nodownload"
               >
-                Dein Browser unterst\u00fctzt keine Videowiedergabe.
+                Dein Browser unterstützt keine Videowiedergabe.
               </video>
             </div>
             <div className="mt-2 text-center">
-              <span className="text-[10px] font-mono text-white/30">ESC zum Schlie\u00dfen</span>
+              <span className="text-[10px] font-mono text-white/30">ESC zum Schließen</span>
             </div>
           </div>
         </div>
