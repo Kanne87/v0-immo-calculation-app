@@ -23,22 +23,22 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
       name: `J${j.j}`,
       Restschuld: Math.round(j.restschuldGesamt),
       Immobilienwert: Math.round(immobilienwert),
-      Vermögen: Math.round(immobilienwert - j.restschuldGesamt),
+      "Verm\u00f6gen": Math.round(immobilienwert - j.restschuldGesamt),
     }
   })
 
   const cols = [
-    { key: "j", label: "J.", align: "center" as const, cls: "text-subtle" },
-    { key: "miete", label: "Miete", align: "right" as const, cls: "text-foreground/70" },
-    { key: "rate1", label: `Rate ${darlehen1Label}`, align: "right" as const, cls: "text-foreground/70" },
-    { key: "restschuld1", label: `Rest ${darlehen1Label}`, align: "right" as const, cls: "text-foreground/60" },
-    { key: "rate2", label: `Rate ${darlehen2Label}`, align: "right" as const, cls: "text-foreground/70" },
-    { key: "restschuld2", label: `Rest ${darlehen2Label}`, align: "right" as const, cls: "text-foreground/60" },
-    { key: "afaDegr", label: "AfA degr.", align: "right" as const, cls: "text-foreground/70" },
-    { key: "afaSonder", label: "AfA §7b", align: "right" as const, cls: "text-foreground/70" },
-    { key: "steuerErgebnis", label: "Steuerl.", align: "right" as const, cls: "" },
-    { key: "steuerWirkung", label: "Steuerwirk.", align: "right" as const, cls: "" },
-    { key: "ueberschuss", label: "Überschuss", align: "right" as const, cls: "" },
+    { key: "j", label: "J.", w: "w-8" },
+    { key: "miete", label: "Miete", w: "" },
+    { key: "rate1", label: `${darlehen1Label}`, w: "" },
+    { key: "restschuld1", label: `Rest 1`, w: "" },
+    { key: "rate2", label: `${darlehen2Label}`, w: "" },
+    { key: "restschuld2", label: `Rest 2`, w: "" },
+    { key: "afaDegr", label: "AfA d.", w: "" },
+    { key: "afaSonder", label: "\u00a77b", w: "" },
+    { key: "steuerErgebnis", label: "Steuerl.", w: "" },
+    { key: "steuerWirkung", label: "St.wirk.", w: "" },
+    { key: "ueberschuss", label: "\u00dcbersch.", w: "" },
   ]
 
   return (
@@ -50,14 +50,14 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
       />
 
       <div className="overflow-x-auto -mx-5 px-5">
-        <table className="border-collapse text-[10px] font-mono" style={{ minWidth: 860 }}>
+        <table className="w-full border-collapse text-[9px] font-mono" style={{ minWidth: 700 }}>
           <thead>
             <tr className="bg-secondary">
               {cols.map((c, i) => (
                 <th
                   key={i}
-                  className="py-1.5 px-2 text-primary font-semibold text-[9px] border-b border-border whitespace-nowrap"
-                  style={{ textAlign: c.align }}
+                  className={`py-1 px-1.5 text-primary font-semibold text-[8px] border-b border-border whitespace-nowrap ${c.w}`}
+                  style={{ textAlign: i === 0 ? "center" : "right" }}
                 >
                   {c.label}
                 </th>
@@ -66,41 +66,19 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
           </thead>
           <tbody>
             {calc.jahre.map((j, i) => {
-              const cells = [
-                { val: String(j.j), raw: j.j, align: "center" as const, cls: "text-subtle" },
-                { val: fmt(j.miete), raw: j.miete, align: "right" as const, cls: "text-foreground/70" },
-                { val: fmt(j.rate1), raw: j.rate1, align: "right" as const, cls: "text-foreground/70" },
-                { val: fmt(j.restschuld1), raw: j.restschuld1, align: "right" as const, cls: "text-foreground/50" },
-                { val: fmt(j.rate2), raw: j.rate2, align: "right" as const, cls: "text-foreground/70" },
-                { val: fmt(j.restschuld2), raw: j.restschuld2, align: "right" as const, cls: "text-foreground/50" },
-                { val: fmt(j.afaDegr), raw: j.afaDegr, align: "right" as const, cls: "text-foreground/70" },
-                { val: j.afaSonder > 0 ? fmt(j.afaSonder) : "—", raw: j.afaSonder, align: "right" as const, cls: "text-foreground/50" },
-                {
-                  val: fmt(j.steuerErgebnis),
-                  raw: j.steuerErgebnis,
-                  align: "right" as const,
-                  cls: j.steuerErgebnis < 0 ? "text-red-500" : "text-green-600",
-                },
-                {
-                  val: fmt(j.steuerWirkung),
-                  raw: j.steuerWirkung,
-                  align: "right" as const,
-                  cls: j.steuerWirkung < 0 ? "text-primary" : "text-foreground/70",
-                },
-                {
-                  val: fmt(j.ueberschuss),
-                  raw: j.ueberschuss,
-                  align: "right" as const,
-                  cls: j.ueberschuss >= 0 ? "text-green-600 font-semibold" : "text-red-500 font-semibold",
-                },
-              ]
               return (
                 <tr key={i} className={i % 2 ? "bg-foreground/[0.02]" : "bg-transparent"}>
-                  {cells.map((c, ci) => (
-                    <td key={ci} className={`py-1.5 px-2 ${c.cls}`} style={{ textAlign: c.align }}>
-                      {c.val}
-                    </td>
-                  ))}
+                  <td className="py-1 px-1.5 text-center text-subtle">{j.j}</td>
+                  <td className="py-1 px-1.5 text-right text-foreground/70">{fmt(j.miete)}</td>
+                  <td className="py-1 px-1.5 text-right text-foreground/70">{fmt(j.rate1)}</td>
+                  <td className="py-1 px-1.5 text-right text-foreground/50">{fmt(j.restschuld1)}</td>
+                  <td className="py-1 px-1.5 text-right text-foreground/70">{fmt(j.rate2)}</td>
+                  <td className="py-1 px-1.5 text-right text-foreground/50">{fmt(j.restschuld2)}</td>
+                  <td className="py-1 px-1.5 text-right text-foreground/70">{fmt(j.afaDegr)}</td>
+                  <td className="py-1 px-1.5 text-right text-foreground/50">{j.afaSonder > 0 ? fmt(j.afaSonder) : "\u2014"}</td>
+                  <td className={`py-1 px-1.5 text-right ${j.steuerErgebnis < 0 ? "text-red-500" : "text-green-600"}`}>{fmt(j.steuerErgebnis)}</td>
+                  <td className={`py-1 px-1.5 text-right ${j.steuerWirkung < 0 ? "text-primary" : "text-foreground/70"}`}>{fmt(j.steuerWirkung)}</td>
+                  <td className={`py-1 px-1.5 text-right font-semibold ${j.ueberschuss >= 0 ? "text-green-600" : "text-red-500"}`}>{fmt(j.ueberschuss)}</td>
                 </tr>
               )
             })}
@@ -119,24 +97,24 @@ export function StepVerlauf({ calc, gesamtKP, inflation, darlehen1Label = "D1", 
       <div className="mt-6">
         <SectionHeader
           icon="chart"
-          title="Vermögensentwicklung"
-          subtitle="Immobilienwert, Restschuld und Vermögen"
+          title="Verm\u00f6gensentwicklung"
+          subtitle="Immobilienwert, Restschuld und Verm\u00f6gen"
         />
         <div className="bg-surface rounded-lg p-4 border border-border">
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2e" />
-              <XAxis dataKey="name" tick={{ fill: "#5a5a7a", fontSize: 10 }} stroke="#1a1a2e" />
-              <YAxis tick={{ fill: "#5a5a7a", fontSize: 10 }} stroke="#1a1a2e"
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" tick={{ fill: "var(--subtle)", fontSize: 10 }} stroke="var(--border)" />
+              <YAxis tick={{ fill: "var(--subtle)", fontSize: 10 }} stroke="var(--border)"
                 tickFormatter={(v: number) => `${Math.round(v / 1000)}k`} />
               <Tooltip
-                contentStyle={{ background: "#12121f", border: "1px solid #2a2a3e", borderRadius: 8, color: "#e0e0f0", fontSize: 11 }}
+                contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--foreground)", fontSize: 11 }}
                 formatter={(value: number) => eur(value)}
               />
-              <Legend wrapperStyle={{ fontSize: 11, color: "#8a8a9a" }} />
+              <Legend wrapperStyle={{ fontSize: 11, color: "var(--subtle)" }} />
               <Line type="monotone" dataKey="Immobilienwert" stroke="#3a5aaa" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="Restschuld" stroke="#aa3a3a" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Vermögen" stroke="#4a8a4a" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Verm\u00f6gen" stroke="#4a8a4a" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

@@ -22,14 +22,14 @@ export function StepObjekt({ data, calc, onChange, readOnly, isTemplate }: Props
     <>
       <SectionHeader icon="building" title="Objektdaten" subtitle="Wohnung und Kaufpreis" />
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
-        <FieldInput label="Wohnfläche" value={data.wfl} onChange={(v) => onChange("wfl", v)} suffix="m²" step={0.01} disabled={objLocked} />
-        <FieldInput label="BGF" value={data.bgf} onChange={(v) => onChange("bgf", v)} suffix="m²" step={0.01} disabled={objLocked} />
-        <FieldInput label="Kaufpreis Wohnung" value={data.kaufpreis} onChange={(v) => onChange("kaufpreis", v)} suffix="€" step={1000} disabled={objLocked} />
-        <FieldInput label="davon Grundstück" value={data.grundstueck} onChange={(v) => onChange("grundstueck", v)} suffix="€" step={1000} disabled={objLocked} />
-        <FieldInput label="Stellplatz" value={data.stellplatz} onChange={(v) => onChange("stellplatz", v)} suffix="€" step={1000} disabled={objLocked} />
+        <FieldInput label="Wohnfl\u00e4che" value={data.wfl} onChange={(v) => onChange("wfl", v)} suffix="m\u00b2" step={0.01} disabled={objLocked} />
+        <FieldInput label="BGF" value={data.bgf} onChange={(v) => onChange("bgf", v)} suffix="m\u00b2" step={0.01} disabled={objLocked} />
+        <FieldInput label="Kaufpreis Wohnung" value={data.kaufpreis} onChange={(v) => onChange("kaufpreis", v)} suffix="\u20ac" step={1000} disabled={objLocked} />
+        <FieldInput label="davon Grundst\u00fcck" value={data.grundstueck} onChange={(v) => onChange("grundstueck", v)} suffix="\u20ac" step={1000} disabled={objLocked} />
+        <FieldInput label="Stellplatz" value={data.stellplatz} onChange={(v) => onChange("stellplatz", v)} suffix="\u20ac" step={1000} disabled={objLocked} />
         <div>
-          <div className="text-[11px] text-subtle mb-1 font-mono">Kaufpreis/m²</div>
-          <div className="text-lg text-primary font-serif py-1.5">{eur(gesamtKP / data.wfl, 0)}/m²</div>
+          <div className="text-[11px] text-subtle mb-1 font-mono">Gesamtkaufpreis</div>
+          <div className="text-lg text-primary font-serif py-1.5">{eur(gesamtKP)}</div>
         </div>
       </div>
 
@@ -37,7 +37,7 @@ export function StepObjekt({ data, calc, onChange, readOnly, isTemplate }: Props
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
         <FieldInput label="Grunderwerbsteuer" value={data.gestPct} onChange={(v) => onChange("gestPct", v)} suffix="%" step={0.1} disabled={objLocked} />
         <FieldInput label="Notar + Grundbuch" value={data.notarPct} onChange={(v) => onChange("notarPct", v)} suffix="%" step={0.1} disabled={objLocked} />
-        <FieldInput label="Grundschuldgebühren" value={data.grundschuldPct} onChange={(v) => onChange("grundschuldPct", v)} suffix="%" step={0.1} disabled={objLocked} />
+        <FieldInput label="Grundschuldgeb\u00fchren" value={data.grundschuldPct} onChange={(v) => onChange("grundschuldPct", v)} suffix="%" step={0.1} disabled={objLocked} />
         <div />
         <div>
           <div className="text-[11px] text-subtle mb-1 font-mono">Baubeginn</div>
@@ -52,40 +52,42 @@ export function StepObjekt({ data, calc, onChange, readOnly, isTemplate }: Props
       </div>
 
       <ResultCard>
-        <div className="text-[10px] text-subtle uppercase tracking-wider mb-2">Anschaffungsnebenkosten → erhöhen AfA-Basis</div>
+        <div className="text-[10px] text-subtle uppercase tracking-wider mb-2">Anschaffungsnebenkosten \u2192 erh\u00f6hen AfA-Basis</div>
         <ResultRow label="Grunderwerbsteuer" value={eur(calc.gestBetrag)} />
         <ResultRow label="Notar + Grundbuch" value={eur(calc.notarBetrag)} />
         <ResultRow label={`Bauzeitzinsen (${calc.bauzeitMonate} Mon. MaBV)`} value={eur(calc.bauzeitZinsen)} />
         <div className="text-[10px] text-subtle mt-0.5 mb-2 pl-1">
-          MaBV-Auszahlungsstufen mit gew. Ø-Zins, Bauzeit {data.baubeginn} bis {data.fertigstellung}
+          MaBV-Auszahlungsstufen mit gew. \u00d8-Zins, Bauzeit {data.baubeginn} bis {data.fertigstellung}
         </div>
         <Divider />
         <ResultRow label="Summe Anschaffungs-NK" value={eur(anschaffungsNK)} bold />
 
         <div className="mt-3 text-[10px] text-subtle uppercase tracking-wider mb-2">Sofort absetzbare Werbungskosten (Jahr 1)</div>
-        <ResultRow label="Grundschuldgebühren" value={eur(calc.grundschuldBetrag)} />
+        <ResultRow label="Grundschuldgeb\u00fchren" value={eur(calc.grundschuldBetrag)} />
         <Divider />
         <ResultRow label="Nebenkosten gesamt" value={eur(calc.nkGesamt)} bold />
+      </ResultCard>
+
+      <div className="mt-3 mb-1 p-3 rounded-lg bg-primary/10 border border-primary/20">
         <ResultRow label="GESAMTINVESTITION" value={eur(calc.gesamtInvest)} highlight />
-        <Divider />
+      </div>
+
+      <ResultCard>
         <ResultRow label="AfA-Bemessungsgrundlage" value={eur(calc.gebaeudeWert)} bold />
-        <div className="text-[10px] text-subtle mt-0.5 mb-1 pl-1">
-          = Kaufpreis {eur(data.kaufpreis)} − Grundstück {eur(data.grundstueck)} + Stellplatz {eur(data.stellplatz)} + Anschaffungs-NK {eur(anschaffungsNK)}
+        <div className="text-[10px] text-subtle mt-1">
+          = Kaufpreis {eur(data.kaufpreis)} \u2212 Grundst\u00fcck {eur(data.grundstueck)} + Stellplatz {eur(data.stellplatz)} + Anschaffungs-NK {eur(anschaffungsNK)}
         </div>
       </ResultCard>
 
-      <div className="mt-4">
-        <SectionHeader icon="home" title="Miete" subtitle="Kaltmiete und Inflation" />
-        <div className="grid grid-cols-2 gap-x-3 gap-y-0">
-          <FieldInput label="Kaltmiete/m²" value={data.mieteQm} onChange={(v) => onChange("mieteQm", v)} suffix="€/m²" step={0.5} disabled={objLocked} />
-          <FieldInput label="Stellplatz/Monat" value={data.mieteStellplatz} onChange={(v) => onChange("mieteStellplatz", v)} suffix="€" step={10} disabled={objLocked} />
-          <FieldInput label="Inflation p.a." value={data.inflation} onChange={(v) => onChange("inflation", v)} suffix="%" step={0.1} />
-          <div>
-            <div className="text-[11px] text-subtle mb-1 font-mono">Jahreskaltmiete</div>
-            <div className="text-lg text-primary font-serif py-1.5">{eur(calc.mieteJahr)}</div>
-          </div>
+      {calc.sonder7bBerechtigt ? (
+        <div className="text-[10px] text-emerald-500 font-mono mt-2 p-2 rounded border border-emerald-500/20 bg-emerald-500/5">
+          \u2713 Sonder-AfA \u00a77b berechtigt \u2013 Geb\u00e4udekosten {eur(calc.gebaeudeKostenProQmBGF, 0)}/m\u00b2 BGF \u2264 5.200 \u20ac/m\u00b2
         </div>
-      </div>
+      ) : (
+        <div className="text-[10px] text-amber-500 font-mono mt-2 p-2 rounded border border-amber-500/20 bg-amber-500/5">
+          \u2717 Sonder-AfA \u00a77b entf\u00e4llt \u2013 Geb\u00e4udekosten {eur(calc.gebaeudeKostenProQmBGF, 0)}/m\u00b2 BGF &gt; 5.200 \u20ac/m\u00b2
+        </div>
+      )}
     </>
   )
 }

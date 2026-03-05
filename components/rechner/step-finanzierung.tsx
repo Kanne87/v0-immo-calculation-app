@@ -30,7 +30,7 @@ export function StepFinanzierung({ data, calc, onChange, readOnly }: Props) {
   // Wenn EK ge\u00e4ndert wird, Darlehen 2 automatisch anpassen
   const handleEKChange = (newEK: number) => {
     onChange("eigenkapital", newEK)
-    // D2 = GesamtInvest - EK - D1 (BZZ-Drift ist minimal, <100\u20ac)
+    // D2 = GesamtInvest - EK - D1
     const newD2 = Math.max(0, Math.round(calc.gesamtInvest - newEK - data.darlehen1))
     onChange("darlehen2", newD2)
   }

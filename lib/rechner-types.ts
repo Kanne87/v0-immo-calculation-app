@@ -1,4 +1,4 @@
-// ─── Types ──────────────────────────────────────────────────────────────
+// \u2500\u2500\u2500 Types \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 
 export interface ProjectTemplate {
   id: string
@@ -57,7 +57,7 @@ export interface ProjectData {
   verwaltung: number
 }
 
-// ─── Gespeicherte Berechnung ─────────────────────────────────
+// \u2500\u2500\u2500 Gespeicherte Berechnung \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 export interface SavedCalculation {
   id: string
   authentikSub: string
@@ -122,14 +122,7 @@ export interface CalcResult {
   avgMonat: number
 }
 
-// ─── MaBV Auszahlungsstufen ──────────────────────────────────
-// Quelle: Expos&#xe9; Spandauer Tor / Immo Projekt Berlin-Spandau I GmbH
-// Kaufvertrag &#xa7;3 Abs. 2 MaBV, Seite 80 des Verkaufsprospekts (Stand Jan. 2026)
-// 13 projektspezifische Stufen, Summe = 100 %
-//
-// monatRef = realistischer Abrufzeitpunkt bei 18 Monaten Bauzeit
-// (Basis: MFH 5+ Geschosse, Massiv/Betonfertigteile, TG, KfW EH40)
-// Skaliert proportional bei abweichender Bauzeit.
+// \u2500\u2500\u2500 MaBV Auszahlungsstufen \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 export const MABV_STUFEN = [
   { pct: 0.300, label: "Beginn Erdarbeiten",                        monatRef: 0 },
   { pct: 0.280, label: "Rohbaufertigstellung inkl. Zimmererarbeiten", monatRef: 5 },
@@ -146,11 +139,10 @@ export const MABV_STUFEN = [
   { pct: 0.035, label: "Vollstaendige Fertigstellung",               monatRef: 18 },
 ]
 
-// Referenz-Bauzeit zu der die monatRef-Werte geh&#xf6;ren
 export const MABV_REF_MONATE = 18
 
-// ─── Default data (WE-003, EG, 1 Zi, 48,27 m&#xb2;) ──────────────
-// EK = Nebenkosten (348.000 * 8,5% = 29.580)
+// \u2500\u2500\u2500 Default data (WE-003, EG, 1 Zi, 48,27 m\u00b2) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// EK = Nebenkosten (348.000 * 8% = 27.840)
 // D2 = GesamtKP - D1 (348.000 - 150.000 = 198.000)
 export const defaultProjectData: ProjectData = {
   projektName: "Spandauer Tor \u2013 WE-003 (EG, 1 Zi.)",
@@ -160,20 +152,20 @@ export const defaultProjectData: ProjectData = {
   grundstueck: 31900,
   stellplatz: 29000,
   gestPct: 6.0,
-  notarPct: 2.0,
+  notarPct: 1.5,
   grundschuldPct: 0.5,
   baubeginn: "2026-05-01",
   fertigstellung: "2027-11-01",
   mieteQm: 21.0,
   mieteStellplatz: 80,
   inflation: 2.5,
-  eigenkapital: 29580,
+  eigenkapital: 27840,
   darlehen1Label: "KfW 298",
   darlehen1: 150000,
   zins1: 2.83,
   tilgung1: 1.78,
   zinsbindung1: 10,
-  tilgungsfrei1: 0,
+  tilgungsfrei1: 1,
   darlehen2Label: "Hausbank",
   darlehen2: 198000,
   zins2: 4.30,
