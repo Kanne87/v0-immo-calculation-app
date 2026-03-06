@@ -91,45 +91,45 @@ function ProjektSektion({
 
   return (
     <section className="mb-6">
-      <div className="w-full flex items-center justify-between mb-3 group">
+      <div className="w-full flex items-start justify-between gap-2 mb-3 group">
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-start gap-3 flex-1 min-w-0 text-left"
         >
-          <div className="p-2 bg-primary/10 rounded-lg mt-0.5">
+          <div className="p-2 bg-primary/10 rounded-lg mt-0.5 flex-shrink-0">
             <Building2 className="w-5 h-5 text-primary" />
           </div>
-          <div className="min-w-0">
-            <h2 className="text-base font-serif font-semibold text-foreground group-hover:text-primary transition-colors">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-serif font-semibold text-foreground group-hover:text-primary transition-colors leading-tight">
               {displayName}
             </h2>
-            <div className="flex items-center gap-3 mt-0.5">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-1">
               <span className="flex items-center gap-1 text-[10px] font-mono text-subtle">
-                <MapPin className="w-3 h-3" />
-                {projekt.adresse}
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{projekt.adresse}</span>
               </span>
               <span className="flex items-center gap-1 text-[10px] font-mono text-primary/70">
-                <Leaf className="w-3 h-3" />
+                <Leaf className="w-3 h-3 flex-shrink-0" />
                 {projekt.energiestandard}
               </span>
             </div>
           </div>
         </button>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
           {hasPraesentation && (
             <button
               onClick={(e) => { e.stopPropagation(); setShowPraesentation(true) }}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all"
+              className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all min-h-[36px]"
               title="Objektpräsentation öffnen"
             >
-              <BookOpen className="w-3 h-3" />
+              <BookOpen className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Präsentation</span>
             </button>
           )}
-          <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-0.5 rounded">
-            {projekt.einheiten.length} Einheiten
+          <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-1 rounded whitespace-nowrap">
+            {projekt.einheiten.length} Einh.
           </span>
-          <button onClick={() => setCollapsed(!collapsed)}>
+          <button onClick={() => setCollapsed(!collapsed)} className="p-1 min-h-[36px] flex items-center">
             {collapsed ? <ChevronDown className="w-4 h-4 text-subtle" /> : <ChevronUp className="w-4 h-4 text-subtle" />}
           </button>
         </div>
@@ -140,7 +140,7 @@ function ProjektSektion({
           <div className="flex justify-end mb-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-mono transition-all border ${
+              className={`flex items-center gap-1 px-2 py-1.5 rounded text-[10px] font-mono transition-all border min-h-[36px] ${
                 showFilters
                   ? "bg-primary/10 text-primary border-primary/30"
                   : "bg-secondary text-subtle border-border hover:text-foreground"
@@ -158,7 +158,7 @@ function ProjektSektion({
                 <div className="flex gap-1 flex-wrap">
                   {etagen.map((e) => (
                     <button key={e} onClick={() => setEtageFilter(e)}
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all ${
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all min-h-[28px] ${
                         etageFilter === e ? "bg-primary text-primary-foreground" : "bg-secondary text-subtle hover:text-foreground"
                       }`}>{e}</button>
                   ))}
@@ -169,7 +169,7 @@ function ProjektSektion({
                 <div className="flex gap-1">
                   {zimmerWerte.map((z) => (
                     <button key={z} onClick={() => setZimmerFilter(z)}
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all ${
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all min-h-[28px] ${
                         zimmerFilter === z ? "bg-primary text-primary-foreground" : "bg-secondary text-subtle hover:text-foreground"
                       }`}>{z === "alle" ? "alle" : `${z} Zi.`}</button>
                   ))}
@@ -199,7 +199,7 @@ function ProjektSektion({
                 <button
                   key={we.id}
                   onClick={() => onSelectUnit(we)}
-                  className="w-full grid grid-cols-[56px_52px_36px_58px_88px_60px] md:grid-cols-[70px_60px_44px_70px_100px_90px] gap-1 px-3 py-2.5 text-[11px] font-mono transition-all border-t border-border/50 text-left hover:bg-primary/5 text-foreground cursor-pointer"
+                  className="w-full grid grid-cols-[56px_52px_36px_58px_88px_60px] md:grid-cols-[70px_60px_44px_70px_100px_90px] gap-1 px-3 py-2.5 text-[11px] font-mono transition-all border-t border-border/50 text-left hover:bg-primary/5 text-foreground cursor-pointer min-h-[44px] items-center"
                 >
                   <span className="font-semibold">{we.id}</span>
                   <span>{we.etage}</span>
@@ -247,17 +247,19 @@ export function ProjectList({
 
   return (
     <div className="w-full max-w-[480px] md:max-w-[900px] mx-auto min-h-screen bg-background">
-      <header className="px-5 pt-8 pb-5 border-b border-border relative">
-        <div className="text-[11px] text-primary font-mono tracking-[3px] uppercase mb-1">
-          Kapitalanlage-Rechner Pro
+      <header className="px-4 sm:px-5 pt-6 sm:pt-8 pb-4 sm:pb-5 border-b border-border relative">
+        <div className="pr-20">
+          <div className="text-[10px] sm:text-[11px] text-primary font-mono tracking-[2px] sm:tracking-[3px] uppercase mb-1">
+            Kapitalanlage-Rechner Pro
+          </div>
+          <h1 className="text-xl sm:text-2xl font-serif text-foreground font-semibold mt-1 mb-1 text-balance">
+            Immobilien-Kapitalanlagen
+          </h1>
+          <p className="text-[11px] sm:text-xs text-dimmed font-mono">
+            Neubauprojekte analysieren und vergleichen
+          </p>
         </div>
-        <h1 className="text-2xl font-serif text-foreground font-semibold mt-1 mb-1 text-balance">
-          Immobilien-Kapitalanlagen
-        </h1>
-        <p className="text-xs text-dimmed font-mono">
-          Neubauprojekte analysieren und vergleichen
-        </p>
-        <div className="absolute top-6 right-5 flex items-center gap-2">
+        <div className="absolute top-5 sm:top-6 right-4 sm:right-5 flex items-center gap-2">
           <ThemeToggle />
           {advisorProfile && onProfileSave && (
             <ProfileMenu profile={advisorProfile} onSave={onProfileSave} />
@@ -265,7 +267,7 @@ export function ProjectList({
         </div>
       </header>
 
-      <main className="p-5">
+      <main className="p-4 sm:p-5">
         <div className="mb-4">
           <h2 className="text-[11px] text-subtle font-mono uppercase tracking-[2px]">
             Verfügbare Projekte
@@ -284,7 +286,7 @@ export function ProjectList({
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => setCalcsCollapsed(!calcsCollapsed)}
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-2 group min-h-[44px]"
             >
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Calculator className="w-4 h-4 text-primary" />
@@ -305,11 +307,10 @@ export function ProjectList({
             {onFreeCalc && (
               <button
                 onClick={onFreeCalc}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all min-h-[36px]"
               >
                 <Plus className="w-3 h-3" />
-                <span className="hidden sm:inline">Freie Berechnung</span>
-                <span className="sm:hidden">Neu</span>
+                Neu
               </button>
             )}
           </div>
@@ -329,7 +330,7 @@ export function ProjectList({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {savedCalcs.map((calc) => (
                   <div key={calc.id} className="group relative bg-card rounded-lg border border-primary/15 hover:border-primary/40 transition-all cursor-pointer">
-                    <button onClick={() => onSelectCalc(calc)} className="w-full p-3.5 text-left">
+                    <button onClick={() => onSelectCalc(calc)} className="w-full p-3.5 text-left min-h-[44px]">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-serif text-foreground font-semibold truncate">{calc.description}</div>
@@ -341,7 +342,7 @@ export function ProjectList({
                           </div>
                         </div>
                       </div>
-                      <div className="flex gap-4 text-[10px] font-mono text-dimmed">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] font-mono text-dimmed">
                         <span>{`KP ${eur(calc.projectData.kaufpreis + calc.projectData.stellplatz, 0)}`}</span>
                         <span>{`${calc.projectData.wfl} m²`}</span>
                         <span>{`EK ${eur(calc.projectData.eigenkapital, 0)}`}</span>
@@ -369,12 +370,12 @@ export function ProjectList({
             <div className="px-4 py-4">
               <h3 className="text-sm font-serif font-semibold text-foreground mb-2">Berechnung löschen?</h3>
               <p className="text-xs text-dimmed font-mono">
-                {`„${savedCalcs.find((c) => c.id === pendingDeleteId)?.description}“ wird unwiderruflich gelöscht.`}
+                {`„${savedCalcs.find((c) => c.id === pendingDeleteId)?.description}" wird unwiderruflich gelöscht.`}
               </p>
             </div>
             <div className="flex gap-2 px-4 py-3 border-t border-border">
-              <button onClick={() => setPendingDeleteId(null)} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-secondary text-dimmed border border-border hover:text-foreground transition-all">Abbrechen</button>
-              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all">Löschen</button>
+              <button onClick={() => setPendingDeleteId(null)} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-secondary text-dimmed border border-border hover:text-foreground transition-all min-h-[44px]">Abbrechen</button>
+              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all min-h-[44px]">Löschen</button>
             </div>
           </div>
         </div>

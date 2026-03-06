@@ -59,12 +59,12 @@ export function StepRendite({
         subtitle="10-Jahres-Ergebnis"
       />
 
-      <div className="bg-surface rounded-lg p-4 border border-border">
-        <div className="text-xs text-dimmed mb-3 text-center font-mono">
+      <div className="bg-surface rounded-lg p-3 sm:p-4 border border-border">
+        <div className="text-[11px] text-dimmed mb-3 text-center font-mono">
           Vermögensbildung in 10 Jahren
         </div>
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={chartData} barGap={8}>
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={chartData} barGap={4} margin={{ top: 4, right: 4, left: -10, bottom: 4 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2e" />
             <XAxis
               dataKey="name"
@@ -72,11 +72,12 @@ export function StepRendite({
               stroke="#1a1a2e"
             />
             <YAxis
-              tick={{ fill: "#5a5a7a", fontSize: 10 }}
+              tick={{ fill: "#5a5a7a", fontSize: 9 }}
               stroke="#1a1a2e"
               tickFormatter={(v: number) =>
                 `${Math.round(v / 1000)}k`
               }
+              width={45}
             />
             <Tooltip
               contentStyle={{
@@ -87,9 +88,6 @@ export function StepRendite({
                 fontSize: 11,
               }}
               formatter={(value: number) => eur(value)}
-            />
-            <Legend
-              wrapperStyle={{ fontSize: 11, color: "#8a8a9a" }}
             />
             <Bar
               dataKey="Immobilienwert"
@@ -108,6 +106,18 @@ export function StepRendite({
             />
           </BarChart>
         </ResponsiveContainer>
+        {/* Custom legend – besser lesbar als recharts Legend auf Mobile */}
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
+          <span className="flex items-center gap-1.5 text-[10px] font-mono text-dimmed">
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#3a5aaa] inline-block" />Immobilienwert
+          </span>
+          <span className="flex items-center gap-1.5 text-[10px] font-mono text-dimmed">
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#aa3a3a] inline-block" />Restschuld
+          </span>
+          <span className="flex items-center gap-1.5 text-[10px] font-mono text-dimmed">
+            <span className="w-2.5 h-2.5 rounded-sm bg-[#4a8a4a] inline-block" />Vermögen
+          </span>
+        </div>
       </div>
 
       <div className="mt-4">
@@ -118,7 +128,7 @@ export function StepRendite({
             bold
           />
           <ResultRow
-            label={isUeberschuss ? "Durchschn. mtl. Überschuss" : "Durchschn. mtl. Zuschuss"}
+            label={isUeberschuss ? "Ø mtl. Überschuss" : "Ø mtl. Zuschuss"}
             value={`${isUeberschuss ? "+ " : ""}${eur(calc.avgMonat, 2)}`}
             bold
           />
@@ -134,7 +144,7 @@ export function StepRendite({
           />
           <Divider />
           <ResultRow
-            label="Möglicher steuerfreier Gewinn"
+            label="Steuerfreier Gewinn"
             value={eur(calc.vermoegenEnde)}
             highlight
           />
