@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import Link from "next/link";
 import type { BeratungProjectData } from "@/lib/beratung/project-data";
 import type { ProjectData } from "@/lib/rechner-types";
 import { calculate } from "@/lib/rechner-calc";
-import { Calculator, Euro, Percent, Calendar, TrendingUp, PiggyBank } from "lucide-react";
+import { Calculator, Euro, Percent, Calendar, TrendingUp, PiggyBank, ExternalLink } from "lucide-react";
 
 interface CalcInputs {
   kaufpreis: number;
@@ -149,6 +150,25 @@ export function ModuleCalculator({ project }: { project: BeratungProjectData }) 
               </p>
             </div>
           </div>
+        </div>
+
+        <div
+          className={`mt-8 text-center transition-all duration-700 ${
+            mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          }`}
+          style={{ transitionDelay: "500ms" }}
+        >
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-xl border border-blue-400/20 bg-blue-400/5 px-6 py-3 text-sm font-medium text-blue-400 transition-all hover:bg-blue-400/10"
+          >
+            <Calculator className="size-4" />
+            Detailrechner oeffnen
+            <ExternalLink className="size-3.5 text-blue-400/60" />
+          </Link>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Alle Wohneinheiten, individuelle Parameter, Speichern &amp; PDF-Export
+          </p>
         </div>
       </div>
     </div>

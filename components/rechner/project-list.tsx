@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import Link from "next/link"
 import {
   Building2,
   Calculator,
@@ -14,12 +15,14 @@ import {
   Leaf,
   Plus,
   BookOpen,
+  Presentation,
 } from "lucide-react"
 import type { SavedCalculation } from "@/lib/rechner-types"
 import type { WohneinheitData } from "@/lib/units-data"
 import type { ProjektDefinition } from "@/lib/projects-data"
 import type { AdvisorProfile } from "@/lib/advisor"
 import { eur } from "@/lib/rechner-calc"
+import { getBeratungSlugForProjekt } from "@/lib/project-registry"
 import { ProfileMenu } from "./profile-menu"
 import { ThemeToggle } from "./theme-toggle"
 import { ObjektPraesentation } from "./objekt-praesentation"
@@ -88,6 +91,7 @@ function ProjektSektion({
 
   const displayName = projekt.haus ? `${projekt.name} – ${projekt.haus}` : projekt.name
   const hasPraesentation = projekt.coverImageUrl || (projekt.keyfacts?.length ?? 0) > 0 || (projekt.praesektionen?.length ?? 0) > 0 || projekt.videoUrl
+  const beratungSlug = getBeratungSlugForProjekt(projekt.id)
 
   return (
     <section className="mb-6">
@@ -125,6 +129,16 @@ function ProjektSektion({
               <BookOpen className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Präsentation</span>
             </button>
+          )}
+          {beratungSlug && (
+            <Link
+              href={`/beratung/${beratungSlug}/1`}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/40 transition-all min-h-[36px]"
+              title="Beratungsstrecke starten"
+            >
+              <Presentation className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Beratung</span>
+            </Link>
           )}
           <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-1 rounded whitespace-nowrap">
             {projekt.einheiten.length} Einh.

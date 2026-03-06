@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { STEPS } from "@/lib/beratung-steps";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Calculator } from "lucide-react";
 
 interface SidebarNavProps {
   slug: string;
@@ -84,9 +84,20 @@ export function SidebarNav({ slug, currentStep, visitedSteps }: SidebarNavProps)
         })}
       </div>
 
-      <div className="border-t border-border/50 px-3 py-3">
+      <div className="border-t border-border/50 px-2 py-3 flex flex-col gap-2">
+        <Link
+          href="/"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm text-muted-foreground transition-all hover:bg-secondary/50 hover:text-foreground",
+            collapsed && "justify-center"
+          )}
+          title="Zurueck zum Rechner"
+        >
+          <Calculator className="size-4 shrink-0" />
+          {!collapsed && <span className="truncate text-xs font-medium">Rechner</span>}
+        </Link>
         {!collapsed && (
-          <p className="text-xs text-muted-foreground">
+          <p className="px-2.5 text-xs text-muted-foreground">
             Schritt {currentStep} von {STEPS.length}
           </p>
         )}
