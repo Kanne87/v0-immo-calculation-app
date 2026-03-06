@@ -8,7 +8,8 @@ import "leaflet/dist/leaflet.css";
 
 type LocationTab = "macro" | "meso" | "micro";
 
-const TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+// CartoDB Voyager: heller, moderner Kartenstil mit guter Lesbarkeit
+const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
 const ZOOM_LEVELS: Record<LocationTab, number> = {
@@ -26,7 +27,7 @@ const CENTER_POSITIONS: Record<LocationTab, (project: BeratungProjectData) => [n
 function createIcon(color: string, size: number = 24) {
   return L.divIcon({
     className: "custom-marker",
-    html: `<div style="width:${size}px;height:${size}px;background:${color};border:2px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.5);"></div>`,
+    html: `<div style="width:${size}px;height:${size}px;background:${color};border:2px solid rgba(255,255,255,0.9);border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
@@ -46,11 +47,12 @@ function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }
 }
 
 const POI_COLORS: Record<string, string> = {
-  "OePNV": "#3b82f6",
-  "Einkauf": "#22c55e",
-  "Gastronomie": "#f59e0b",
-  "Oeffentlich": "#a78bfa",
-  "Auto & Service": "#ef4444",
+  "OePNV": "#2563eb",
+  "Einkauf": "#16a34a",
+  "Gastronomie": "#d97706",
+  "Oeffentlich": "#7c3aed",
+  "Auto & Service": "#dc2626",
+  "Fitness & Freizeit": "#0891b2",
 };
 
 function getPOIOffset(index: number, total: number): [number, number] {
@@ -73,7 +75,7 @@ export function LocationMap({ project, activeTab }: { project: BeratungProjectDa
     const totalPois = project.location.micro.pois.reduce((sum, cat) => sum + cat.items.length, 0);
 
     project.location.micro.pois.forEach((cat) => {
-      const color = POI_COLORS[cat.category] || "#888";
+      const color = POI_COLORS[cat.category] || "#6b7280";
       cat.items.forEach((item) => {
         const [latOff, lngOff] = getPOIOffset(globalIndex, totalPois);
         markers.push({
@@ -97,7 +99,7 @@ export function LocationMap({ project, activeTab }: { project: BeratungProjectDa
       className="h-full w-full"
       zoomControl={false}
       attributionControl={false}
-      style={{ background: "#0a0a0a" }}
+      style={{ background: "#f0f0f0" }}
     >
       <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} />
       <MapUpdater center={center} zoom={zoom} />
@@ -106,7 +108,7 @@ export function LocationMap({ project, activeTab }: { project: BeratungProjectDa
         <Circle
           center={[52.52, 13.405]}
           radius={25000}
-          pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.1, weight: 2 }}
+          pathOptions={{ color: "#2563eb", fillColor: "#2563eb", fillOpacity: 0.08, weight: 2, dashArray: "6 4" }}
         />
       )}
 
@@ -114,7 +116,7 @@ export function LocationMap({ project, activeTab }: { project: BeratungProjectDa
         <Circle
           center={[52.535, 13.2]}
           radius={4000}
-          pathOptions={{ color: "#14b8a6", fillColor: "#14b8a6", fillOpacity: 0.1, weight: 2 }}
+          pathOptions={{ color: "#0d9488", fillColor: "#0d9488", fillOpacity: 0.08, weight: 2, dashArray: "6 4" }}
         />
       )}
 
@@ -122,7 +124,7 @@ export function LocationMap({ project, activeTab }: { project: BeratungProjectDa
         <>
           <Marker
             position={[project.coordinates.lat, project.coordinates.lng]}
-            icon={createIcon("#22c55e", 28)}
+            icon={createIcon("#16a34a", 28)}
           >
             <Popup>
               <div className="text-sm">
