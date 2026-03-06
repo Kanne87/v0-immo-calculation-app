@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import type { BeratungProjectData } from "@/lib/beratung/project-data";
+import type { ProjectData } from "@/lib/rechner-types";
+import { calculate } from "@/lib/rechner-calc";
 import { Calculator, Euro, Percent, Calendar, TrendingUp, PiggyBank } from "lucide-react";
 
 interface CalcInputs {
@@ -11,46 +13,46 @@ interface CalcInputs {
   zinssatz: number;
   tilgung: number;
   kaltmiete: number;
-  hausgeld: number;
   laufzeit: number;
-  mietsteigerung: number;
 }
 
-interface CalcResults {
-  monatlicheRate: number;
-  monatlicheNettomiete: number;
-  monatlichesBelastung: number;
-  eigenkapitalRendite: number;
-  gesamtkosten: number;
-  restschuld: number;
-}
-
-function calculateResults(inputs: CalcInputs): CalcResults {
-  const darlehen = inputs.kaufpreis - inputs.eigenkapital;
-  const monatszins = inputs.zinssatz / 100 / 12;
-  const monatlicheRate = darlehen * (monatszins + inputs.tilgung / 100 / 12);
-  const monatlicheNettomiete = inputs.kaltmiete * inputs.wohnflaeche - inputs.hausgeld;
-  const monatlichesBelastung = monatlicheRate - monatlicheNettomiete;
-
-  const jahresMieteinnahme = monatlicheNettomiete * 12;
-  const eigenkapitalRendite = (jahresMieteinnahme / inputs.eigenkapital) * 100;
-
-  const gesamtkosten = monatlicheRate * 12 * inputs.laufzeit;
-
-  let restschuld = darlehen;
-  for (let i = 0; i < inputs.laufzeit * 12; i++) {
-    const zins = restschuld * monatszins;
-    const tilg = monatlicheRate - zins;
-    restschuld = Math.max(0, restschuld - tilg);
-  }
+function buildProjectData(inputs: CalcInputs, project: BeratungProjectData): ProjectData {
+  const stellplatz = 29000;
+  const gesamtKP = inputs.kaufpreis + stellplatz;
+  const darlehen1 = 150000;
+  const darlehen2 = Math.max(0, gesamtKP - darlehen1);
 
   return {
-    monatlicheRate,
-    monatlicheNettomiete,
-    monatlichesBelastung,
-    eigenkapitalRendite,
-    gesamtkosten,
-    restschuld,
+    projektName: project.name,
+    wfl: inputs.wohnflaeche,
+    bgf: Math.round(inputs.wohnflaeche * 1.35 * 100) / 100,
+    kaufpreis: inputs.kaufpreis,
+    grundstueck: Math.round(inputs.kaufpreis * 0.10),
+    stellplatz,
+    gestPct: 6.0,
+    notarPct: 1.5,
+    grundschuldPct: 0.5,
+    baubeginn: project.constructionStart,
+    fertigstellung: project.completion.length === 4 ? `${project.completion}-11-01` : project.completion,
+    mieteQm: inputs.kaltmiete,
+    mieteStellplatz: 80,
+    inflation: 2.5,
+    eigenkapital: inputs.eigenkapital,
+    darlehen1Label: "KfW 298",
+    darlehen1,
+    zins1: 2.83,
+    tilgung1: 1.78,
+    zinsbindung1: inputs.laufzeit,
+    tilgungsfrei1: 1,
+    darlehen2Label: "Hausbank",
+    darlehen2,
+    zins2: inputs.zinssatz,
+    tilgung2: inputs.tilgung,
+    zinsbindung2: inputs.laufzeit,
+    married: 1,
+    einkommen: 60000,
+    kirche: 0,
+    verwaltung: Math.round((31.54 + 35.70) * 12),
   };
 }
 
@@ -63,24 +65,29 @@ export function ModuleCalculator({ project }: { project: BeratungProjectData }) 
   const [inputs, setInputs] = useState<CalcInputs>({
     kaufpreis: project.priceFrom,
     wohnflaeche: project.unitSizes.avg,
-    eigenkapital: Math.round(project.priceFrom * 0.2),
-    zinssatz: 3.5,
-    tilgung: 2.0,
+    eigenkapital: Math.round((project.priceFrom + 29000) * 0.08),
+    zinssatz: 4.30,
+    tilgung: 1.50,
     kaltmiete: project.rentPerSqm,
-    hausgeld: 3.5,
     laufzeit: 10,
-    mietsteigerung: 2.0,
   });
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const results = calculateResults(inputs);
+  const results = useMemo(() => {
+    const pd = buildProjectData(inputs, project);
+    return calculate(pd);
+  }, [inputs, project]);
 
   const updateInput = useCallback((key: keyof CalcInputs, value: number) => {
     setInputs((prev) => ({ ...prev, [key]: value }));
   }, []);
+
+  const monatlicheRate = results.j1.rate1 + results.j1.rate2;
+  const monatlicheNettomiete = results.mieteJahr / 12;
+  const aufwandMonat = results.aufwandMonat;
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center px-6 py-12">
@@ -114,9 +121,9 @@ export function ModuleCalculator({ project }: { project: BeratungProjectData }) 
             <div className="space-y-5">
               <SliderInput icon={Euro} label="Kaufpreis" value={inputs.kaufpreis} min={100000} max={500000} step={5000} format={formatEuro} onChange={(v) => updateInput("kaufpreis", v)} />
               <SliderInput icon={Euro} label="Eigenkapital" value={inputs.eigenkapital} min={10000} max={200000} step={5000} format={formatEuro} onChange={(v) => updateInput("eigenkapital", v)} />
-              <SliderInput icon={Percent} label="Zinssatz" value={inputs.zinssatz} min={1} max={6} step={0.1} format={(v) => `${v.toFixed(1)} %`} onChange={(v) => updateInput("zinssatz", v)} />
-              <SliderInput icon={Percent} label="Tilgung" value={inputs.tilgung} min={1} max={5} step={0.5} format={(v) => `${v.toFixed(1)} %`} onChange={(v) => updateInput("tilgung", v)} />
-              <SliderInput icon={Euro} label="Kaltmiete/m\u00B2" value={inputs.kaltmiete} min={8} max={25} step={0.5} format={(v) => `${v.toFixed(2)} EUR`} onChange={(v) => updateInput("kaltmiete", v)} />
+              <SliderInput icon={Percent} label="Zinssatz (Bank)" value={inputs.zinssatz} min={1} max={6} step={0.1} format={(v) => `${v.toFixed(1)} %`} onChange={(v) => updateInput("zinssatz", v)} />
+              <SliderInput icon={Percent} label="Tilgung (Bank)" value={inputs.tilgung} min={1} max={5} step={0.5} format={(v) => `${v.toFixed(1)} %`} onChange={(v) => updateInput("tilgung", v)} />
+              <SliderInput icon={Euro} label="Kaltmiete/m²" value={inputs.kaltmiete} min={8} max={25} step={0.5} format={(v) => `${v.toFixed(2)} EUR`} onChange={(v) => updateInput("kaltmiete", v)} />
               <SliderInput icon={Calendar} label="Zinsbindung" value={inputs.laufzeit} min={5} max={30} step={1} format={(v) => `${v} Jahre`} onChange={(v) => updateInput("laufzeit", v)} />
             </div>
           </div>
@@ -127,17 +134,18 @@ export function ModuleCalculator({ project }: { project: BeratungProjectData }) 
               Ergebnis
             </h2>
             <div className="space-y-4">
-              <ResultCard label="Monatliche Rate" value={formatEuro(results.monatlicheRate)} color="text-foreground" />
-              <ResultCard label="Netto-Mieteinnahme" value={formatEuro(results.monatlicheNettomiete)} color="text-emerald-400" />
-              <ResultCard label="Monatliche Belastung" value={formatEuro(results.monatlichesBelastung)} color={results.monatlichesBelastung > 0 ? "text-red-400" : "text-emerald-400"} subtitle={results.monatlichesBelastung > 0 ? "Zuzahlung" : "Ueberschuss"} />
+              <ResultCard label="Monatliche Rate (KfW + Bank)" value={formatEuro(monatlicheRate)} color="text-foreground" />
+              <ResultCard label="Netto-Mieteinnahme" value={formatEuro(monatlicheNettomiete)} color="text-emerald-400" />
+              <ResultCard label="Monatlicher Aufwand" value={formatEuro(Math.abs(aufwandMonat))} color={aufwandMonat < 0 ? "text-red-400" : "text-emerald-400"} subtitle={aufwandMonat < 0 ? "Zuzahlung" : "Ueberschuss"} />
               <div className="my-6 h-px bg-border/50" />
-              <ResultCard label="Eigenkapitalrendite" value={`${results.eigenkapitalRendite.toFixed(1)} %`} color="text-blue-400" />
-              <ResultCard label={`Restschuld nach ${inputs.laufzeit} Jahren`} value={formatEuro(results.restschuld)} color="text-amber-400" />
+              <ResultCard label="Eigenkapitalrendite (IRR p.a.)" value={`${results.rendite.toFixed(1)} %`} color="text-blue-400" />
+              <ResultCard label="Restschuld nach 10 Jahren" value={formatEuro(results.restschuldEnde)} color="text-amber-400" />
+              <ResultCard label="Vermoegen nach 10 Jahren" value={formatEuro(results.vermoegenEnde)} color="text-emerald-400" />
             </div>
             <div className="mt-8 flex items-start gap-3 rounded-xl bg-emerald-400/5 border border-emerald-400/20 p-4">
               <PiggyBank className="mt-0.5 size-5 shrink-0 text-emerald-400" />
               <p className="text-sm leading-relaxed text-foreground/80">
-                Mit nur <span className="font-bold text-emerald-400">{formatEuro(Math.abs(results.monatlichesBelastung))}</span> monatlich bauen Sie ein Vermoegen von {formatEuro(inputs.kaufpreis)} auf. Der Mieter zahlt den Rest.
+                Mit nur <span className="font-bold text-emerald-400">{formatEuro(Math.abs(aufwandMonat))}</span> monatlich bauen Sie ein Vermoegen von <span className="font-bold text-emerald-400">{formatEuro(results.vermoegenEnde)}</span> auf. Der Mieter zahlt den Rest.
               </p>
             </div>
           </div>
