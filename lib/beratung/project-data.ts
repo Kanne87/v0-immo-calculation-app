@@ -4,6 +4,21 @@
 
 // ─── Types ───────────────────────────────────────────────────────
 
+export interface BigFiveCriterion {
+  label: string
+  score: number
+  maxScore: number
+  reasoning: string
+}
+
+export interface BigFiveCategory {
+  score: number
+  text: string
+  criteria: BigFiveCriterion[]
+  positives: string[]
+  negatives: string[]
+}
+
 export interface BeratungProjectData {
   id: string
   slug: string
@@ -23,11 +38,11 @@ export interface BeratungProjectData {
     salesCoordination: string
   }
   bigFive: {
-    lage: { score: number; text: string }
-    zustand: { score: number; text: string }
-    grundriss: { score: number; text: string }
-    verwaltung: { score: number; text: string }
-    einkaufspreis: { score: number; text: string }
+    lage: BigFiveCategory
+    zustand: BigFiveCategory
+    grundriss: BigFiveCategory
+    verwaltung: BigFiveCategory
+    einkaufspreis: BigFiveCategory
   }
   location: {
     macro: MacroData
@@ -107,22 +122,64 @@ export const SPANDAUER_TOR_BERATUNG: BeratungProjectData = {
     lage: {
       score: 8,
       text: "Berlin-Spandau: Bundeshauptstadt, 0.8% Leerstand, 7 Min. S-Bahn zum Hbf, Siemensstadt 2.0 als Zukunftstreiber",
+      criteria: [
+        { label: "Leerstandsquote", score: 10, maxScore: 10, reasoning: "0.8% Leerstand in Gesamtberlin — de facto Vollvermietung. Unter 1% gilt als Wohnungsmangel." },
+        { label: "OEPNV-Anbindung", score: 8, maxScore: 10, reasoning: "7 Min. S-Bahn zum Hauptbahnhof, U7 in Laufweite, RE/ICE-Anschluss am Bahnhof Spandau. Kein direkter U-Bahn-Anschluss am Grundstueck." },
+        { label: "Wirtschaftskraft", score: 9, maxScore: 10, reasoning: "Berlin BIP 207 Mrd. EUR, Wachstum ueber Bundesdurchschnitt. Siemensstadt 2.0 als Milliardenprojekt direkt nebenan. Tesla, DB, Charite als Top-Arbeitgeber." },
+        { label: "Bevoelkerungsprognose", score: 8, maxScore: 10, reasoning: "Berlin waechst Richtung 4 Mio. Spandau profitiert als guenstiger Bezirk mit guter Anbindung. Aber: nicht alle Bezirke wachsen gleich." },
+        { label: "Mikrolage", score: 6, maxScore: 10, reasoning: "Brunsbuetteler Damm ist Hauptverkehrsstrasse. DB-Gleisausbau noerdlich des Grundstuecks erhoht Laermbelastung. Kompensiert durch Naehe zu Spandau Arcaden und Havel." },
+      ],
+      positives: ["Bundeshauptstadt mit Wohnungsmangel", "Siemensstadt 2.0 als Zukunftstreiber", "7 Min. S-Bahn zum Hauptbahnhof"],
+      negatives: ["Brunsbuetteler Damm = Verkehrsstrasse", "DB-Gleisausbau = mehr Bahnlaerm", "Spandau ist kein A-Lage-Bezirk"],
     },
     zustand: {
       score: 9,
       text: "KfW EH40 QNG Plus Neubau, TUeV-kontrolliertes Baucontrolling, Massivbauweise, Fussbodenheizung, Aufzug",
+      criteria: [
+        { label: "Energiestandard", score: 10, maxScore: 10, reasoning: "KfW EH40 QNG Plus ist der hoechste foerderfaehige Standard. Waermepumpe, PV-Anlage, WDVS. Zukunftssicher gegen steigende Energiekosten." },
+        { label: "Bauqualitaet", score: 9, maxScore: 10, reasoning: "Massivbauweise (Betonfertigteile + Ortbeton), TUeV-Baucontrolling. Kein Abzug fuer Leichtbau oder fehlende Qualitaetssicherung." },
+        { label: "Ausstattung", score: 9, maxScore: 10, reasoning: "Fussbodenheizung, Aufzug, Videogegensprechanlage, elektrische Rolllaeden, bodengleiche Duschen. Gehoben fuer Neubau-Kapitalanlage." },
+        { label: "Bautraeger-Erfahrung", score: 7, maxScore: 10, reasoning: "MAXAR AG erst seit 2021/22 aktiv, Stammkapital 50k EUR. Referenzprojekt Falkensee verkauft. Aber: Bilanzielle Ueberschuldung 2023 (8.84 Mio EUR). TUeV-Controlling kompensiert teilweise." },
+      ],
+      positives: ["Hoechster KfW-Standard (EH40 QNG Plus)", "TUeV-kontrolliertes Baucontrolling", "Massivbauweise, kein Fertighaus"],
+      negatives: ["Projekt noch nicht gebaut — Ausfuehrungsqualitaet unbekannt", "Bautraeger bilanziell duenn (50k Grundkapital)"],
     },
     grundriss: {
-      score: 7,
-      text: "1-4 Zimmer (33-109 m2), barrierefrei, Balkone/Terrassen, Abstellraeume, effiziente Grundrisse",
+      score: 7.5,
+      text: "Bogenfoermiger Grundriss mit 6 WE/Geschoss. 1-4 Zimmer, barrierefrei, jede WE mit Abstellraum und Loggia/Terrasse.",
+      criteria: [
+        { label: "Raumaufteilung", score: 7, maxScore: 10, reasoning: "Offene Wohn/Ess/Koch-Bereiche, separate Schlafzimmer ab 2 Zi. Baeder innenliegend (kein Tageslicht) bei kleineren WE. 4-Zi-Eckwohnungen mit 2 Baedern geloest." },
+        { label: "Aussenbereiche", score: 9, maxScore: 10, reasoning: "Konsequent: Jede WE hat Loggia, Balkon oder Terrasse. Im DG (4.OG) grosszuegige Dachterrassen. EG mit ebenerdigen Terrassen." },
+        { label: "Flexibilitaet", score: 7, maxScore: 10, reasoning: "Guter Mix: 1-Zi (35-48 m2), 2-Zi (44-59 m2), 3-Zi (78-79 m2), 4-Zi (96-109 m2). Jede WE mit Abstellraum. Aber: Bogenform schraenkt Moeblierung stellenweise ein." },
+        { label: "Belichtung", score: 7, maxScore: 10, reasoning: "Bogenform = viele WE mit guter Suedost-/Suedwest-Belichtung. Nordseitige WE (im oberen Bogen) weniger Sonne. Alle 1-2 Zi einseitig orientiert (keine Durchlueftung)." },
+        { label: "Effizienz", score: 8, maxScore: 10, reasoning: "Kurze Flure, kompakte Erschliessung ueber 2 Treppenhaeuser + Aufzug. Wenig verlorene Flaeche. Faktor BGF/Wfl ca. 1.35 — solide." },
+      ],
+      positives: ["Jede WE mit Abstellraum und Aussenbereich", "Grosszuegige Dachterrassen im DG", "4-Zi mit 2 Baedern", "Effizienter Grundriss, wenig Verkehrsflaeche"],
+      negatives: ["Innenliegende Baeder ohne Fenster bei kleineren WE", "Bogenform schraenkt Moeblierung teils ein", "Einseitige Orientierung bei 1-2-Zi-WE"],
     },
     verwaltung: {
       score: 7,
       text: "Regionale Hausverwaltung, WEG + SE-Verwaltung, Untergemeinschaften je Haus",
+      criteria: [
+        { label: "WEG-Struktur", score: 8, maxScore: 10, reasoning: "Untergemeinschaften je Haus (10 Haeuser). Entscheidungen koennen je Haus getroffen werden — kein 264-WE-Moloch bei Eigentuemerversammlungen." },
+        { label: "Verwaltung", score: 7, maxScore: 10, reasoning: "Regionale Hausverwaltung (noch nicht benannt). WEG- und SE-Verwaltung getrennt. Professionell, aber kein ueberregionaler Property Manager." },
+        { label: "Kosten", score: 6, maxScore: 10, reasoning: "WEG ca. 26.50 EUR + SE ca. 30.00 EUR + Stellplatz 5.00 EUR = 61.50 EUR/Monat zzgl. USt. Am oberen Rand fuer Neubau, aber durch SE-Trennung gerechtfertigt." },
+        { label: "Mietgarantie", score: 8, maxScore: 10, reasoning: "Verkaeuferin garantiert 21 EUR/m2 bis 31.03.2029. Bei Nichtbelegung wird Nettomiete fuer 1 Jahr gezahlt. Gute Absicherung fuer die Anfangsphase." },
+      ],
+      positives: ["Untergemeinschaften je Haus — schlanke Entscheidungen", "Mietgarantie bis 2029 mit Leerstandsabsicherung"],
+      negatives: ["Verwaltungskosten am oberen Rand", "Hausverwaltung noch nicht benannt"],
     },
     einkaufspreis: {
       score: 8,
-      text: "ab 7.200 EUR/m2 bei Durchschnitt Berlin-Neubau ~8.200 EUR/m2, KfW-Foerderung 150k je WE",
+      text: "Ab 7.200 EUR/m2 bei Durchschnitt Berlin-Neubau ~8.200 EUR/m2, KfW-Foerderung 150k je WE",
+      criteria: [
+        { label: "Preis/m2 vs. Markt", score: 8, maxScore: 10, reasoning: "7.200 EUR/m2 bei Berlin-Neubau-Durchschnitt ~8.200 EUR/m2 = ca. 12% unter Markt. Preisvorteil ist real, aber nicht extrem." },
+        { label: "KfW-Foerderung", score: 9, maxScore: 10, reasoning: "KfW 298: bis 150.000 EUR Darlehen pro WE bei ca. 2.83% Zins. Senkt die effektive Finanzierungslast erheblich. EH40 QNG Plus qualifiziert automatisch." },
+        { label: "Nebenkosten", score: 6, maxScore: 10, reasoning: "Berlin GrESt 6% + Notar/Grundbuch 2% = 8% Nebenkosten. Hoechster GrESt-Satz in Deutschland. Frisst ca. 2/3 des Preisvorteils gegenueber Marktdurchschnitt." },
+        { label: "Mietrendite", score: 8, maxScore: 10, reasoning: "21 EUR/m2 Kaltmiete bei 7.200 EUR/m2 KP = ca. 3.5% Bruttomietrendite. Fuer Berlin-Neubau solide (Markt: 3.7% Spitzenrendite)." },
+      ],
+      positives: ["12% unter Berlin-Neubau-Durchschnitt", "KfW-Foerderung 150k pro WE", "3.5% Bruttomietrendite — solide fuer Berlin-Neubau"],
+      negatives: ["8% Erwerbsnebenkosten (GrESt Berlin 6%)", "Stellplatz 29.000 EUR kommt zum Kaufpreis hinzu"],
     },
   },
 

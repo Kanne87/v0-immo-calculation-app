@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { BeratungProjectData } from "@/lib/beratung/project-data";
-import { MapPin, Hammer, LayoutGrid, Users, Tag } from "lucide-react";
+import type { BeratungProjectData, BigFiveCategory } from "@/lib/beratung/project-data";
+import { MapPin, Hammer, LayoutGrid, Users, Tag, ChevronDown, Check, X } from "lucide-react";
 
 const ICONS = [MapPin, Hammer, LayoutGrid, Users, Tag];
 const COLORS = ["#3b82f6", "#14b8a6", "#22c55e", "#a78bfa", "#f59e0b"];
@@ -60,9 +60,69 @@ function ScoreRing({
   );
 }
 
+function CriterionBar({ label, score, maxScore, reasoning }: { label: string; score: number; maxScore: number; reasoning: string }) {
+  const pct = (score / maxScore) * 100;
+  const color = pct >= 80 ? "bg-emerald-400" : pct >= 60 ? "bg-amber-400" : "bg-red-400";
+
+  return (
+    <div className="py-2">
+      <div className="mb-1 flex items-center justify-between">
+        <span className="text-xs font-medium text-foreground">{label}</span>
+        <span className="text-xs font-bold text-muted-foreground">{score}/{maxScore}</span>
+      </div>
+      <div className="mb-1.5 h-1.5 overflow-hidden rounded-full bg-secondary">
+        <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${pct}%` }} />
+      </div>
+      <p className="text-[11px] leading-relaxed text-muted-foreground/80">{reasoning}</p>
+    </div>
+  );
+}
+
+function CategoryDetail({ data }: { data: BigFiveCategory }) {
+  return (
+    <div className="space-y-4 pt-2">
+      <div className="space-y-1">
+        {data.criteria.map((c) => (
+          <CriterionBar key={c.label} {...c} />
+        ))}
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {data.positives.length > 0 && (
+          <div className="rounded-lg bg-emerald-400/5 p-3">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-emerald-500">Staerken</p>
+            <ul className="space-y-1.5">
+              {data.positives.map((p) => (
+                <li key={p} className="flex items-start gap-2 text-xs text-foreground/80">
+                  <Check className="mt-0.5 size-3 shrink-0 text-emerald-500" />
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {data.negatives.length > 0 && (
+          <div className="rounded-lg bg-red-400/5 p-3">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-red-400">Risiken</p>
+            <ul className="space-y-1.5">
+              {data.negatives.map((n) => (
+                <li key={n} className="flex items-start gap-2 text-xs text-foreground/80">
+                  <X className="mt-0.5 size-3 shrink-0 text-red-400" />
+                  {n}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ModuleBigFive({ project }: { project: BeratungProjectData }) {
   const { bigFive } = project;
   const [mounted, setMounted] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -79,8 +139,10 @@ export function ModuleBigFive({ project }: { project: BeratungProjectData }) {
   const totalScore =
     categories.reduce((sum, c) => sum + c.data.score, 0) / categories.length;
 
+  const toggle = (key: string) => setExpanded((prev) => (prev === key ? null : key));
+
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-6 py-12">
+    <div className="flex min-h-dvh flex-col items-center px-6 py-12">
       <div className="mx-auto w-full max-w-5xl">
         <h1
           className={`mb-4 text-center text-4xl font-bold tracking-tight text-foreground transition-all duration-700 md:text-5xl lg:text-6xl ${
@@ -105,27 +167,56 @@ export function ModuleBigFive({ project }: { project: BeratungProjectData }) {
           <ScoreRing score={totalScore} color="#22c55e" size={120} delay={400} />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-5">
+        <div className="space-y-3">
           {categories.map((cat, i) => {
             const Icon = ICONS[i];
+            const isOpen = expanded === cat.key;
+
             return (
               <div
                 key={cat.key}
-                className={`group flex flex-col items-center rounded-2xl border border-border/50 bg-card p-6 text-center transition-all duration-500 hover:border-border ${
-                  mounted ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
-                }`}
-                style={{ transitionDelay: `${500 + i * 100}ms` }}
+                className={`overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-500 ${
+                  isOpen ? "border-border" : ""
+                } ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+                style={{ transitionDelay: `${400 + i * 80}ms` }}
               >
-                <div className="mb-4 flex size-10 items-center justify-center rounded-xl bg-secondary">
-                  <Icon className="size-5 text-muted-foreground" />
+                <button
+                  onClick={() => toggle(cat.key)}
+                  className="flex w-full items-center gap-4 p-5 text-left transition-colors hover:bg-secondary/30"
+                >
+                  <div
+                    className="flex size-10 shrink-0 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: `${COLORS[i]}15` }}
+                  >
+                    <Icon className="size-5" style={{ color: COLORS[i] }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                      {cat.label}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {cat.data.text}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <ScoreRing score={cat.data.score} color={COLORS[i]} size={52} delay={600 + i * 80} />
+                    <ChevronDown
+                      className={`size-4 text-muted-foreground transition-transform duration-300 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+                </button>
+
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <div className="border-t border-border/30 px-5 pb-5">
+                    <CategoryDetail data={cat.data} />
+                  </div>
                 </div>
-                <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  {cat.label}
-                </p>
-                <ScoreRing score={cat.data.score} color={COLORS[i]} delay={700 + i * 100} />
-                <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                  {cat.data.text}
-                </p>
               </div>
             );
           })}
