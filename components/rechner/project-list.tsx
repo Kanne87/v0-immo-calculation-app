@@ -14,7 +14,6 @@ import {
   MapPin,
   Leaf,
   Plus,
-  BookOpen,
   Presentation,
 } from "lucide-react"
 import type { SavedCalculation } from "@/lib/rechner-types"
@@ -25,7 +24,6 @@ import { eur } from "@/lib/rechner-calc"
 import { getBeratungSlugForProjekt } from "@/lib/project-registry"
 import { ProfileMenu } from "./profile-menu"
 import { ThemeToggle } from "./theme-toggle"
-import { ObjektPraesentation } from "./objekt-praesentation"
 
 type SortKey = "nr" | "wfl" | "kaufpreis"
 type SortDir = "asc" | "desc"
@@ -54,7 +52,6 @@ function ProjektSektion({
   const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [showFilters, setShowFilters] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
-  const [showPraesentation, setShowPraesentation] = useState(false)
 
   const etagen = useMemo(() => {
     const set = new Set(projekt.einheiten.map((u) => u.etage))
@@ -90,7 +87,6 @@ function ProjektSektion({
   }
 
   const displayName = projekt.haus ? `${projekt.name} – ${projekt.haus}` : projekt.name
-  const hasPraesentation = projekt.coverImageUrl || (projekt.keyfacts?.length ?? 0) > 0 || (projekt.praesektionen?.length ?? 0) > 0 || projekt.videoUrl
   const beratungSlug = getBeratungSlugForProjekt(projekt.id)
 
   return (
@@ -120,16 +116,6 @@ function ProjektSektion({
           </div>
         </button>
         <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
-          {hasPraesentation && (
-            <button
-              onClick={(e) => { e.stopPropagation(); setShowPraesentation(true) }}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] font-mono bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all min-h-[36px]"
-              title="Objektpräsentation öffnen"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Präsentation</span>
-            </button>
-          )}
           {beratungSlug && (
             <Link
               href={`/beratung/${beratungSlug}/1`}
@@ -234,13 +220,6 @@ function ProjektSektion({
             </div>
           </div>
         </>
-      )}
-
-      {showPraesentation && (
-        <ObjektPraesentation
-          projekt={projekt}
-          onClose={() => setShowPraesentation(false)}
-        />
       )}
     </section>
   )

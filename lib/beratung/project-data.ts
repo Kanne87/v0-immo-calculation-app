@@ -35,6 +35,7 @@ export interface BeratungProjectData {
     micro: MicroData
   }
   mabvSchedule: MaBVRate[]
+  videoUrl?: string
 }
 
 export interface MacroData {
@@ -276,6 +277,7 @@ export const SPANDAUER_TOR_BERATUNG: BeratungProjectData = {
     { nr: 12, abschnitt: "Fassadenarbeiten", monat: 17, prozent: 2.1 },
     { nr: 13, abschnitt: "Vollstaendige Fertigstellung", monat: 18, prozent: 3.5 },
   ],
+  videoUrl: "https://minio.kailohmann.de/immo-assets/spandauer-tor/video.mp4",
 }
 
 // ─── Registry aller Beratungsprojekte ───────────────────────────

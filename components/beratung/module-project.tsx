@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { BeratungProjectData } from "@/lib/beratung/project-data";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,6 +14,9 @@ import {
   Briefcase,
   Users,
   Zap,
+  Play,
+  Pause,
+  Maximize2,
 } from "lucide-react";
 
 export function ModuleProject({ project }: { project: BeratungProjectData }) {
@@ -120,6 +123,80 @@ export function ModuleProject({ project }: { project: BeratungProjectData }) {
             </div>
           </div>
         </div>
+
+        {project.videoUrl && (
+          <VideoPlayer
+            src={project.videoUrl}
+            title={project.name}
+            mounted={mounted}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function VideoPlayer({ src, title, mounted }: { src: string; title: string; mounted: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+      setShowOverlay(false);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+      setShowOverlay(true);
+    }
+  };
+
+  const handleFullscreen = () => {
+    videoRef.current?.requestFullscreen?.();
+  };
+
+  return (
+    <div
+      className={`mt-8 transition-all duration-700 ${
+        mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+      }`}
+      style={{ transitionDelay: "400ms" }}
+    >
+      <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-black">
+        <video
+          ref={videoRef}
+          src={src}
+          className="w-full aspect-video"
+          playsInline
+          preload="metadata"
+          controls={isPlaying}
+          onClick={togglePlay}
+          onEnded={() => { setIsPlaying(false); setShowOverlay(true); }}
+        />
+        {showOverlay && (
+          <div
+            className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] transition-opacity"
+            onClick={togglePlay}
+          >
+            <div className="flex size-16 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 backdrop-blur-sm transition-transform hover:scale-110">
+              <Play className="ml-1 size-7 text-white" fill="white" />
+            </div>
+            <p className="mt-4 text-sm font-medium text-white/80">
+              Projektvideo {title}
+            </p>
+          </div>
+        )}
+        {!showOverlay && (
+          <button
+            onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
+            className="absolute right-3 top-3 rounded-lg bg-black/40 p-2 text-white/70 backdrop-blur-sm transition-colors hover:text-white"
+          >
+            <Maximize2 className="size-4" />
+          </button>
+        )}
       </div>
     </div>
   );
