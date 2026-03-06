@@ -94,7 +94,7 @@ export function StepView({ project, step, initialWeId }: StepViewProps) {
     <div className="flex min-h-dvh bg-background">
       <SidebarNav slug={project.slug} currentStep={step} visitedSteps={visitedSteps} />
 
-      <main className="ml-16 flex-1">
+      <main className="ml-16 flex-1 pb-20">
         {renderModule()}
       </main>
 
