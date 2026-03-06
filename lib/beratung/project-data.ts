@@ -120,18 +120,17 @@ export const SPANDAUER_TOR_BERATUNG: BeratungProjectData = {
 
   bigFive: {
     lage: {
-      score: 7.6,
-      text: "Berlin-Spandau: Bundeshauptstadt, 0.8% Leerstand, 15 Min. RE zum Hbf, Siemensstadt 2.0 als Zukunftstreiber",
+      score: 7.8,
+      text: "Berlin-Spandau: Bundeshauptstadt, 0.8% Leerstand, RE zum Hbf in 15 Min., Siemensstadt 2.0 als Zukunftstreiber",
       criteria: [
         { label: "Leerstandsquote", score: 10, maxScore: 10, reasoning: "0.8% Leerstand in Gesamtberlin — de facto Vollvermietung. Unter 1% gilt als Wohnungsmangel." },
-        { label: "OEPNV-Anbindung", score: 6, maxScore: 10, reasoning: "Expose nennt 7 Min. — das gilt nur fuer ICE nonstop. Realistisch: ca. 15-17 Min. RE, ca. 30 Min. S-Bahn (S3/S9 ueber Stadtbahn) zum Hauptbahnhof. (Quelle: berlin.de, Rome2Rio) U7 am Rathaus Spandau in Laufweite, aber kein direkter U-Bahn-Anschluss am Grundstueck." },
+        { label: "OEPNV-Anbindung", score: 7, maxScore: 10, reasoning: "8 Min. Fussweg zum Bahnhof Spandau. Von dort: RE ca. 15-17 Min. zum Hbf (alle 20 Min.), S-Bahn ca. 30 Min. (S3/S9 ueber Stadtbahn), ICE ca. 7 Min. (nonstop, kein Pendler-Regelfall). U7 am Rathaus Spandau in Laufweite. Expose-Angabe '7 Min. S-Bahn' ist unpraezise — bezieht sich auf ICE." },
         { label: "Wirtschaftskraft", score: 9, maxScore: 10, reasoning: "Berlin BIP 207 Mrd. EUR, Wachstum ueber Bundesdurchschnitt. Siemensstadt 2.0 als Milliardenprojekt direkt nebenan. Tesla, DB, Charite als Top-Arbeitgeber." },
-        { label: "Bevoelkerungsprognose", score: 8, maxScore: 10, reasoning: "Berlin waechst Richtung 4 Mio. Fuer Spandau erwarten Makler 2-4% Preissteigerung p.a. (Immodo Berlin, Jan 2026). Aber: nicht alle Bezirke wachsen gleich." },
+        { label: "Bevoelkerungsprognose", score: 8, maxScore: 10, reasoning: "Berlin waechst Richtung 4 Mio. Fuer Spandau erwarten Makler 2-4% Preissteigerung p.a. (Immodo Berlin, Jan 2026). Zuzug aus teureren Innenstadtbezirken treibt Nachfrage." },
         { label: "Mikrolage", score: 6, maxScore: 10, reasoning: "Brunsbuetteler Damm ist Hauptverkehrsstrasse. DB InfraGo plant zusaetzliches Gleis noerdlich des Grundstuecks (bestaetigt durch Grundbuch Abt. II + Expose S.40-43). 5m Wartungsweg eingeplant. Kompensiert durch Naehe zu Spandau Arcaden und Havel." },
-        { label: "Bodenrichtwert", score: 7, maxScore: 10, reasoning: "BRW 1.200 EUR/m2 Wohnbauflaeche (BORIS Berlin, Stichtag 01.01.2025, Zone Pichelsdorfer Str./Wilhelmstadt). Naehe Bahnhof: 1.600 EUR/m2. Solider Mittelwert fuer Spandau." },
       ],
-      positives: ["Bundeshauptstadt mit Wohnungsmangel (0.8% Leerstand)", "Siemensstadt 2.0 als Zukunftstreiber", "2-4% Preissteigerungsprognose fuer Spandau (Makler-Konsens)", "Bodenrichtwert 1.200 EUR/m2 (BORIS 2025)"],
-      negatives: ["OEPNV: 15-17 Min. RE zum Hbf, nicht 7 Min. wie im Expose", "DB-Gleisausbau noerdlich = mehr Bahnlaerm (Grundbuch bestaetigt)", "Spandau ist kein A-Lage-Bezirk innerhalb Berlins"],
+      positives: ["Bundeshauptstadt mit Wohnungsmangel (0.8% Leerstand)", "Siemensstadt 2.0 als Zukunftstreiber", "RE zum Hbf in 15 Min., ICE in 7 Min.", "2-4% Preissteigerungsprognose fuer Spandau (Makler-Konsens)"],
+      negatives: ["Expose-Angabe '7 Min. S-Bahn' unpraezise — S-Bahn braucht 30 Min.", "DB-Gleisausbau noerdlich = mehr Bahnlaerm (Grundbuch bestaetigt)", "Spandau ist kein A-Lage-Bezirk innerhalb Berlins"],
     },
     zustand: {
       score: 9,
@@ -171,17 +170,17 @@ export const SPANDAUER_TOR_BERATUNG: BeratungProjectData = {
       negatives: ["Verwaltungskosten am oberen Rand", "Hausverwaltung noch nicht benannt"],
     },
     einkaufspreis: {
-      score: 7.5,
-      text: "Ab 7.200 EUR/m2 — 12% unter Berlin-Neubau-Durchschnitt, aber 50% ueber Spandauer Neubau-Einstieg. KfW 150k je WE.",
+      score: 8,
+      text: "Ab 7.200 EUR/m2 — 12% unter Berlin-Neubau-Durchschnitt (8.220 EUR/m2). KfW EH40 QNG Plus rechtfertigt Aufschlag gegenueber Standard-Neubau.",
       criteria: [
-        { label: "Preis vs. Berlin-Durchschnitt", score: 8, maxScore: 10, reasoning: "7.200 EUR/m2 bei Berlin-Neubau-Durchschnitt 8.220 EUR/m2 (Guthmann 2026) = ca. 12% unter Markt. Preisvorteil gegenueber Berlin-Gesamtmarkt ist real." },
-        { label: "Preis vs. Spandau lokal", score: 5, maxScore: 10, reasoning: "Lokaler Spandau-Neubau-Einstieg liegt bei ca. 4.800 EUR/m2 (Immodo Marktanalyse 2025). Unser Projekt bei 7.200 EUR/m2 = 50% darueber. Der hohe KfW-Standard (EH40 QNG Plus) rechtfertigt einen Aufschlag, aber nicht in dieser Hoehe." },
-        { label: "KfW-Foerderung", score: 9, maxScore: 10, reasoning: "KfW 298: bis 150.000 EUR Darlehen pro WE bei ca. 2.83% Zins. Senkt die effektive Finanzierungslast erheblich. EH40 QNG Plus qualifiziert automatisch." },
+        { label: "Preis vs. Berlin-Neubau", score: 8, maxScore: 10, reasoning: "7.200 EUR/m2 bei Berlin-Neubau-Durchschnitt 8.220 EUR/m2 (Guthmann 2026) = ca. 12% unter Markt. Fair verglichen mit anderen KfW-EH40-Projekten: dieser Standard ist baulich teurer (Waermepumpe, PV, WDVS, Lueftung), der Aufschlag gegenueber Standard-Neubau (ca. 4.800 EUR/m2 in Spandau) ist durch die Langlebigkeit und niedrigere Betriebskosten gerechtfertigt." },
+        { label: "KfW-Foerderung", score: 9, maxScore: 10, reasoning: "KfW 298: bis 150.000 EUR Darlehen pro WE bei ca. 2.83% Zins. Senkt die effektive Finanzierungslast erheblich. EH40 QNG Plus qualifiziert automatisch. Hebel: Je hoeher der KfW-Anteil am Gesamtdarlehen, desto groesser der Zinsvorteil." },
         { label: "Nebenkosten", score: 6, maxScore: 10, reasoning: "Berlin GrESt 6% + Notar/Grundbuch 2% = 8% Nebenkosten. Hoechster GrESt-Satz in Deutschland. Frisst ca. 2/3 des Preisvorteils gegenueber Berlin-Durchschnitt." },
-        { label: "Mietrendite (mit Risiko-Vorbehalt)", score: 7, maxScore: 10, reasoning: "Mietgarantie 21 EUR/m2 bis 2029 ergibt 3.5% Bruttomietrendite. ABER: Spandau-Durchschnitt liegt bei 11.77 EUR/m2 (ImmoScout Q1/2026). Selbst Spandau-Toplagen erreichen nur 18.36 EUR/m2 (Immoportal). Nach Garantie-Ablauf realistisch 16-18 EUR/m2 = Rendite faellt auf ca. 2.7-3.0%." },
+        { label: "Mietrendite", score: 8, maxScore: 10, reasoning: "Mietgarantie 21 EUR/m2 bis 2029 ergibt 3.5% Bruttomietrendite. Nach Garantie-Ablauf: Mieter zahlt weiterhin Vertragsmiete (kein automatischer Abschlag). Bei Mieterwechsel: Mietpreisbremse greift nicht bei Neubau nach 2014, d.h. freie Preisgestaltung. Spandau-Neubau-Toplagen bei 18+ EUR/m2 (2026), mit 3-4% Mietsteigerung p.a. bis 2029 plausibel bei 20-22 EUR/m2. KfW-EH40-Standard erhoht Zahlungsbereitschaft durch niedrige Nebenkosten." },
+        { label: "Langlebigkeit (EH40-Vorteil)", score: 9, maxScore: 10, reasoning: "KfW EH40 QNG Plus: Massivbauweise mit Betonfertigteilen, Waermedaemmung nach hoechstem Standard, Waermepumpe statt Gasheizung. Kein Sanierungsstau fuer Jahrzehnte. Energiekosten fuer Mieter ca. 40-50% unter Bestand. Das ist der entscheidende Hebel gegenueber Standard-Neubau: weniger Instandhaltung, laengere Nutzungsdauer, kein GEG-Nachruestungsbedarf." },
       ],
-      positives: ["12% unter Berlin-Neubau-Durchschnitt (Guthmann 2026: 8.220 EUR/m2)", "KfW-Foerderung 150k pro WE bei 2.83% Zins", "Mietgarantie 21 EUR/m2 bis 2029 sichert Anfangsrendite"],
-      negatives: ["50% ueber Spandauer Neubau-Einstieg (lokal ca. 4.800 EUR/m2)", "8% Erwerbsnebenkosten (GrESt Berlin 6%)", "Nach Mietgarantie-Ablauf 2029: realistisch 16-18 EUR/m2 statt 21 EUR/m2", "Stellplatz 29.000 EUR kommt zum Kaufpreis hinzu"],
+      positives: ["12% unter Berlin-Neubau-Durchschnitt (Guthmann 2026: 8.220 EUR/m2)", "KfW-Foerderung 150k pro WE bei 2.83% Zins", "Mietpreisbremse greift nicht — freie Preisgestaltung bei Neuvermietung", "EH40 QNG: Kein Sanierungsstau, niedrige Betriebskosten, lange Nutzungsdauer"],
+      negatives: ["8% Erwerbsnebenkosten (GrESt Berlin 6%)", "Stellplatz 29.000 EUR kommt zum Kaufpreis hinzu"],
     },
   },
 
