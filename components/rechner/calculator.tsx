@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react"
-import { Building2, CreditCard, BarChart3, TrendingUp, Trophy, Eye, Pencil, Share2, FileDown, ArrowLeft, Save, CircleDot } from "lucide-react"
+import Link from "next/link"
+import { Building2, CreditCard, BarChart3, TrendingUp, Trophy, Eye, Pencil, Share2, FileDown, ArrowLeft, Save, CircleDot, Presentation } from "lucide-react"
 import type { ProjectData, CalcResult } from "@/lib/rechner-types"
 import { defaultProjectData } from "@/lib/rechner-types"
 import { calculate, encodeProjectToParams } from "@/lib/rechner-calc"
+import { getBeratungSlugForProjekt } from "@/lib/project-registry"
 import { StepObjekt } from "./step-objekt"
 import { StepFinanzierung } from "./step-finanzierung"
 import { StepErgebnis } from "./step-ergebnis"
@@ -156,6 +158,19 @@ export function Calculator({
               <Share2 className="w-3.5 h-3.5" /><span className="hidden sm:inline">Teilen</span>
               {shareToast && <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-2 py-1 rounded text-[9px] whitespace-nowrap z-20">Link kopiert!</span>}
             </button>
+            {(() => {
+              const slug = sourceUnitId && sourceUnitId !== "FREI" ? getBeratungSlugForProjekt("spandauer-tor-haus1") : null;
+              return slug ? (
+                <Link
+                  href={`/beratung/${slug}/6?we=${sourceUnitId}`}
+                  className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/40 transition-all min-h-[36px]"
+                  title="Beratung mit dieser WE starten"
+                >
+                  <Presentation className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Beratung</span>
+                </Link>
+              ) : null;
+            })()}
             {onExportPdf && (
               <button onClick={() => onExportPdf(data, calc)} className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] font-mono bg-primary text-primary-foreground border border-primary hover:bg-primary/90 transition-all min-h-[36px]">
                 <FileDown className="w-3.5 h-3.5" /><span className="hidden sm:inline">PDF</span>

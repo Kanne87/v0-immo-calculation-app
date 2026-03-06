@@ -5,10 +5,13 @@ import { StepView } from "@/components/beratung/step-view";
 
 export default async function BeratungStep({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string; step: string }>;
+  searchParams: Promise<{ we?: string }>;
 }) {
   const { slug, step: stepStr } = await params;
+  const { we: weId } = await searchParams;
   const project = getBeratungProject(slug);
   const step = parseInt(stepStr, 10);
 
@@ -16,5 +19,5 @@ export default async function BeratungStep({
     notFound();
   }
 
-  return <StepView project={project} step={step} />;
+  return <StepView project={project} step={step} initialWeId={weId} />;
 }

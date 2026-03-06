@@ -17,9 +17,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface StepViewProps {
   project: BeratungProjectData;
   step: number;
+  initialWeId?: string;
 }
 
-export function StepView({ project, step }: StepViewProps) {
+export function StepView({ project, step, initialWeId }: StepViewProps) {
   const router = useRouter();
   const [visitedSteps, setVisitedSteps] = useState<number[]>([]);
 
@@ -81,7 +82,7 @@ export function StepView({ project, step }: StepViewProps) {
       case 5:
         return <ModuleProject project={project} />;
       case 6:
-        return <ModuleCalculator project={project} />;
+        return <ModuleCalculator project={project} initialWeId={initialWeId} />;
       case 7:
         return <ModuleCTA />;
       default:

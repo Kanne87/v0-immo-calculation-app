@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { BeratungProjectData } from "@/lib/beratung/project-data";
 import type { ProjectData } from "@/lib/rechner-types";
 import { calculate } from "@/lib/rechner-calc";
+import { HAUS1_EINHEITEN } from "@/lib/units-data";
 import { Calculator, Euro, Percent, Calendar, TrendingUp, PiggyBank, ExternalLink } from "lucide-react";
 
 interface CalcInputs {
@@ -61,12 +62,16 @@ function formatEuro(n: number): string {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 }
 
-export function ModuleCalculator({ project }: { project: BeratungProjectData }) {
+export function ModuleCalculator({ project, initialWeId }: { project: BeratungProjectData; initialWeId?: string }) {
   const [mounted, setMounted] = useState(false);
+
+  // If a WE was passed via URL param, use its specific data for defaults
+  const weData = initialWeId ? HAUS1_EINHEITEN.find((we) => we.id === initialWeId) : undefined;
+
   const [inputs, setInputs] = useState<CalcInputs>({
-    kaufpreis: project.priceFrom,
-    wohnflaeche: project.unitSizes.avg,
-    eigenkapital: Math.round((project.priceFrom + 29000) * 0.08),
+    kaufpreis: weData?.kaufpreis ?? project.priceFrom,
+    wohnflaeche: weData?.wfl ?? project.unitSizes.avg,
+    eigenkapital: Math.round(((weData?.kaufpreis ?? project.priceFrom) + 29000) * 0.08),
     zinssatz: 4.30,
     tilgung: 1.50,
     kaltmiete: project.rentPerSqm,
@@ -105,7 +110,7 @@ export function ModuleCalculator({ project }: { project: BeratungProjectData }) 
             mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          Beispielrechnung fuer {project.name} - aendern Sie die Werte live
+          Beispielrechnung fuer {project.name}{weData ? ` — ${weData.id} (${weData.etage}, ${weData.zimmer} Zi., ${weData.wfl} m²)` : ""} - aendern Sie die Werte live
         </p>
 
         <div
