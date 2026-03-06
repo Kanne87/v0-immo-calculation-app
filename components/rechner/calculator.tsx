@@ -159,7 +159,7 @@ export function Calculator({
               {shareToast && <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-2 py-1 rounded text-[9px] whitespace-nowrap z-20">Link kopiert!</span>}
             </button>
             {(() => {
-              const slug = sourceUnitId && sourceUnitId !== "FREI" ? getBeratungSlugForProjekt("spandauer-tor-haus1") : null;
+              const slug = sourceUnitId && sourceUnitId !== "FREI" ? getBeratungSlugForProjekt("spandauer-tor-h1") : null;
               return slug ? (
                 <Link
                   href={`/beratung/${slug}/6?we=${sourceUnitId}`}

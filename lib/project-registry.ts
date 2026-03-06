@@ -9,7 +9,7 @@ interface ProjectLink {
 }
 
 const LINKS: ProjectLink[] = [
-  { rechnerProjektId: "spandauer-tor-haus1", beratungSlug: "spandauer-tor" },
+  { rechnerProjektId: "spandauer-tor-h1", beratungSlug: "spandauer-tor" },
 ]
 
 export function getBeratungSlugForProjekt(projektId: string): string | null {
