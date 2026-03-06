@@ -50,16 +50,9 @@ jobs:
     env:
       COOLIFY_UUID: mwgwsgkswokk8wkgw4w848s4
     steps:
-      - name: Update image tag to SHA and deploy
+      - name: Deploy to Coolify
         run: |
-          SHA_TAG="sha-$(echo ${{ github.sha }} | cut -c1-7)"
-          echo "Deploying image tag: $SHA_TAG"
-          # Update Coolify app to use exact SHA tag (avoids Docker cache issues with :latest)
-          curl -sf -X PATCH "https://coolify.kailohmann.de/api/v1/applications/$COOLIFY_UUID" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"docker_registry_image_tag\": \"$SHA_TAG\"}"
-          # Deploy with the new tag
+          echo "Deploying sha-$(echo ${{ github.sha }} | cut -c1-7) to Coolify..."
           curl -sf -X POST "https://coolify.kailohmann.de/api/v1/deploy" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
             -H "Content-Type: application/json" \
