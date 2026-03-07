@@ -3,42 +3,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ─── Dark theme (default) ────────────────────────────────────── */
-:root {
-  --background: #0a0a14;
-  --foreground: #e0e0f0;
-  --card: #12121f;
-  --card-foreground: #e0e0f0;
-  --popover: #12121f;
-  --popover-foreground: #e0e0f0;
-  --primary: #c5a355;
-  --primary-foreground: #0a0a14;
-  --secondary: #1a1a2e;
-  --secondary-foreground: #8a8a9a;
-  --muted: #1a1a2e;
-  --muted-foreground: #5a5a7a;
-  --accent: #c5a355;
-  --accent-foreground: #0a0a14;
-  --destructive: #e07070;
-  --destructive-foreground: #0a0a14;
-  --border: #1a1a2e;
-  --input: #12121f;
-  --ring: #c5a355;
-  --chart-1: #2a4a8a;
-  --chart-2: #8a2a2a;
-  --chart-3: #4a8a4a;
-  --chart-4: #c5a355;
-  --chart-5: #5a5a7a;
-  --radius: 0.5rem;
-  --positive: #4a8a4a;
-  --negative: #e07070;
-  --surface: #0d0d1a;
-  --dimmed: #8a8a9a;
-  --subtle: #5a5a7a;
-}
+/* Konzeptvorsorge Corporate Design – Cream/Gold
+   Rechner-Tools: kein Dark Mode */
 
-/* ─── Light theme ─────────────────────────────────────────────── */
-:root[data-theme="light"] {
+:root {
   --background: #f8f7f4;
   --foreground: #1a1a2e;
   --card: #ffffff;
@@ -50,7 +18,7 @@
   --secondary: #f0ede6;
   --secondary-foreground: #3a3a4a;
   --muted: #f0ede6;
-  --muted-foreground: #4a4a5a;
+  --muted-foreground: #6a6a7a;
   --accent: #9a7b2e;
   --accent-foreground: #ffffff;
   --destructive: #d04040;
@@ -63,15 +31,16 @@
   --chart-3: #3a8a3a;
   --chart-4: #9a7b2e;
   --chart-5: #7a7a8a;
+  --radius: 0.5rem;
   --positive: #2a7a2a;
   --negative: #d04040;
-  --surface: #f4f2ed;
+  --surface: #f0ede6;
   --dimmed: #3a3a4e;
   --subtle: #5a5a6e;
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-mono, 'Geist Mono'), monospace;
+  --font-sans: var(--font-geist, 'Geist'), system-ui, sans-serif;
   --font-serif: var(--font-playfair, 'Playfair Display'), 'Georgia', serif;
   --font-mono: var(--font-geist-mono, 'Geist Mono'), monospace;
   --color-background: var(--background);
@@ -116,83 +85,51 @@
   body {
     @apply bg-background text-foreground;
   }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--subtle);
+  h1, h2, h3 {
+    font-family: var(--font-serif, inherit);
   }
 
-  /* Number input arrows */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--subtle); }
+
   input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    opacity: 0.3;
-  }
+  input[type="number"]::-webkit-outer-spin-button { opacity: 0.3; }
 }
 
-/* ─── Leaflet overrides for dark theme ────────────────────────── */
+/* Leaflet overrides */
 .leaflet-container {
   background: var(--background) !important;
   font-family: inherit !important;
 }
-
 .leaflet-popup-content-wrapper {
   background: var(--card) !important;
   color: var(--foreground) !important;
   border-radius: 0.75rem !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15) !important;
   border: 1px solid var(--border) !important;
 }
+.leaflet-popup-tip { background: var(--card) !important; }
+.leaflet-popup-close-button { color: var(--muted-foreground) !important; }
+.custom-marker { background: transparent !important; border: none !important; }
 
-.leaflet-popup-tip {
-  background: var(--card) !important;
-}
-
-.leaflet-popup-close-button {
-  color: var(--muted-foreground) !important;
-}
-
-.custom-marker {
-  background: transparent !important;
-  border: none !important;
-}
-
-/* ─── Range input styling ─────────────────────────────────────── */
+/* Range input styling */
 input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--secondary);
-  outline: none;
+  -webkit-appearance: none; appearance: none;
+  height: 6px; border-radius: 3px;
+  background: var(--secondary); outline: none;
 }
-
 input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--foreground);
-  cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--primary); cursor: pointer;
   border: 2px solid var(--background);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
-
 input[type="range"]::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--foreground);
-  cursor: pointer;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--primary); cursor: pointer;
   border: 2px solid var(--background);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }

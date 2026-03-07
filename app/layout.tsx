@@ -1,24 +1,25 @@
 import type { Metadata } from "next"
-import { Playfair_Display, JetBrains_Mono, Inter } from "next/font/google"
+import { Playfair_Display, Geist, Geist_Mono } from "next/font/google"
 import { SessionProvider } from "next-auth/react"
 import "./globals.css"
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "600", "700"],
   variable: "--font-playfair",
 })
 
-const jetbrains = JetBrains_Mono({
+const geist = Geist({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-jetbrains",
+  variable: "--font-geist",
 })
 
-const inter = Inter({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-geist-mono",
 })
 
 export const metadata: Metadata = {
@@ -26,9 +27,6 @@ export const metadata: Metadata = {
   description:
     "Steueroptimierte Immobilienanalyse mit KfW-Förderung, Sonder-AfA und 10-Jahres-Cashflow",
 }
-
-// Light ist Standard; nur überschreiben wenn User explizit dark gesetzt hat
-const themeScript = '(function(){try{var t=localStorage.getItem("immo-theme");if(t){document.documentElement.setAttribute("data-theme",t)}else{document.documentElement.setAttribute("data-theme","light")}}catch(e){document.documentElement.setAttribute("data-theme","light")}})();'
 
 export default function RootLayout({
   children,
@@ -38,13 +36,9 @@ export default function RootLayout({
   return (
     <html
       lang="de"
-      data-theme="light"
-      className={[playfair.variable, jetbrains.variable, inter.variable].join(" ")}
+      className={`${playfair.variable} ${geist.variable} ${geistMono.variable}`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
-      <body className="font-[family-name:var(--font-inter)] antialiased">
+      <body className="font-sans antialiased">
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
