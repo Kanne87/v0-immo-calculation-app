@@ -1,5 +1,16 @@
 import NextAuth from "next-auth"
 
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string
+      email: string
+      name: string
+      isAdmin: boolean
+    }
+  }
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     {
@@ -17,6 +28,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.authentikSub = profile.sub as string
         token.email = profile.email as string
         token.name = profile.name as string
+        // Authentik liefert groups im OIDC-Profil mit
+        token.groups = (profile as Record<string, unknown>).groups as string[] || []
       }
       return token
     },
@@ -25,6 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.authentikSub as string
         session.user.email = token.email as string
         session.user.name = token.name as string
+        session.user.isAdmin = ((token.groups as string[]) || []).includes("immo-admin")
       }
       return session
     },
