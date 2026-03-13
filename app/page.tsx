@@ -185,6 +185,7 @@ function AppContent() {
     <ProjectList
       projekte={ALLE_PROJEKTE} savedCalcs={savedCalcs}
       advisorProfile={advisorProfile}
+      isAdmin={session?.user?.isAdmin ?? false}
       onSelectUnit={handleSelectUnit} onSelectCalc={handleSelectCalc} onDeleteCalc={handleDeleteCalc}
       onFreeCalc={handleFreeCalc} onProfileSave={handleProfileSave}
     />
