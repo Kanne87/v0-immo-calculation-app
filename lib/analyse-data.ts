@@ -1,0 +1,287 @@
+import type { ProjektAnalyse } from "./analyse-types"
+
+export const SPANDAUER_TOR_ANALYSE: ProjektAnalyse = {
+  projektId: "spandauer-tor-h1",
+  projektName: "Spandauer Tor \u2013 Haus 1",
+  erstelltAm: "2026-03-13",
+  aktualisiertAm: "2026-03-13",
+  gesamtScore: 5.1,
+  gesamtVerdict: "Erh\u00f6hte Aufmerksamkeit empfohlen",
+  bereiche: {
+    bautraeger: {
+      id: "bautraeger",
+      name: "Bautr\u00e4ger",
+      score: 3.8,
+      status: "kritisch",
+      internText: "MAXAR AG substanziell d\u00fcnn. 50k Grundkapital, \u00dcberschuldung 2023 (8,84 Mio EUR). Projekt-GmbH (Immo Projekt Berlin-Spandau I GmbH, HRB 276414 B) mit nur 25k Stammkapital, kein JA verf\u00fcgbar (Gr\u00fcndung Juni 2025). Track Record max. 3-4 Jahre. VSD Service GmbH als Vorg\u00e4nger war eine leere H\u00fclle (2019: Bilanzsumme 2k EUR). 2020: Umsatzsprung 313k aus EU-Auslandsleistungen (\u00a718b UStG) \u2013 Herkunft unklar. Substanz liegt in Projekt-GmbHs, nicht in der AG.",
+      verkaufText: "Die Absicherung erfolgt \u00fcber bew\u00e4hrte MaBV-Strukturen: Ratenzahlung nach Baufortschritt, B\u00fcrgschaft nach \u00a77 MaBV, und Auflassungsvormerkung. Zus\u00e4tzlich TÜV-Baucontrolling als unabh\u00e4ngige Qualit\u00e4tssicherung. Das Projektrisiko ist dadurch strukturell begrenzt. Die MAXAR AG hat das Referenzprojekt in Falkensee vollst\u00e4ndig verkauft und verf\u00fcgt \u00fcber einen befriedigenden Creditreform-Index (273).",
+      details: {
+        firmenname: "MAXAR AG",
+        rechtsform: "AG",
+        hrb: "HRB 246629 B (AG) / HRB 276414 B (Projekt-GmbH)",
+        sitz: "Lassenstr. 11-15, 14193 Berlin",
+        geschaeftsfuehrer: "Dr. Mario Wei\u00dfkopff",
+        gruendungsdatum: "2021 (Formwechsel aus VSD Service GmbH)",
+        stammkapital: 50000,
+        bilanzsumme: undefined,
+        eigenkapitalquote: undefined,
+        ueberschuldung: { jahr: 2023, betrag: 8840000 },
+        creditreformIndex: 273,
+        creditreformKlasse: "befriedigend",
+        jahreAktiv: 4,
+        referenzprojekte: [
+          { name: "Referenzprojekt Falkensee", ort: "Falkensee", status: "fertiggestellt", vollstaendigVerkauft: true },
+        ],
+        mabvBuergschaft: true,
+        tuevBaucontrolling: true,
+        baucontrollingAnbieter: "T\u00dcV",
+        vorgaenger: [
+          { name: "VSD Service GmbH", hrb: "HRB 175195 B", anmerkung: "Kleinstkapitalgesellschaft, Bilanzsumme 2019: 2k EUR. 2020: Umsatzsprung 313k (EU-Ausland \u00a718b). Formwechsel 25.10.2021 in MAXAR AG." },
+        ],
+      },
+      belege: [
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/MAXAR_AG_Analyse_Referenzobjekte.pdf",
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/Unternehmensregister/",
+      ],
+      offeneFragen: [
+        { id: "bt-1", bereich: "bautraeger", prioritaet: "kritisch", frage: "Wie wird die Eigenkapitalausstattung der Immo Projekt Berlin-Spandau I GmbH (25k Stammkapital) sichergestellt? Gibt es Patronatserkl\u00e4rungen oder Kapitalzusagen der MAXAR AG?", status: "offen" },
+        { id: "bt-2", bereich: "bautraeger", prioritaet: "kritisch", frage: "\u00dcberschuldung 2023 der MAXAR AG (8,84 Mio EUR): Wie wurde die \u00dcberschuldung aufgel\u00f6st? Aktueller Bilanzbericht 2024/2025?", status: "offen" },
+        { id: "bt-3", bereich: "bautraeger", prioritaet: "wichtig", frage: "Woher stammte der Umsatz 2020 der VSD Service GmbH (313k, \u00a718b UStG EU-Ausland)? Welche Leistung wurde erbracht?", status: "offen" },
+      ],
+    },
+    standort: {
+      id: "standort",
+      name: "Standort",
+      score: 7.8,
+      status: "solide",
+      internText: "Berlin-Spandau ist objektiv ein solider Standort. 0,8% Leerstand, BIP-Wachstum \u00fcber Bundesdurchschnitt, starke Arbeitgeber (Siemens, DB, Charit\u00e9). Siemensstadt 2.0 ist ein echter Zukunftstreiber. Schwachpunkt: Der Mikro-Standort direkt am Brunsbütteler Damm ist verkehrsbelastet, und der DB-Gleisausbau n\u00f6rdlich des Grundst\u00fccks wird das Zugaufkommen erh\u00f6hen. Spandau hat einen eigenst\u00e4ndigen Charakter und ist kein \u2018typisches Berlin\u2019 \u2013 das ist f\u00fcr manche Anleger ein Plus, f\u00fcr andere ein Minus.",
+      verkaufText: "Berlin z\u00e4hlt mit knapp 4 Mio. Einwohnern, 0,8% Leerstand und einem BIP von 207 Mrd. EUR zu den st\u00e4rksten Immobilienm\u00e4rkten Deutschlands. Der Bezirk Spandau verbindet naturnahes Wohnen (Havel, Seen) mit exzellenter Anbindung: 7 Minuten mit der S-Bahn zum Hauptbahnhof. Siemensstadt 2.0 als Innovationscampus und das BSH Technologiezentrum st\u00e4rken den Standort langfristig. 82% der deutschen Regionen verzeichneten 2025 Preisanstiege von durchschnittlich 2,3%.",
+      details: {
+        makro: {
+          stadt: "Berlin",
+          einwohner: 3902645,
+          bip: 207100000000,
+          bipWachstum: "+11% bis 2030 (Prognose)",
+          leerstandsquote: 0.008,
+          mietpreisNeubau: 26.00,
+          studierende: 200852,
+          spitzenrenditeWohnen: 3.7,
+          topArbeitgeber: [
+            { name: "Deutsche Bahn", mitarbeiter: 30062 },
+            { name: "Charit\u00e9", mitarbeiter: 23479 },
+            { name: "Tesla", mitarbeiter: 12500 },
+            { name: "Siemens" },
+            { name: "BER", mitarbeiter: 2159 },
+          ],
+        },
+        meso: {
+          bezirk: "Spandau",
+          einwohnerBezirk: 42000,
+          sbahnMinZentrum: 7,
+          autoMinZentrum: 20,
+          schluesselInfra: ["Siemensstadt 2.0 (Innovationscampus)", "BSH Technologiezentrum (900 MA)", "Spandau Arcaden", "Heizkraftwerk Reuter (Vattenfall)"],
+          charakter: "Eigenst\u00e4ndiger Charakter, naturnahes Umfeld (Havel), historische Altstadt mit Zitadelle. Zugang zum brandenburgischen Umland.",
+        },
+        mikro: {
+          adresse: "Brunsb\u00fctteler Damm 60-80, 13581 Berlin",
+          grundstuecksgroesse: 16646,
+          pois: [
+            { name: "Bahnhof Spandau", kategorie: "ÖPNV", distanzM: 500 },
+            { name: "Spandau Arcaden", kategorie: "Einkauf", distanzM: 400 },
+            { name: "ALDI", kategorie: "Nahversorgung", distanzM: 200 },
+            { name: "Kaufland", kategorie: "Nahversorgung", distanzM: 600 },
+            { name: "Lidl", kategorie: "Nahversorgung", distanzM: 700 },
+            { name: "McFIT", kategorie: "Freizeit", distanzM: 500 },
+            { name: "Rathaus Spandau", kategorie: "\u00d6ffentlich", distanzM: 400 },
+            { name: "Amtsgericht Spandau", kategorie: "\u00d6ffentlich", distanzM: 350 },
+          ],
+          oepnvHaltestellen: [
+            { name: "Bahnhof Spandau", linien: "S3, S9, RE2, RE6, RB10, RB14", gehminM: 6 },
+          ],
+          immissionen: [
+            { typ: "Schienenverkehr", beschreibung: "DB-Gleisausbau n\u00f6rdlich: zus\u00e4tzliches Gleis, erh\u00f6htes Zugaufkommen, 5m Wartungsweg am Grundst\u00fccksrand", schwere: "mittel" },
+            { typ: "Strassenverkehr", beschreibung: "Brunsb\u00fctteler Damm ist stark befahrene Hauptstra\u00dfe", schwere: "mittel" },
+          ],
+        },
+      },
+      belege: [
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/Bodenrichtwerkarte_Wohnen_09.07.25.png",
+      ],
+      offeneFragen: [
+        { id: "st-1", bereich: "standort", prioritaet: "wichtig", frage: "DB-Gleisausbau: Zeitplan, Schallschutzma\u00dfnahmen, Auswirkung auf Baugenehmigung und Bauphase?", status: "offen" },
+      ],
+    },
+    rechtliches: {
+      id: "rechtliches",
+      name: "Rechtliches",
+      score: 5.5,
+      status: "pruefen",
+      internText: "13 Eintragungen in Abt. II des Grundbuchs \u2013 das ist viel. Dienstbarkeiten zugunsten DB, Stromnetz Berlin, Nachbarvereinbarung mit UIR/Spandau Arcaden. DB InfraGo plant zus\u00e4tzliches Gleis: 5m Wartungsweg am n\u00f6rdlichen Grundst\u00fccksrand k\u00f6nnte die nutzbare Fl\u00e4che beeintr\u00e4chtigen. Baugenehmigung liegt vor. Teilungserkl\u00e4rung liegt vor, muss aber auf Sondereigentumsrechte und Stimmrechtsverteilung gepr\u00fcft werden.",
+      verkaufText: "Die Baugenehmigung liegt vor. Die Grundbuchbelastungen (Abt. II) sind f\u00fcr ein st\u00e4dtisches Grundst\u00fcck dieses Umfangs \u00fcblich und betreffen Versorgungsleitungen (Strom, Bahn). Die Auflassungsvormerkung sichert den K\u00e4ufer ab dem Zeitpunkt der notariellen Beurkundung.",
+      details: {
+        grundbuch: {
+          amtsgericht: "Spandau",
+          blatt: "45246",
+          flurstuecke: "Flur 1, Flurstück 1393 und 1391",
+          abteilungII: {
+            anzahl: 13,
+            zusammenfassung: "Dienstbarkeiten DB, Stromnetz Berlin, Nachbarvereinbarung UIR/Spandau Arcaden",
+            kritischeEintraege: [
+              "DB InfraGo: Zus\u00e4tzliches Gleis n\u00f6rdlich, 5m Wartungsweg",
+              "Nachbarvereinbarung UIR/Spandau Arcaden: Inhalt pr\u00fcfen",
+            ],
+          },
+        },
+        baugenehmigung: {
+          vorhanden: true,
+          aktenzeichen: "siehe Baugenehmigung_BRUN_Wohnquartier.pdf",
+        },
+        teilungserklaerung: {
+          geprueft: false,
+          auffaelligkeiten: ["Stimmrechtsverteilung pr\u00fcfen", "Sondereigentumsrechte TG-Stellpl\u00e4tze"],
+        },
+        kaufvertrag: {
+          geprueft: false,
+          auffaelligkeiten: ["MaBV-Konformit\u00e4t pr\u00fcfen", "R\u00fccktrittsklauseln", "Gew\u00e4hrleistungsausschlüsse"],
+          auflassungsvormerkung: true,
+        },
+        baulasten: {
+          vorhanden: true,
+          beschreibung: "Versorgungsleitungen DB und Stromnetz Berlin",
+        },
+      },
+      belege: [
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/GBA_Spandau_Spandau_45246_20260106.pdf",
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/Teilung_UVZ_1154-25G_OCR.pdf",
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/Baugenehmigung_BRUN_Wohnquartier.pdf",
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/WE-KV Spandau.pdf",
+      ],
+      offeneFragen: [
+        { id: "re-1", bereich: "rechtliches", prioritaet: "wichtig", frage: "Inhalt der Nachbarvereinbarung UIR/Spandau Arcaden: Welche Pflichten und Einschr\u00e4nkungen ergeben sich daraus?", status: "offen" },
+        { id: "re-2", bereich: "rechtliches", prioritaet: "wichtig", frage: "Teilungserkl\u00e4rung: Wie ist die Stimmrechtsverteilung geregelt? Gibt es Mehrstimmrechte f\u00fcr den Bautr\u00e4ger?", status: "offen" },
+      ],
+    },
+    wirtschaftlichkeit: {
+      id: "wirtschaftlichkeit",
+      name: "Wirtschaftlichkeit",
+      score: 6.9,
+      status: "solide",
+      internText: "KfW-F\u00f6rderung (297/298, bis 150k, ab 1,13%) ist ein starker Hebel. Kombiniert mit 3% linearer AfA (Neubau nach 2022) und optionaler 5% degressiver Sonder-AfA ergibt sich ein attraktives Steuerbild. Kaufpreis ab 236k f\u00fcr ~33m\u00b2 = ca. 7.152 EUR/m\u00b2 \u2013 das ist f\u00fcr Berlin-Neubau KfW40 QNG ambitioniert aber marktkonform. Mietgarantie 21 EUR/m\u00b2 bis 31.03.2029. Bruttomietrendite ca. 3,5%. Cash-Flow negativ im ersten Jahr bei hohem FK-Anteil, wird aber durch Steuereffekte kompensiert.",
+      verkaufText: "Durch die KfW-F\u00f6rderung (Programm 297/298) erhalten Kapitalanleger bis zu 150.000 EUR Darlehen zu einem Zinssatz ab ca. 1,13% p.a. \u2013 deutlich unter Marktniveau. Die 3% lineare AfA \u00fcber 33 Jahre und die optionale degressive Sonder-AfA (5% Wachstumschancengesetz) schaffen erhebliche Steuervorteile. Die Mietgarantie von 21 EUR/m\u00b2 bis 31.03.2029 sichert den Cash-Flow in der Anfangsphase.",
+      details: {
+        kaufpreisProQm: 7152,
+        bruttoMietrendite: 3.5,
+        kfwProgramm: "297 (Eigennutzer) / 298 (Kapitalanleger)",
+        kfwZins: 1.13,
+        kfwBetrag: 150000,
+        afaModell: "3% linear \u00fcber 33 Jahre (\u00a77 Abs.4 S.1 Nr.2a EStG, Neubau nach 31.12.2022)",
+        sonderAfaParagraph: "5% degressiv (Wachstumschancengesetz) + \u00a77b EStG (KfW EH40 QNG Plus)",
+        mietgarantieBis: "2029-03-31",
+        mietgarantieHoehe: 21.00,
+      },
+      belege: [
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/Produktinformationsblatt_MAXAR_Berlin-Spandau_TELIS.pdf",
+      ],
+      offeneFragen: [],
+    },
+    bauQualitaet: {
+      id: "bauQualitaet",
+      name: "Bau & Qualit\u00e4t",
+      score: 7.2,
+      status: "solide",
+      internText: "KfW EH40 QNG Plus ist ein hoher Standard. TÜV-Baucontrolling gibt zus\u00e4tzliche Sicherheit. Massivbau mit Betonfertigteilen. W\u00e4rmepumpe und PV-Anlage. Bauzeit 18 Monate pro Einzelhaus ist realistisch. Der Gesamtzeitplan f\u00fcr 10 H\u00e4user h\u00e4ngt von der Staffelung ab. Exposé sagt \u201eBezugsfertigkeit 2028\u201c \u2013 ambitioniert aber machbar bei Baubeginn Mai 2026.",
+      verkaufText: "Das Projekt erf\u00fcllt den KfW-Effizienzhaus-40-Standard mit QNG-Plus-Zertifizierung \u2013 das h\u00f6chste F\u00f6rderniveau. Massivbauweise, W\u00e4rmepumpe und Photovoltaik sorgen f\u00fcr niedrige Nebenkosten und langfristige Werthaltigkeit. Die Bauqualit\u00e4t wird durch unabh\u00e4ngiges T\u00dcV-Baucontrolling \u00fcberwacht.",
+      details: {
+        energiestandard: "KfW EH40 QNG Plus",
+        bauweise: "Massiv / Betonfertigteile + Ortbeton",
+        schallschutz: "DIN 4109",
+        ausstattung: "gehoben",
+        tiefgarage: true,
+        aufzug: true,
+        barrierefreiheit: true,
+        pvAnlage: true,
+        waermepumpe: true,
+        fussbodenheizung: true,
+        bauzeitMonate: 18,
+        baubeginn: "Mai 2026",
+        fertigstellung: "November 2027 (Einzelhaus)",
+      },
+      belege: [
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/Energieausweis (Vorschau) Haus A.pdf",
+      ],
+      offeneFragen: [],
+    },
+    risikofaktoren: {
+      id: "risikofaktoren",
+      name: "Risikofaktoren",
+      score: 4.5,
+      status: "pruefen",
+      internText: "Drei wesentliche Risikocluster: (1) Bautr\u00e4ger-Bonit\u00e4t \u2013 MAXAR AG \u00fcberschuldet, Projekt-GmbH d\u00fcnn kapitalisiert. (2) Immissionen \u2013 DB-Gleisausbau erh\u00f6ht Zugaufkommen und Bau-Immissionen w\u00e4hrend der Errichtung. (3) Markt \u2013 Kaufpreis >7k EUR/m\u00b2 bei negativem Cash-Flow im Jahr 1 erfordert langfristigen Anlagehorizont. Mitigation: MaBV-Struktur, B\u00fcrgschaft, TÜV-Controlling, KfW-Zins als Renditepuffer.",
+      verkaufText: "Wie bei jedem Neubauprojekt gibt es Risiken, die durch strukturelle Absicherungen begrenzt werden: MaBV-Zahlungsplan (Zahlung nur nach Baufortschritt), \u00a77-B\u00fcrgschaft, Auflassungsvormerkung und unabh\u00e4ngiges TÜV-Baucontrolling. Die KfW-F\u00f6rderung mit Zinss\u00e4tzen ab 1,13% schafft einen erheblichen Renditepuffer gegen\u00fcber Marktfinanzierungen.",
+      details: {
+        risiken: [
+          { id: "r-1", typ: "bautraeger", titel: "Bautr\u00e4ger-Bonit\u00e4t", beschreibung: "MAXAR AG \u00fcberschuldet (2023: 8,84 Mio), Projekt-GmbH 25k Stammkapital", schwere: "kritisch", mitigation: "MaBV-B\u00fcrgschaft, Auflassungsvormerkung, T\u00dcV-Controlling", status: "offen" },
+          { id: "r-2", typ: "standort", titel: "DB-Gleisausbau", beschreibung: "Zus\u00e4tzliches Gleis n\u00f6rdlich, erh\u00f6htes Zugaufkommen, 5m Wartungsweg", schwere: "mittel", mitigation: "Schallschutz DIN 4109, n\u00f6rdliche Wohnungen meiden", status: "offen" },
+          { id: "r-3", typ: "markt", titel: "Kaufpreis-Niveau", beschreibung: "Ca. 7.152 EUR/m\u00b2 bei negativem Cash-Flow Jahr 1", schwere: "mittel", mitigation: "KfW-Zins 1,13% als Puffer, Steuereffekte, Mietgarantie", status: "akzeptiert" },
+          { id: "r-4", typ: "bau", titel: "Bau-Immissionen", beschreibung: "10 MFH Baustelle, paralleler Gleisausbau \u2013 Belastung f\u00fcr Fr\u00fchk\u00e4ufer", schwere: "gering", mitigation: "Bauabschnitte zeitversetzt, fr\u00fche H\u00e4user zuerst fertig", status: "akzeptiert" },
+        ],
+        gesamtbewertung: "Hauptrisiko ist die Bautr\u00e4ger-Bonit\u00e4t. Strukturelle Absicherungen (MaBV, B\u00fcrgschaft, T\u00dcV) begrenzen das Ausfallrisiko, eliminieren es aber nicht.",
+      },
+      belege: [
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/Projektanalyse_Spandauer_Tor.pdf",
+      ],
+      offeneFragen: [
+        { id: "rf-1", bereich: "risikofaktoren", prioritaet: "kritisch", frage: "Welche Sicherheiten stellt die MAXAR AG \u00fcber die MaBV-B\u00fcrgschaft hinaus? Patronatserkl\u00e4rung, Konzern-Garantie?", status: "offen" },
+      ],
+    },
+    vertragliches: {
+      id: "vertragliches",
+      name: "Vertragliches",
+      score: 7.0,
+      status: "solide",
+      internText: "MaBV-Zahlungsplan mit 10 Raten \u00fcber 18 Monate ist marktkonform. B\u00fcrgschaft nach \u00a77 MaBV vorhanden. 5% Einbehalt bis Fertigstellung. Mietgarantie bis 31.03.2029 zu 21 EUR/m\u00b2 mit Bedingung: bei Nichtbelegung zahlt Verk\u00e4ufer Nettomiete f\u00fcr 1 Jahr. Kaufvertrag muss noch gepr\u00fcft werden \u2013 insbesondere Gew\u00e4hrleistungsausschl\u00fcsse und R\u00fccktrittsklauseln.",
+      verkaufText: "Der MaBV-konforme Zahlungsplan stellt sicher, dass Sie nur nach tats\u00e4chlichem Baufortschritt zahlen. Eine B\u00fcrgschaft nach \u00a77 MaBV sichert Ihre Zahlungen ab. Die Mietgarantie von 21 EUR/m\u00b2 bis 31.03.2029 gibt Planungssicherheit vom ersten Tag an.",
+      details: {
+        mabvZahlungsplan: [
+          { nr: 1, abschnitt: "Beginn Erdarbeiten", prozent: 30, datum: "01.05.2026" },
+          { nr: 2, abschnitt: "Rohbau inkl. Zimmererarbeiten", prozent: 28, datum: "01.10.2026" },
+          { nr: 3, abschnitt: "Dachfl\u00e4chen und Dachrinnen", prozent: 6, datum: "01.11.2026" },
+          { nr: 4, abschnitt: "Fenstereinbau inkl. Verglasung", prozent: 6, datum: "01.12.2026" },
+          { nr: 5, abschnitt: "Rohinstallation Heizung/Sanit\u00e4r/Elektro", prozent: 6, datum: "01.01.2027" },
+          { nr: 6, abschnitt: "Innenputz", prozent: 6, datum: "01.03.2027" },
+          { nr: 7, abschnitt: "Estrich", prozent: 6, datum: "01.04.2027" },
+          { nr: 8, abschnitt: "Fliesen", prozent: 4, datum: "01.06.2027" },
+          { nr: 9, abschnitt: "Bezugsfertigkeit", prozent: 4, datum: "01.09.2027" },
+          { nr: 10, abschnitt: "Fassade / vollst. Fertigstellung", prozent: 4, datum: "01.11.2027" },
+        ],
+        buergschaften: [
+          { typ: "MaBV \u00a77 B\u00fcrgschaft", vorhanden: true, details: "Im Kaufvertrag vereinbart" },
+        ],
+        gewaehrleistung: {
+          dauerJahre: 5,
+          details: "Gesetzliche Gew\u00e4hrleistung nach BGB, Details im KV pr\u00fcfen",
+        },
+        mietgarantie: {
+          vorhanden: true,
+          bis: "2029-03-31",
+          hoehe: 21.00,
+          bedingungen: "Bei Nichtbelegung zahlt Verk\u00e4ufer Nettomiete f\u00fcr 1 Jahr",
+        },
+        einbehalt: {
+          prozent: 5,
+          dauer: "Bis vollst\u00e4ndige Fertigstellung",
+        },
+      },
+      belege: [
+        "TELIS/Immobilien/Produktpartner/bb-unternehmen/Spandau/WE-KV Spandau.pdf",
+      ],
+      offeneFragen: [
+        { id: "vt-1", bereich: "vertragliches", prioritaet: "wichtig", frage: "Kaufvertrag: Welche Gew\u00e4hrleistungsausschl\u00fcsse sind enthalten? Gibt es Einschr\u00e4nkungen der R\u00fccktrittsrechte?", status: "offen" },
+      ],
+    },
+  },
+}
+
+export const ALLE_ANALYSEN: Record<string, ProjektAnalyse> = {
+  "spandauer-tor-h1": SPANDAUER_TOR_ANALYSE,
+}

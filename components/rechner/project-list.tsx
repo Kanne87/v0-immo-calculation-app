@@ -15,13 +15,14 @@ import {
   Leaf,
   Plus,
   Presentation,
+  ShieldCheck,
 } from "lucide-react"
 import type { SavedCalculation } from "@/lib/rechner-types"
 import type { WohneinheitData } from "@/lib/units-data"
 import type { ProjektDefinition } from "@/lib/projects-data"
 import type { AdvisorProfile } from "@/lib/advisor"
 import { eur } from "@/lib/rechner-calc"
-import { getBeratungSlugForProjekt } from "@/lib/project-registry"
+import { getBeratungSlugForProjekt, getAnalyseSlugForProjekt } from "@/lib/project-registry"
 import { ProfileMenu } from "./profile-menu"
 import { ThemeToggle } from "./theme-toggle"
 
@@ -32,6 +33,7 @@ interface Props {
   projekte: ProjektDefinition[]
   savedCalcs: SavedCalculation[]
   advisorProfile?: AdvisorProfile | null
+  isAdmin?: boolean
   onSelectUnit: (unit: WohneinheitData, projektId: string) => void
   onSelectCalc: (calc: SavedCalculation) => void
   onDeleteCalc: (id: string) => void
@@ -42,9 +44,11 @@ interface Props {
 function ProjektSektion({
   projekt,
   onSelectUnit,
+  isAdmin,
 }: {
   projekt: ProjektDefinition
   onSelectUnit: (unit: WohneinheitData) => void
+  isAdmin?: boolean
 }) {
   const [etageFilter, setEtageFilter] = useState("alle")
   const [zimmerFilter, setZimmerFilter] = useState("alle")
@@ -86,8 +90,9 @@ function ProjektSektion({
     return sortDir === "asc" ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />
   }
 
-  const displayName = projekt.haus ? `${projekt.name} – ${projekt.haus}` : projekt.name
+  const displayName = projekt.haus ? `${projekt.name} \u2013 ${projekt.haus}` : projekt.name
   const beratungSlug = getBeratungSlugForProjekt(projekt.id)
+  const analyseSlug = getAnalyseSlugForProjekt(projekt.id)
 
   return (
     <section className="mb-6">
@@ -124,6 +129,16 @@ function ProjektSektion({
             >
               <Presentation className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Beratung</span>
+            </Link>
+          )}
+          {isAdmin && analyseSlug && (
+            <Link
+              href={`/admin/analyse/${analyseSlug}`}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] font-mono bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40 transition-all min-h-[36px]"
+              title="Backoffice Objektanalyse"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Analyse</span>
             </Link>
           )}
           <span className="text-[10px] font-mono text-subtle bg-secondary px-1.5 py-1 rounded whitespace-nowrap">
@@ -205,7 +220,7 @@ function ProjektSektion({
                   <span>{we.etage}</span>
                   <span>{we.zimmer}</span>
                   <span>{we.wfl}</span>
-                  <span>{`${(we.gesamtKaufpreis / 1000).toFixed(0)}T€`}</span>
+                  <span>{`${(we.gesamtKaufpreis / 1000).toFixed(0)}T\u20ac`}</span>
                   <span className="hidden md:block text-subtle">
                     {we.qmPreis.toLocaleString("de-DE")}
                   </span>
@@ -229,6 +244,7 @@ export function ProjectList({
   projekte,
   savedCalcs,
   advisorProfile,
+  isAdmin,
   onSelectUnit,
   onSelectCalc,
   onDeleteCalc,
@@ -263,7 +279,7 @@ export function ProjectList({
       <main className="p-4 sm:p-5">
         <div className="mb-4">
           <h2 className="text-[11px] text-subtle font-mono uppercase tracking-[2px]">
-            Verfügbare Projekte
+            Verf\u00fcgbare Projekte
           </h2>
         </div>
 
@@ -272,6 +288,7 @@ export function ProjectList({
             key={projekt.id}
             projekt={projekt}
             onSelectUnit={(unit) => onSelectUnit(unit, projekt.id)}
+            isAdmin={isAdmin}
           />
         ))}
 
@@ -316,7 +333,7 @@ export function ProjectList({
                   Noch keine Berechnungen gespeichert.
                 </p>
                 <p className="text-[10px] text-subtle font-mono mt-1">
-                  Wähle eine Wohneinheit oder starte eine freie Berechnung.
+                  W\u00e4hle eine Wohneinheit oder starte eine freie Berechnung.
                 </p>
               </div>
             ) : (
@@ -337,14 +354,14 @@ export function ProjectList({
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] font-mono text-dimmed">
                         <span>{`KP ${eur(calc.projectData.kaufpreis + calc.projectData.stellplatz, 0)}`}</span>
-                        <span>{`${calc.projectData.wfl} m²`}</span>
+                        <span>{`${calc.projectData.wfl} m\u00b2`}</span>
                         <span>{`EK ${eur(calc.projectData.eigenkapital, 0)}`}</span>
                       </div>
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); setPendingDeleteId(calc.id) }}
                       className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-subtle hover:text-destructive transition-all"
-                      aria-label="Berechnung löschen"
+                      aria-label="Berechnung l\u00f6schen"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -361,14 +378,14 @@ export function ProjectList({
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setPendingDeleteId(null)} />
           <div className="relative w-full max-w-sm bg-card border border-border rounded-lg shadow-xl">
             <div className="px-4 py-4">
-              <h3 className="text-sm font-serif font-semibold text-foreground mb-2">Berechnung löschen?</h3>
+              <h3 className="text-sm font-serif font-semibold text-foreground mb-2">Berechnung l\u00f6schen?</h3>
               <p className="text-xs text-dimmed font-mono">
-                {`„${savedCalcs.find((c) => c.id === pendingDeleteId)?.description}" wird unwiderruflich gelöscht.`}
+                {`\u201e${savedCalcs.find((c) => c.id === pendingDeleteId)?.description}\u201c wird unwiderruflich gel\u00f6scht.`}
               </p>
             </div>
             <div className="flex gap-2 px-4 py-3 border-t border-border">
               <button onClick={() => setPendingDeleteId(null)} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-secondary text-dimmed border border-border hover:text-foreground transition-all min-h-[44px]">Abbrechen</button>
-              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all min-h-[44px]">Löschen</button>
+              <button onClick={() => { onDeleteCalc(pendingDeleteId); setPendingDeleteId(null) }} className="flex-1 py-2 px-3 rounded-md text-xs font-mono bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-all min-h-[44px]">L\u00f6schen</button>
             </div>
           </div>
         </div>
