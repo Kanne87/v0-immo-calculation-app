@@ -55,7 +55,7 @@ export function StepObjekt({ data, calc, onChange, readOnly, isTemplate }: Props
       <div className="grid grid-cols-2 gap-x-3 gap-y-0">
         <FieldInput label="Nettokaltmiete" value={data.mieteQm} onChange={(v) => onChange("mieteQm", v)} suffix="\u20ac/m\u00b2" step={0.5} disabled={readOnly} />
         <FieldInput label="Stellplatzmiete" value={data.mieteStellplatz} onChange={(v) => onChange("mieteStellplatz", v)} suffix="\u20ac/Mon." step={5} disabled={readOnly} />
-        <FieldInput label="Preissteigerung p.a." value={data.inflation} onChange={(v) => onChange("inflation", v)} suffix="%" step={0.1} disabled={readOnly} />
+        <FieldInput label="Preissteigerung p.a." value={data.inflation} onChange={(v) => onChange("inflation", v)} suffix="%" step={0.1} disabled={readOnly && !isTemplate} />
         <div>
           <div className="text-[11px] text-subtle mb-1 font-mono">Jahresmieteinnahmen</div>
           <div className="text-lg text-primary font-serif py-1.5">{eur(calc.mieteJahr)}</div>
