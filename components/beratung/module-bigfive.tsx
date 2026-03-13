@@ -7,6 +7,14 @@ import { MapPin, Hammer, LayoutGrid, Users, Tag } from "lucide-react";
 const ICONS = [MapPin, Hammer, LayoutGrid, Users, Tag];
 const COLORS = ["#3b82f6", "#14b8a6", "#22c55e", "#a78bfa", "#f59e0b"];
 
+const HIGHLIGHTS: Record<string, string[]> = {
+  lage: ["Bundeshauptstadt", "0,8% Leerstand", "RE zum Hbf 15 Min.", "Siemensstadt 2.0"],
+  zustand: ["KfW EH40 QNG Plus", "Neubau 2028", "T\u00dcV-Baucontrolling", "Massivbau"],
+  grundriss: ["1\u20134 Zimmer", "Barrierefrei", "Loggia/Terrasse", "Abstellraum"],
+  verwaltung: ["Full-Service", "Mietgarantie bis 2029", "Kein Aufwand"],
+  einkaufspreis: ["Ab 7.200 \u20ac/m\u00b2", "12% unter Markt", "KfW 150k zu 2,83%", "3% AfA"],
+};
+
 function ScoreRing({
   score,
   color,
@@ -90,12 +98,13 @@ export function ModuleBigFive({ project }: { project: BeratungProjectData }) {
         <p
           className={`mx-auto mb-10 max-w-md text-center text-base text-muted-foreground transition-all delay-200 duration-700 ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
         >
-          F\u00fcnf Kriterien, die \u00fcber Erfolg und Misserfolg entscheiden.
+          {"F\u00fcnf Kriterien, die \u00fcber Erfolg und Misserfolg entscheiden."}
         </p>
 
         <div className="grid grid-cols-5 gap-3 mb-10">
           {categories.map((cat, i) => {
             const Icon = ICONS[i];
+            const highlights = HIGHLIGHTS[cat.key] || [];
             return (
               <div
                 key={cat.key}
@@ -112,6 +121,13 @@ export function ModuleBigFive({ project }: { project: BeratungProjectData }) {
                 <p className="text-xs font-semibold uppercase tracking-wider text-foreground text-center">
                   {cat.label}
                 </p>
+                <div className="flex flex-col items-center gap-1 mt-1">
+                  {highlights.map((h) => (
+                    <span key={h} className="text-[10px] text-muted-foreground text-center leading-tight">
+                      {h}
+                    </span>
+                  ))}
+                </div>
               </div>
             );
           })}
@@ -132,7 +148,7 @@ export function ModuleBigFive({ project }: { project: BeratungProjectData }) {
           className={`mx-auto max-w-2xl rounded-xl border border-border/30 bg-secondary/30 px-6 py-5 transition-all delay-1000 duration-700 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
         >
           <p className="text-center text-sm italic leading-relaxed text-muted-foreground">
-            {"\u201eStellen Sie sich vor, Sie erben eine 100 m\u00B2-Wohnung in Berlin. W\u00fcrden Sie sie verkaufen? Nein. Genau das bauen wir jetzt f\u00fcr Sie auf \u2013 nur smarter.\u201c"}
+            {"\u201eStellen Sie sich vor, Sie erben eine 100\u00a0m\u00b2-Wohnung in Berlin. W\u00fcrden Sie sie verkaufen? Nein. Genau das bauen wir jetzt f\u00fcr Sie auf\u00a0\u2013 nur smarter.\u201c"}
           </p>
         </div>
       </div>
