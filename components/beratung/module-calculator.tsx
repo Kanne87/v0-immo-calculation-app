@@ -110,7 +110,7 @@ export function ModuleCalculator({ project, initialWeId }: { project: BeratungPr
             mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          Beispielrechnung fuer {project.name}{weData ? ` — ${weData.id} (${weData.etage}, ${weData.zimmer} Zi., ${weData.wfl} m²)` : ""} - aendern Sie die Werte live
+          Beispielrechnung für {project.name}{weData ? ` — ${weData.id} (${weData.etage}, ${weData.zimmer} Zi., ${weData.wfl} m²)` : ""} - ändern Sie die Werte live
         </p>
 
         <div
@@ -146,12 +146,12 @@ export function ModuleCalculator({ project, initialWeId }: { project: BeratungPr
               <div className="my-6 h-px bg-border/50" />
               <ResultCard label="Eigenkapitalrendite (IRR p.a.)" value={`${results.rendite.toFixed(1)} %`} color="text-blue-400" />
               <ResultCard label="Restschuld nach 10 Jahren" value={formatEuro(results.restschuldEnde)} color="text-amber-400" />
-              <ResultCard label="Vermoegen nach 10 Jahren" value={formatEuro(results.vermoegenEnde)} color="text-emerald-400" />
+              <ResultCard label="Vermögen nach 10 Jahren" value={formatEuro(results.vermoegenEnde)} color="text-emerald-400" />
             </div>
             <div className="mt-8 flex items-start gap-3 rounded-xl bg-emerald-400/5 border border-emerald-400/20 p-4">
               <PiggyBank className="mt-0.5 size-5 shrink-0 text-emerald-400" />
               <p className="text-sm leading-relaxed text-foreground/80">
-                Mit nur <span className="font-bold text-emerald-400">{formatEuro(Math.abs(aufwandMonat))}</span> monatlich bauen Sie ein Vermoegen von <span className="font-bold text-emerald-400">{formatEuro(results.vermoegenEnde)}</span> auf. Der Mieter zahlt den Rest.
+                Mit nur <span className="font-bold text-emerald-400">{formatEuro(Math.abs(aufwandMonat))}</span> monatlich bauen Sie ein Vermögen von <span className="font-bold text-emerald-400">{formatEuro(results.vermoegenEnde)}</span> auf. Der Mieter zahlt den Rest.
               </p>
             </div>
           </div>

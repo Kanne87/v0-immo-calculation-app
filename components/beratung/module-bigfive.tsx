@@ -7,92 +7,81 @@ import { MapPin, Hammer, LayoutGrid, Users, Tag } from "lucide-react";
 const ICONS = [MapPin, Hammer, LayoutGrid, Users, Tag];
 const COLORS = ["#3b82f6", "#14b8a6", "#22c55e", "#a78bfa", "#f59e0b"];
 
-const HIGHLIGHTS: Record<string, string[]> = {
-  lage: ["Bundeshauptstadt", "0,8% Leerstand", "RE zum Hbf 15 Min.", "Siemensstadt 2.0"],
-  zustand: ["KfW EH40 QNG Plus", "Neubau 2028", "TÜV-Baucontrolling", "Massivbau"],
-  grundriss: ["1–4 Zimmer", "Barrierefrei", "Loggia/Terrasse", "Abstellraum"],
-  verwaltung: ["Full-Service", "Mietgarantie bis 2029", "Kein Aufwand"],
-  einkaufspreis: ["Ab 7.200 €/m²", "12% unter Markt", "KfW 150k zu 2,83%", "3% AfA"],
-};
-
-function ScoreRing({
-  score,
-  color,
-  size = 72,
-  delay = 0,
-}: {
-  score: number;
-  color: string;
-  size?: number;
-  delay?: number;
-}) {
-  const [animated, setAnimated] = useState(false);
-  const radius = (size - 8) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const progress = (score / 10) * circumference;
-
-  useEffect(() => {
-    const timer = setTimeout(() => setAnimated(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="currentColor" strokeWidth={3.5} className="text-secondary" />
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color} strokeWidth={3.5} strokeLinecap="round"
-          strokeDasharray={circumference} strokeDashoffset={animated ? circumference - progress : circumference}
-          style={{ transition: "stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)" }} />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-base font-bold text-foreground">{score.toFixed(1)}</span>
-      </div>
-    </div>
-  );
-}
+const HIGHLIGHTS: { key: string; label: string; points: string[] }[] = [
+  {
+    key: "lage",
+    label: "Lage",
+    points: ["Bundeshauptstadt Berlin", "0,8 % Leerstand", "RE zum Hbf in 15 Min.", "Siemensstadt 2.0"],
+  },
+  {
+    key: "zustand",
+    label: "Zustand",
+    points: ["Neubau 2028", "KfW EH40 QNG Plus", "TÜV-Baucontrolling", "Massivbauweise"],
+  },
+  {
+    key: "grundriss",
+    label: "Grundriss",
+    points: ["1–4 Zimmer", "Barrierefrei", "Loggia oder Terrasse", "Abstellraum je WE"],
+  },
+  {
+    key: "verwaltung",
+    label: "Verwaltung",
+    points: ["Full-Service-Verwaltung", "Mietgarantie bis 2029", "Sie kümmern sich um nichts"],
+  },
+  {
+    key: "einkaufspreis",
+    label: "Einkaufspreis",
+    points: ["Ab 7.200 €/m²", "12 % unter Berliner Markt", "KfW-Darlehen 150k zu 2,83 %", "3 % AfA über 33 Jahre"],
+  },
+];
 
 export function ModuleBigFive({ project }: { project: BeratungProjectData }) {
-  const { bigFive } = project;
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => { setMounted(true); }, []);
-
-  const categories = [
-    { key: "lage", label: "Lage", data: bigFive.lage },
-    { key: "zustand", label: "Zustand", data: bigFive.zustand },
-    { key: "grundriss", label: "Grundriss", data: bigFive.grundriss },
-    { key: "verwaltung", label: "Verwaltung", data: bigFive.verwaltung },
-    { key: "einkaufspreis", label: "Einkaufspreis", data: bigFive.einkaufspreis },
-  ];
-
-  const totalScore = categories.reduce((sum, c) => sum + c.data.score, 0) / categories.length;
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center px-6 py-12">
-      <div className="mx-auto w-full max-w-4xl">
-        <h1 className={`mb-2 text-center text-4xl font-bold tracking-tight text-foreground transition-all duration-700 md:text-5xl ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}>
+      <div className="mx-auto w-full max-w-5xl">
+        <h1
+          className={`mb-2 text-center text-4xl font-bold tracking-tight text-foreground transition-all duration-700 md:text-5xl ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+        >
           Die Erfolgsformel
         </h1>
-        <p className={`mx-auto mb-10 max-w-md text-center text-base text-muted-foreground transition-all delay-200 duration-700 ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}>
+        <p
+          className={`mx-auto mb-12 max-w-lg text-center text-base text-muted-foreground transition-all delay-200 duration-700 ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+        >
           Fünf Kriterien, die über Erfolg und Misserfolg entscheiden.
         </p>
 
-        <div className="grid grid-cols-5 gap-3 mb-10">
-          {categories.map((cat, i) => {
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-14">
+          {HIGHLIGHTS.map((cat, i) => {
             const Icon = ICONS[i];
-            const highlights = HIGHLIGHTS[cat.key] || [];
             return (
-              <div key={cat.key}
-                className={`flex flex-col items-center gap-3 rounded-2xl border border-border/40 bg-card p-5 transition-all duration-500 ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
-                style={{ transitionDelay: `${300 + i * 100}ms` }}>
-                <div className="flex size-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${COLORS[i]}12` }}>
-                  <Icon className="size-4" style={{ color: COLORS[i] }} />
+              <div
+                key={cat.key}
+                className={`flex flex-col items-center text-center rounded-2xl border border-border/40 bg-card px-4 py-6 transition-all duration-500 ${mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
+                style={{ transitionDelay: `${300 + i * 100}ms` }}
+              >
+                <div
+                  className="flex size-10 items-center justify-center rounded-xl mb-4"
+                  style={{ backgroundColor: `${COLORS[i]}15` }}
+                >
+                  <Icon className="size-5" style={{ color: COLORS[i] }} />
                 </div>
-                <ScoreRing score={cat.data.score} color={COLORS[i]} delay={500 + i * 100} />
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground text-center">{cat.label}</p>
-                <div className="flex flex-col items-center gap-1 mt-1">
-                  {highlights.map((h) => (
-                    <span key={h} className="text-[10px] text-muted-foreground text-center leading-tight">{h}</span>
+                <p
+                  className="text-sm font-bold uppercase tracking-wider mb-4"
+                  style={{ color: COLORS[i] }}
+                >
+                  {cat.label}
+                </p>
+                <div className="flex flex-col gap-2">
+                  {cat.points.map((point) => (
+                    <span
+                      key={point}
+                      className="text-sm font-semibold text-foreground leading-snug"
+                    >
+                      {point}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -100,18 +89,13 @@ export function ModuleBigFive({ project }: { project: BeratungProjectData }) {
           })}
         </div>
 
-        <div className={`flex items-center justify-center gap-4 mb-10 transition-all delay-700 duration-700 ${mounted ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}>
-          <div className="h-px flex-1 bg-border/50" />
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Gesamt</span>
-            <ScoreRing score={totalScore} color="var(--primary)" size={56} delay={900} />
-          </div>
-          <div className="h-px flex-1 bg-border/50" />
-        </div>
-
-        <div className={`mx-auto max-w-2xl rounded-xl border border-border/30 bg-secondary/30 px-6 py-5 transition-all delay-1000 duration-700 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}>
+        <div
+          className={`mx-auto max-w-2xl rounded-xl border border-border/30 bg-secondary/30 px-6 py-5 transition-all delay-1000 duration-700 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
+        >
           <p className="text-center text-sm italic leading-relaxed text-muted-foreground">
-            „Stellen Sie sich vor, Sie erben eine 100&nbsp;m²-Wohnung in Berlin. Würden Sie sie verkaufen? Nein. Genau das bauen wir jetzt für Sie auf&nbsp;– nur smarter."
+            „Stellen Sie sich vor, Sie erben eine 100&nbsp;m²-Wohnung in Berlin.
+            Würden Sie sie verkaufen? Nein. Genau das bauen wir jetzt
+            für Sie auf&nbsp;– nur smarter."
           </p>
         </div>
       </div>

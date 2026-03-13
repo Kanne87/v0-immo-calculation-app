@@ -91,7 +91,7 @@ export function SidebarNav({ slug, currentStep, visitedSteps }: SidebarNavProps)
             "flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm text-muted-foreground transition-all hover:bg-secondary/50 hover:text-foreground",
             collapsed && "justify-center"
           )}
-          title="Zurueck zum Rechner"
+          title="Zurück zum Rechner"
         >
           <Calculator className="size-4 shrink-0" />
           {!collapsed && <span className="truncate text-xs font-medium">Rechner</span>}

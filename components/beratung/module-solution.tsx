@@ -16,7 +16,7 @@ const SOLUTION_DATA = {
   headline: "Strategie statt Glueck",
   steps: [
     {
-      title: "Inflationsgeschuetztes Vermoegen",
+      title: "Inflationsgeschütztes Vermögen",
       description: "Immobilien sind Sachwerte \u2013 ihr Wert steigt mit der Inflation, nicht dagegen.",
     },
     {
@@ -25,7 +25,7 @@ const SOLUTION_DATA = {
     },
     {
       title: "Fremdkapitalhebel",
-      description: "Mit 20 % Eigenkapital 100 % Vermoegen aufbauen. Der Mieter zahlt den Kredit.",
+      description: "Mit 20 % Eigenkapital 100 % Vermögen aufbauen. Der Mieter zahlt den Kredit.",
     },
     {
       title: "Steuervorteile",

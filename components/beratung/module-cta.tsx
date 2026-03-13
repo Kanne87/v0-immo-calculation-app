@@ -25,7 +25,7 @@ const CTA_DATA = {
     },
     {
       label: "Wohnung reservieren",
-      description: "Ihre Wunschwohnung wird fuer 14 Tage unverbindlich reserviert.",
+      description: "Ihre Wunschwohnung wird für 14 Tage unverbindlich reserviert.",
     },
     {
       label: "Notartermin",
